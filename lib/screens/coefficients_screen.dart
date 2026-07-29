@@ -1,78 +1,103 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/app_provider.dart';
+import '../widgets/custom_widgets.dart'; // ← AJOUTÉ pour kRoyalBlue
 
 class CoefficientsScreen extends StatelessWidget {
-  final String title;
-  const CoefficientsScreen({super.key, this.title = "Coefficients"});
+  const CoefficientsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          title,
-          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.black87),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: Column(
-        children: [
-          const SizedBox(height: 16),
-          const Center(
-            child: Text(
-              "9ème Année - Classique",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1C3F7A)),
+    return Consumer<AppProvider>(
+      builder: (context, provider, _) {
+        final user = provider.user;
+        final term = provider.currentTerm;
+
+        if (term == null) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final displayClass = user?.displayClass ?? '';
+        final displayStream = user?.displayStream ?? '';
+        final title = displayStream.isNotEmpty
+            ? '$displayClass — $displayStream'
+            : displayClass;
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFF5F7FB),
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            centerTitle: true,
+            title: const Text(
+              'Coefficients',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.black87),
+            ),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
+              onPressed: () => Navigator.pop(context),
             ),
           ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              children: [
-                _buildCoeffCard("Arabe", "عربية", Icons.menu_book_rounded, 4),
-                _buildCoeffCard("Français", "", Icons.translate_rounded, 4),
-                _buildCoeffCard("Anglais", "", Icons.language_rounded, 1.5),
-                _buildCoeffCard("Histoire", "", Icons.history_rounded, 1),
-                _buildCoeffCard("Géographie", "", Icons.public_rounded, 1),
-                _buildCoeffCard("Mathématiques", "", Icons.calculate_rounded, 3),
-                _buildCoeffCard("Physique", "", Icons.science_rounded, 1),
-                _buildCoeffCard("SVT", "", Icons.eco_rounded, 1),
-                _buildCoeffCard("Technologie", "", Icons.settings_rounded, 1),
-                _buildCoeffCard("Islamique", "", Icons.mosque_rounded, 1),
-                
-                const SizedBox(height: 20),
-                
-                // Carte d'information en bas
-                Container(
-                  padding: const EdgeInsets.all(20),
+          body: Column(
+            children: [
+              const SizedBox(height: 16),
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEEF2F7),
+                    color: kRoyalBlue.withOpacity(.08),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.info_outline_rounded, color: Color(0xFF1C3F7A), size: 28),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Text(
-                          "La structure est la même pour tous.\nSeuls les coefficients changent selon\nle niveau et le type d'établissement.",
-                          style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
-                        ),
-                      ),
-                    ],
+                  child: Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: kRoyalBlue,
+                    ),
                   ),
                 ),
-                const SizedBox(height: 30),
-              ],
-            ),
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                  children: [
+                    ...term.subjects.map((s) => _buildCoeffCard(
+                      s.nameFr,
+                      s.nameAr,
+                      _iconFromName(s.iconName),
+                      s.coefficient,
+                    )),
+                    const SizedBox(height: 20),
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEEF2F7),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.info_outline_rounded, color: kRoyalBlue, size: 28),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              'La structure est la même pour tous.\nSeuls les coefficients changent selon\nle niveau et le type d\'établissement.',
+                              style: TextStyle(fontSize: 14, color: Colors.black87, height: 1.5),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 
@@ -94,13 +119,12 @@ class CoefficientsScreen extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 48, height: 48,
             decoration: BoxDecoration(
-              color: const Color(0xFF1C3F7A).withOpacity(0.08),
+              color: kRoyalBlue.withOpacity(0.08),
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(icon, color: const Color(0xFF1C3F7A), size: 24),
+            child: Icon(icon, color: kRoyalBlue, size: 24),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -122,21 +146,49 @@ class CoefficientsScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFF1C3F7A).withOpacity(0.08),
+              color: kRoyalBlue.withOpacity(0.08),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFF1C3F7A).withOpacity(0.3)),
+              border: Border.all(color: kRoyalBlue.withOpacity(0.3)),
             ),
             child: Text(
               coeff.toString(),
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF1C3F7A),
+                color: kRoyalBlue,
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  IconData _iconFromName(String name) {
+    return switch (name) {
+      'menu_book' => Icons.menu_book,
+      'translate' => Icons.translate,
+      'language' => Icons.language,
+      'calculate' => Icons.calculate,
+      'science' => Icons.science,
+      'eco' => Icons.eco,
+      'history' => Icons.history,
+      'public' => Icons.public,
+      'settings' => Icons.settings,
+      'mosque' => Icons.mosque,
+      'account_balance' => Icons.account_balance,
+      'computer' => Icons.computer,
+      'sports' => Icons.sports,
+      'psychology' => Icons.psychology,
+      'trending_up' => Icons.trending_up,
+      'business' => Icons.business,
+      'code' => Icons.code,
+      'router' => Icons.router,
+      'devices' => Icons.devices,
+      'school' => Icons.school,
+      'fitness_center' => Icons.fitness_center,
+      'biotech' => Icons.biotech,
+      _ => Icons.school,
+    };
   }
 }

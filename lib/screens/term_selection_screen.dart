@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/app_provider.dart';
+import 'subject_list_screen.dart';
 
 class TermSelectionScreen extends StatefulWidget {
   const TermSelectionScreen({super.key});
@@ -10,7 +13,6 @@ class TermSelectionScreen extends StatefulWidget {
 class _TermSelectionScreenState extends State<TermSelectionScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _floatingAnimation;
 
   static const Color backgroundColor = Color(0xFFF6F8FC);
   static const Color primaryColor = Color(0xFF4F8CFF);
@@ -23,16 +25,6 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
       vsync: this,
       duration: const Duration(seconds: 3),
     )..repeat(reverse: true);
-
-    _floatingAnimation = Tween<double>(
-      begin: -8,
-      end: 8,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
-    );
   }
 
   @override
@@ -41,153 +33,151 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
     super.dispose();
   }
 
+  String _getStatus(term) {
+    final now = DateTime.now();
+    if (term.endDate != null && now.isAfter(term.endDate!)) return 'Terminé';
+    if (term.startDate != null && now.isBefore(term.startDate!)) return 'À venir';
+    return 'En cours';
+  }
+
+  Color _getStatusColor(String status) {
+    return switch (status) {
+      'Terminé' => successColor,
+      'À venir' => Colors.grey,
+      _ => Colors.orange,
+    };
+  }
+
+  IconData _getStatusIcon(String status) {
+    return switch (status) {
+      'Terminé' => Icons.check_circle_rounded,
+      'À venir' => Icons.schedule_rounded,
+      _ => Icons.autorenew_rounded,
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        centerTitle: true,
-        title: const Text(
-          "Mes Trimestres",
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            color: Colors.black87,
+    return Consumer<AppProvider>(
+      builder: (context, provider, _) {
+        final terms = provider.terms;
+        final currentTerm = provider.currentTerm;
+        final avg = provider.currentGeneralAverage;
+
+        return Scaffold(
+          backgroundColor: backgroundColor,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            surfaceTintColor: Colors.transparent,
+            centerTitle: true,
+            title: const Text(
+              'Mes Trimestres',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800, color: Colors.black87),
+            ),
           ),
-        ),
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFF8FAFF),
-              Color(0xFFEEF3FB),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
-            children: [
-              const Text(
-                "Bonjour, Ahmed 👋",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black87,
-                ),
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFFF8FAFF), Color(0xFFEEF3FB)],
               ),
-              const SizedBox(height: 4),
-              const Text(
-                "Consultez vos notes et vos matières facilement.",
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 28),
-
-              Row(
+            ),
+            child: SafeArea(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
                 children: [
-                  Expanded(
-                    child: _buildStatCard(
-                      Icons.menu_book_rounded,
-                      "12",
-                      "Matières",
-                      Colors.orange,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildStatCard(
-                      Icons.trending_up_rounded,
-                      "16.2",
-                      "Moyenne",
-                      Colors.green,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildStatCard(
-                      Icons.percent_rounded,
-                      "72%",
-                      "Progression",
-                      primaryColor,
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 32),
-              const Text(
-                "Trimestre actuel",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _buildCurrentTerm(),
-
-              const SizedBox(height: 30),
-              const Row(
-                children: [
-                  Icon(Icons.calendar_month_rounded, color: primaryColor, size: 22),
-                  SizedBox(width: 8),
                   Text(
-                    "Autres trimestres",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    'Bonjour, ${provider.user?.fullName.split(' ').first ?? 'Élève'} 👋',
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.black87),
                   ),
+                  const SizedBox(height: 4),
+                  const Text(
+                    'Consultez vos notes et vos matières facilement.',
+                    style: TextStyle(fontSize: 15, color: Colors.grey),
+                  ),
+                  const SizedBox(height: 28),
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatCard(
+                          Icons.menu_book_rounded,
+                          '${currentTerm?.subjects.length ?? 0}',
+                          'Matières',
+                          Colors.orange,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildStatCard(
+                          Icons.trending_up_rounded,
+                          avg > 0 ? avg.toStringAsFixed(1) : '--',
+                          'Moyenne',
+                          Colors.green,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildStatCard(
+                          Icons.percent_rounded,
+                          '${((currentTerm?.progress ?? 0) * 100).toStringAsFixed(0)}%',
+                          'Progression',
+                          primaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Trimestre actuel',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  const SizedBox(height: 16),
+
+                  if (currentTerm != null) _buildCurrentTerm(context, currentTerm, provider),
+
+                  const SizedBox(height: 30),
+                  const Row(
+                    children: [
+                      Icon(Icons.calendar_month_rounded, color: primaryColor, size: 22),
+                      SizedBox(width: 8),
+                      Text(
+                        'Autres trimestres',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  ...terms.where((t) => t.id != currentTerm?.id).map((t) {
+                    final status = _getStatus(t);
+                    return _buildSmallTermCard(
+                      t.nameFr,
+                      '${t.startDate?.day ?? 1}/${t.startDate?.month ?? 1} • ${t.endDate?.day ?? 30}/${t.endDate?.month ?? 6}',
+                      status,
+                      _getStatusIcon(status),
+                      _getStatusColor(status),
+                      t.generalAverage,
+                      onTap: () {
+                        provider.setCurrentTerm(t.id);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const SubjectListScreen()),
+                        );
+                      },
+                    );
+                  }).toList(),
+
+                  const SizedBox(height: 40),
                 ],
               ),
-              const SizedBox(height: 16),
-
-              _buildSmallTermCard(
-                "Trimestre 1",
-                "Septembre • Décembre",
-                "Terminé",
-                Icons.check_circle_rounded,
-                successColor,
-              ),
-              const SizedBox(height: 14),
-
-              _buildSmallTermCard(
-                "Trimestre 3",
-                "Avril • Juin",
-                "À venir",
-                Icons.schedule_rounded,
-                Colors.grey,
-              ),
-
-              const SizedBox(height: 40),
-              _buildIllustration(),
-              const SizedBox(height: 24),
-              _buildFooter(),
-              const SizedBox(height: 20),
-            ],
+            ),
           ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: primaryColor,
-        elevation: 4,
-        onPressed: () {},
-        icon: const Icon(Icons.bar_chart_rounded),
-        label: const Text(
-          "Statistiques",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -198,18 +188,13 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 18, offset: const Offset(0, 8)),
         ],
       ),
       child: Column(
         children: [
           Container(
-            width: 42,
-            height: 42,
+            width: 42, height: 42,
             decoration: BoxDecoration(
               color: color.withOpacity(0.12),
               borderRadius: BorderRadius.circular(12),
@@ -217,27 +202,18 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
             child: Icon(icon, color: color, size: 20),
           ),
           const SizedBox(height: 12),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
+          Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
           const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              color: Colors.grey.shade600,
-              fontSize: 12,
-            ),
-          ),
+          Text(label, style: TextStyle(color: Colors.grey.shade600, fontSize: 12)),
         ],
       ),
     );
   }
 
-  Widget _buildCurrentTerm() {
+  Widget _buildCurrentTerm(BuildContext context, term, AppProvider provider) {
+    final avg = term.generalAverage;
+    final progress = term.progress;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -245,21 +221,11 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFFFFFFFF),
-            Color(0xFFF9FBFF),
-          ],
+          colors: [Color(0xFFFFFFFF), Color(0xFFF9FBFF)],
         ),
-        border: Border.all(
-          color: primaryColor.withOpacity(0.15),
-          width: 1.5,
-        ),
+        border: Border.all(color: primaryColor.withOpacity(0.15), width: 1.5),
         boxShadow: [
-          BoxShadow(
-            color: primaryColor.withOpacity(0.12),
-            blurRadius: 30,
-            offset: const Offset(0, 12),
-          ),
+          BoxShadow(color: primaryColor.withOpacity(0.12), blurRadius: 30, offset: const Offset(0, 12)),
         ],
       ),
       child: Column(
@@ -268,42 +234,26 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
           Row(
             children: [
               Container(
-                width: 60,
-                height: 60,
+                width: 60, height: 60,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [
-                      Color(0xFFFFB74D),
-                      Color(0xFFFB8C00),
-                    ],
-                  ),
+                  gradient: const LinearGradient(colors: [Color(0xFFFFB74D), Color(0xFFFB8C00)]),
                   borderRadius: BorderRadius.circular(18),
                 ),
-                child: const Icon(
-                  Icons.autorenew_rounded,
-                  color: Colors.white,
-                  size: 30,
-                ),
+                child: const Icon(Icons.autorenew_rounded, color: Colors.white, size: 30),
               ),
               const SizedBox(width: 18),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Trimestre 2",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                      ),
+                      term.nameFr,
+                      style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
                     ),
-                    SizedBox(height: 5),
+                    const SizedBox(height: 5),
                     Text(
-                      "Janvier • Mars",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 15,
-                      ),
+                      '${term.startDate?.day ?? 1}/${term.startDate?.month ?? 1} • ${term.endDate?.day ?? 30}/${term.endDate?.month ?? 6}',
+                      style: const TextStyle(color: Colors.grey, fontSize: 15),
                     ),
                   ],
                 ),
@@ -315,29 +265,20 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: const Text(
-                  "✨ Actuel",
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  '✨ Actuel',
+                  style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 28),
-          const Row(
+          Row(
             children: [
+              const Text('Progression', style: TextStyle(fontWeight: FontWeight.w600)),
+              const Spacer(),
               Text(
-                "Progression",
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ),
-              Spacer(),
-              Text(
-                "72 %",
-                style: TextStyle(
-                  color: primaryColor,
-                  fontWeight: FontWeight.bold,
-                ),
+                '${(progress * 100).toStringAsFixed(0)} %',
+                style: const TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -345,7 +286,7 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: LinearProgressIndicator(
-              value: 0.72,
+              value: progress,
               minHeight: 10,
               backgroundColor: Colors.grey.shade200,
               valueColor: const AlwaysStoppedAnimation(primaryColor),
@@ -354,31 +295,45 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
           const SizedBox(height: 28),
           Row(
             children: [
-              Expanded(child: _buildInfoChip(Icons.menu_book_rounded, "12 Matières")),
+              Expanded(child: _buildInfoChip(Icons.menu_book_rounded, '${term.subjects.length} Matières')),
               const SizedBox(width: 12),
-              Expanded(child: _buildInfoChip(Icons.assignment_turned_in_rounded, "8 Notes")),
+              Expanded(child: _buildInfoChip(Icons.assignment_turned_in_rounded, '${term.subjects.where((s) => s.average > 0).length} Notées')),
             ],
           ),
           const SizedBox(height: 28),
+          if (avg > 0)
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: primaryColor.withOpacity(.06),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.emoji_events, color: primaryColor),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Moyenne: ${avg.toStringAsFixed(2)}/20',
+                    style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: primaryColor),
+                  ),
+                ],
+              ),
+            ),
+          const SizedBox(height: 20),
           SizedBox(
             width: double.infinity,
             height: 52,
             child: FilledButton.icon(
               style: FilledButton.styleFrom(
                 backgroundColor: primaryColor,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
               ),
-              onPressed: () {},
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SubjectListScreen()),
+              ),
               icon: const Icon(Icons.arrow_forward_rounded),
-              label: const Text(
-                "Continuer",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
+              label: const Text('Voir les matières', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
             ),
           ),
         ],
@@ -397,12 +352,7 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
         children: [
           Icon(icon, color: primaryColor, size: 20),
           const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-          ),
+          Expanded(child: Text(text, style: const TextStyle(fontWeight: FontWeight.w600))),
         ],
       ),
     );
@@ -414,32 +364,28 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
     String status,
     IconData icon,
     Color color,
-  ) {
+    double avg, {
+    VoidCallback? onTap,
+  }) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: () {
-          Future.delayed(const Duration(milliseconds: 120), () {});
-        },
+        onTap: onTap,
         child: Container(
+          margin: const EdgeInsets.only(bottom: 14),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
-              ),
+              BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, 8)),
             ],
           ),
           child: Row(
             children: [
               Container(
-                width: 52,
-                height: 52,
+                width: 52, height: 52,
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(16),
@@ -451,21 +397,14 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 17,
-                      ),
-                    ),
+                    Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17)),
                     const SizedBox(height: 5),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 14,
+                    Text(subtitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 14)),
+                    if (avg > 0)
+                      Text(
+                        'Moy: ${avg.toStringAsFixed(2)}',
+                        style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 13),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -477,152 +416,14 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
                 ),
                 child: Text(
                   status,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
                 ),
               ),
               const SizedBox(width: 12),
-              const Icon(
-                Icons.arrow_forward_ios_rounded,
-                size: 16,
-                color: Color(0xFFB0B0B0),
-              ),
+              const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Color(0xFFB0B0B0)),
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildIllustration() {
-    return Column(
-      children: [
-        const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.auto_awesome, color: Colors.amber, size: 18),
-            SizedBox(width: 8),
-            Icon(Icons.star_rounded, color: primaryColor, size: 18),
-            SizedBox(width: 8),
-            Icon(Icons.auto_awesome, color: Colors.orange, size: 18),
-          ],
-        ),
-        const SizedBox(height: 14),
-        AnimatedBuilder(
-          animation: _floatingAnimation,
-          builder: (context, child) {
-            return Transform.translate(
-              offset: Offset(0, _floatingAnimation.value),
-              child: child,
-            );
-          },
-          child: Container(
-            width: 220,
-            height: 220,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: primaryColor.withOpacity(0.10),
-                  blurRadius: 45,
-                  spreadRadius: 8,
-                ),
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(25),
-              child: Image.asset(
-                "assets/images/bord.png",
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        const Text(
-          "Continue comme ça ! 🚀",
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
-          child: Text(
-            "Chaque trimestre est une nouvelle étape vers la réussite.",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14,
-              height: 1.5,
-              color: Colors.grey.shade600,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFooter() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Icon(
-              Icons.school_rounded,
-              color: primaryColor,
-            ),
-          ),
-          const SizedBox(width: 14),
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Année scolaire",
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.grey,
-                ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                "2026 • 2027",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }

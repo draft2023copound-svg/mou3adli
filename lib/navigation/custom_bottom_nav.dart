@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mou3adli/widgets/custom_widgets.dart';
-import 'package:mou3adli/screens/subject_list_screen.dart';
-import 'package:mou3adli/screens/term_selection_screen.dart';
-import 'package:mou3adli/screens/profile_screen.dart'; // <-- Import ajouté
+import '../widgets/custom_widgets.dart';
+import '../screens/subject_list_screen.dart';
+import '../screens/profile_screen.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -45,35 +44,36 @@ class CustomBottomNav extends StatelessWidget {
                     context,
                     index: 0,
                     icon: Icons.home_rounded,
-                    label: "Accueil",
-                    targetScreen: const TermSelectionScreen(),
+                    label: 'Accueil',
+                    onTap: () => onTap(0),
                   ),
-                  
                   _buildNavItem(
                     context,
                     index: 1,
                     icon: Icons.menu_book_rounded,
-                    label: "Matières",
-                    targetScreen: const SubjectListScreen(),
+                    label: 'Matières',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SubjectListScreen()),
+                    ),
                   ),
-                  
                   const SizedBox(width: 40),
-                  
                   _buildNavItem(
                     context,
                     index: 3,
                     icon: Icons.bar_chart_rounded,
-                    label: "Statistiques",
-                    targetScreen: const TermSelectionScreen(),
+                    label: 'Stats',
+                    onTap: () => onTap(3),
                   ),
-                  
-                  // --- MODIFICATION ICI : Redirection vers l'écran Profil ---
                   _buildNavItem(
                     context,
                     index: 4,
                     icon: Icons.person_outline_rounded,
-                    label: "Profil",
-                    targetScreen: const ProfileScreen(), // <-- C'est ici
+                    label: 'Profil',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ProfileScreen()),
+                    ),
                   ),
                 ],
               ),
@@ -82,12 +82,10 @@ class CustomBottomNav extends StatelessWidget {
           Align(
             alignment: Alignment.bottomCenter,
             child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SubjectListScreen()),
-                );
-              },
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const SubjectListScreen()),
+              ),
               child: Container(
                 width: 60,
                 height: 60,
@@ -121,17 +119,11 @@ class CustomBottomNav extends StatelessWidget {
     required int index,
     required IconData icon,
     required String label,
-    required Widget targetScreen,
+    required VoidCallback onTap,
   }) {
     bool isSelected = currentIndex == index;
     return GestureDetector(
-      onTap: () {
-        onTap(index);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => targetScreen),
-        );
-      },
+      onTap: onTap,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
