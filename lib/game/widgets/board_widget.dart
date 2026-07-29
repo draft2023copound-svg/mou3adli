@@ -32,8 +32,7 @@ class _BoardWidgetState extends State<BoardWidget> {
         return true;
       },
       onAcceptWithDetails: (details) {
-        // La logique de drop est maintenant gérée par le parent (BlastScreen)
-        // pour éviter les problèmes de conversion de coordonnées.
+        // La logique de drop est gérée par le parent (BlastScreen)
       },
       onLeave: (_) {
         widget.onDragLeave?.call();
@@ -45,8 +44,9 @@ class _BoardWidgetState extends State<BoardWidget> {
             color: kBoardBackgroundColor,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              // CORRECTION : Remplacer withValues par withOpacity
-              color: candidateData.isNotEmpty ? kAccentColor.withOpacity(0.5) : Colors.transparent,
+              color: candidateData.isNotEmpty
+                  ? kAccentColor.withOpacity(0.5)
+                  : Colors.transparent,
               width: 2,
             ),
           ),
@@ -56,8 +56,8 @@ class _BoardWidgetState extends State<BoardWidget> {
               return Row(
                 mainAxisSize: MainAxisSize.min,
                 children: List.generate(kGridCols, (c) {
-                  // Le ghost est géré par la logique du parent (BlastScreen)
-                  final bool isGhost = false; 
+                  // CORRECTION : final bool isGhost = false; devient const
+                  const bool isGhost = false;
                   return Padding(
                     padding: const EdgeInsets.all(kCellSpacing / 2),
                     child: CellWidget(

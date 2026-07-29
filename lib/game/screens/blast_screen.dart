@@ -199,16 +199,16 @@ class _BlastScreenState extends State<BlastScreen> with TickerProviderStateMixin
     });
   }
 
-  void _onBoardDrop(int row, int col) {
+  // --- CORRECTION ICI : La fonction est maintenant 'async' et utilise 'await' ---
+  void _onBoardDrop(int row, int col) async {
     if (_draggedPiece == null || _draggedIndex == null) return;
 
-    // CORRECTION WEB : Vérifier que la pièce ne dépasse pas les bords
     final piece = _draggedPiece!;
     if (row < 0 || col < 0) return;
     if (row + piece.height > kGridRows) return;
     if (col + piece.width > kGridCols) return;
 
-    final success = _engine.placePiece(
+    final success = await _engine.placePiece(
       piece,
       row,
       col,

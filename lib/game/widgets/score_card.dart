@@ -32,11 +32,11 @@ class ScoreCard extends StatelessWidget {
           color: isNewBest ? kWarningColor.withOpacity(0.5) : kCellBorderColor.withOpacity(0.3),
           width: 1.5,
         ),
-        boxShadow: [
+        boxShadow: const [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black,
             blurRadius: 8,
-            offset: const Offset(0, 4),
+            offset: Offset(0, 4),
           ),
         ],
       ),

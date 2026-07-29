@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mou3adli/screens/home_screen.dart';
 import 'package:mou3adli/screens/term_selection_screen.dart';
 import 'package:mou3adli/calendar_new/calendar_main_screen.dart';
-import 'package:mou3adli/screens/edit_profile_screen.dart'; // <-- Nouvel import
-import 'package:mou3adli/screens/settings_screen.dart';     // <-- Nouvel import
+import 'package:mou3adli/screens/edit_profile_screen.dart';
+import 'package:mou3adli/screens/settings_screen.dart';
 
 const Color kPrimary = Color(0xff4F8CFF);
 const Color kSecondary = Color(0xff6C63FF);
@@ -186,7 +186,6 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const Spacer(),
                     InkWell(
-                      // --- Redirection vers l'écran Paramètres ---
                       onTap: () {
                         Navigator.push(
                           context,
@@ -271,7 +270,6 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: ElevatedButton.icon(
-                        // --- Redirection vers l'écran Modifier ---
                         onPressed: () {
                           Navigator.push(
                             context,

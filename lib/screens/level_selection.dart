@@ -76,7 +76,10 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
       return;
     }
 
-    setState(() { _isLoading = true; _error = null; });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
 
     final provider = context.read<AppProvider>();
     await provider.register(
@@ -165,7 +168,13 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                     width: 1.5,
                   ),
                   boxShadow: isSelected
-                      ? [BoxShadow(color: kRoyalBlue.withOpacity(.2), blurRadius: 12, offset: const Offset(0, 4))]
+                      ? [
+                          BoxShadow(
+                            color: kRoyalBlue.withOpacity(.2),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          )
+                        ]
                       : null,
                 ),
                 child: Center(
@@ -271,6 +280,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
       children: [
         _buildSectionTitle('Filière'),
         const SizedBox(height: 4),
+        // CORRECTION ICI : SUPPRESSION DU .toList() DANS LE SPREAD
         ...streams.map((s) {
           final isSelected = _selectedStream == s['id'];
           return GestureDetector(
@@ -324,7 +334,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
               ),
             ),
           );
-        }).toList(),
+        }),
         const SizedBox(height: 8),
       ],
     );

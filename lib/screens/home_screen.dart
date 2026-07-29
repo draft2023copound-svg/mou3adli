@@ -369,6 +369,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  // CORRECTION ICI : SUPPRESSION DU .toList()
                   ...provider.subjectRankings.take(3).map((s) {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 10),
@@ -439,7 +440,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                     );
-                  }).toList(),
+                  }),
                   const SizedBox(height: kSpacing),
                 ],
 
