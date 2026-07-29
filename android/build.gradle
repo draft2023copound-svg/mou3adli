@@ -1,0 +1,36 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+// --- BLOC AJOUTÉ : Force l'API 35 pour TOUS les sous-projets (y compris shared_preferences_android) ---
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                compileSdkVersion 35
+                buildToolsVersion "35.0.0"
+                defaultConfig {
+                    targetSdkVersion 35
+                }
+            }
+        }
+    }
+}
+// --- FIN DU BLOC AJOUTÉ ---
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
