@@ -47,6 +47,7 @@ class Mou3adliApp extends StatelessWidget {
           ),
           home: provider.isLoggedIn ? const HomeScreen() : const LoginScreen(),
           routes: {
+            // C'est ici que le jeu est connecté à ton application
             '/game': (context) => const BlastScreen(),
           },
         );

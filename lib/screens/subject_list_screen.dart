@@ -114,6 +114,7 @@ class SubjectListScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
 
+              // CORRECTION : Suppression du .toList()
               ...subjects.map((subject) {
                 final subjectAvg = subject.average;
                 final progress = subject.evaluations.isEmpty
@@ -225,7 +226,7 @@ class SubjectListScreen extends StatelessWidget {
                     ),
                   ),
                 );
-              }).toList(),
+              }),
 
               const SizedBox(height: 30),
             ],

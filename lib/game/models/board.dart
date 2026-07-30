@@ -5,7 +5,6 @@ class Board {
   final int rows, cols;
   late List<List<Block?>> grid;
 
-  // CORRECTION : Suppression des 'return' dans le constructeur
   Board({
     this.rows = 8,
     this.cols = 8,
@@ -80,9 +79,8 @@ class Board {
     return true;
   }
 
-  bool placeAtCurrentPosition(Piece piece) {
-    return place(piece, piece.offsetRow, piece.offsetCol);
-  }
+  // --- SUPPRESSION DE LA MÉTHODE placeAtCurrentPosition ---
+  // Elle utilisait piece.offsetRow et piece.offsetCol qui n'existent pas.
 
   List<int> getCompleteRows() {
     final List<int> completeRows = [];
@@ -134,7 +132,6 @@ class Board {
   }) {
     int clearedCells = 0;
 
-    // Collecte toutes les positions à effacer pour éviter les doublons
     final Set<(int, int)> positionsToClear = {};
 
     for (final row in rowsToClear) {

@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
-import '../animations/combo_animation.dart';
-import '../engine/game_engine.dart';
+import '../models/board.dart';
 import '../models/piece.dart';
-import '../storage/save_manager.dart';
+import '../engine/piece_library.dart';
+import '../engine/score_manager.dart';
 import '../utils/constants.dart';
-import '../utils/extensions.dart';
-import '../utils/helpers.dart';
-import '../widgets/board_widget.dart';
-import '../widgets/combo_widget.dart';
-import '../widgets/next_pieces_widget.dart';
-import '../widgets/score_card.dart';
 
 class BlastScreen extends StatefulWidget {
   const BlastScreen({super.key});
@@ -18,403 +12,270 @@ class BlastScreen extends StatefulWidget {
   State<BlastScreen> createState() => _BlastScreenState();
 }
 
-class _BlastScreenState extends State<BlastScreen> with TickerProviderStateMixin {
-  late GameEngine _engine;
-  final SaveManager _saveManager = SaveManager();
+class _BlastScreenState extends State<BlastScreen> {
+  final Board _board = Board();
+  final ScoreManager _scoreManager = ScoreManager();
+  List<Piece> _pieces = [];
+
   Piece? _draggedPiece;
-  int? _draggedIndex;
-  final List<Widget> _overlayAnimations = [];
-  final GlobalKey _boardKey = GlobalKey();
+  int _draggedIndex = 0;
+  (int, int)? _ghostPos;
 
   @override
   void initState() {
     super.initState();
-    _engine = GameEngine();
-    _engine.eventNotifier.addListener(_onGameEvent);
-    _initialize();
+    _generatePieces();
   }
 
-  Future<void> _initialize() async {
-    await _saveManager.initialize();
-    final savedBest = _saveManager.loadBestScore();
-    _engine.scoreManager.initializeBestScore(savedBest);
-
-    final savedGame = _saveManager.loadGame();
-    
-    bool hasValidSave = false;
-    if (savedGame != null) {
-      hasValidSave = !savedGame.isGameOver;
-    }
-
-    if (hasValidSave) {
-      _engine.restoreState(savedGame!);
-    } else {
-      _engine.startGame();
-    }
-    if (mounted) setState(() {});
-  }
-
-  void _onGameEvent() {
-    final event = _engine.eventNotifier.value;
-    if (event == null) return;
-
-    switch (event.event) {
-      case GameEvent.linesCleared:
-      case GameEvent.columnsCleared:
-      case GameEvent.doubleClear:
-      case GameEvent.tripleClear:
-        _showScoreAnimation(event);
-        break;
-      case GameEvent.combo:
-        _showComboAnimation(event);
-        break;
-      case GameEvent.perfectClear:
-        _showPerfectClearAnimation();
-        break;
-      case GameEvent.gameOver:
-        _showGameOverDialog();
-        break;
-      default:
-        break;
-    }
-
-    _autoSave();
-    if (mounted) setState(() {});
-  }
-
-  void _showScoreAnimation(GameEventData event) {
+  void _generatePieces() {
     setState(() {
-      _overlayAnimations.add(
-        Positioned(
-          top: context.screenHeight * 0.3,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: ComboAnimation.score(
-              event.score ?? 0,
-              combo: event.combo,
-              onComplete: () => _removeOverlayAnimation(0),
-            ),
-          ),
-        ),
-      );
+      _pieces = PieceLibrary.getRandomPieces(kPiecePoolSize);
     });
   }
 
-  void _showComboAnimation(GameEventData event) {
-    setState(() {
-      _overlayAnimations.add(
-        Positioned(
-          top: context.screenHeight * 0.25,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: ComboAnimation.score(
-              event.score ?? 0,
-              combo: event.combo,
-            ),
-          ),
-        ),
-      );
-    });
+  void _placePiece(int row, int col) {
+    if (_draggedPiece == null) return;
+
+    if (_board.place(_draggedPiece!, row, col)) {
+      _scoreManager.addPlacementScore(_draggedPiece!.blockCount);
+
+      final rows = _board.getCompleteRows();
+      final cols = _board.getCompleteColumns();
+
+      if (rows.isNotEmpty || cols.isNotEmpty) {
+        _scoreManager.processClear(
+          lines: rows.length,
+          cols: cols.length,
+          perfect: _board.isPerfectClear(),
+        );
+        _board.clearLinesAndColumns(
+          rowsToClear: rows,
+          colsToClear: cols,
+        );
+      }
+
+      setState(() {
+        _pieces.removeAt(_draggedIndex);
+        _draggedPiece = null;
+        _ghostPos = null;
+      });
+
+      if (_pieces.isEmpty) {
+        Future.delayed(kNewPiecesDelay, _generatePieces);
+      } else if (!_board.canPlaceAnyPiece(_pieces)) {
+        _showGameOver();
+      }
+    }
   }
 
-  void _showPerfectClearAnimation() {
-    setState(() {
-      _overlayAnimations.add(
-        Positioned(
-          top: context.screenHeight * 0.2,
-          left: 0,
-          right: 0,
-          child: Center(
-            child: ComboAnimation.perfectClear(),
-          ),
-        ),
-      );
-    });
-  }
-
-  void _removeOverlayAnimation(int index) {}
-
-  Future<void> _autoSave() async {
-    await _saveManager.saveGame(_engine.currentState);
-    await _saveManager.saveBestScore(_engine.scoreManager.bestScore);
-  }
-
-  void _showGameOverDialog() {
+  void _showGameOver() {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        backgroundColor: kBoardBackgroundColor,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text(
-          'GAME OVER',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: kAccentColor,
-            fontWeight: FontWeight.w800,
-            fontSize: 28,
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'Score: ${_engine.scoreManager.score.formatted}',
-              style: const TextStyle(color: kPrimaryTextColor, fontSize: 20),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Best: ${_engine.scoreManager.bestScore.formatted}',
-              style: const TextStyle(color: kSecondaryTextColor, fontSize: 16),
-            ),
-          ],
-        ),
+        title: const Text('Game Over', style: TextStyle(fontWeight: FontWeight.bold, color: kAccentColor)),
+        content: Text('Score: ${_scoreManager.score}'),
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).pop();
-              _engine.restart();
-              setState(() {});
+              Navigator.pop(context);
+              _restart();
             },
-            child: const Text('REJOUER', style: TextStyle(color: kAccentColor)),
+            child: const Text('Rejouer', style: TextStyle(color: kAccentColor)),
           ),
         ],
       ),
     );
   }
 
-  void _onPieceDragStarted(int index, Piece piece) {
+  void _restart() {
     setState(() {
-      _draggedPiece = piece;
-      _draggedIndex = index;
+      _board.clear();
+      _scoreManager.reset();
+      _pieces.clear();
+      _draggedPiece = null;
+      _ghostPos = null;
     });
+    _generatePieces();
   }
 
-  void _onPieceDragEnded(int index, Piece piece) {
-    setState(() {
-      _draggedPiece = null;
-      _draggedIndex = null;
-    });
-  }
-
-  // --- CORRECTION ICI : La fonction est maintenant 'async' et utilise 'await' ---
-  void _onBoardDrop(int row, int col) async {
-    if (_draggedPiece == null || _draggedIndex == null) return;
-
-    final piece = _draggedPiece!;
-    if (row < 0 || col < 0) return;
-    if (row + piece.height > kGridRows) return;
-    if (col + piece.width > kGridCols) return;
-
-    final success = await _engine.placePiece(
-      piece,
-      row,
-      col,
-      pieceIndex: _draggedIndex,
-    );
-
-    if (success == true) {
-      _draggedPiece = null;
-      _draggedIndex = null;
+  void _onDragUpdate(int row, int col) {
+    if (_draggedPiece == null) return;
+    if (_board.canPlace(_draggedPiece!, row, col)) {
+      setState(() => _ghostPos = (row, col));
+    } else {
+      setState(() => _ghostPos = null);
     }
-  }
-
-  @override
-  void dispose() {
-    _engine.eventNotifier.removeListener(_onGameEvent);
-    _engine.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isLandscape = context.isLandscape;
-    final screenSize = MediaQuery.of(context).size;
-    final cellSize = calculateCellSize(
-      availableWidth: screenSize.width * (isLandscape ? 0.5 : 0.9),
-      availableHeight: screenSize.height * (isLandscape ? 0.7 : 0.45),
-      rows: kGridRows,
-      cols: kGridCols,
-      spacing: kCellSpacing,
-    );
-
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F23),
+      backgroundColor: Colors.white,
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xFF1A1A2E),
-                    Color(0xFF0F0F23),
-                  ],
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.black),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                  Column(
+                    children: [
+                      const Text('SCORE', style: TextStyle(fontSize: 12, color: Colors.grey, letterSpacing: 2)),
+                      Text('${_scoreManager.score}', style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.refresh, color: Colors.black),
+                    onPressed: _restart,
+                  ),
+                ],
+              ),
+            ),
+
+            // Board
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: DragTarget<Piece>(
+                    onWillAcceptWithDetails: (details) {
+                      _draggedPiece = details.data;
+                      _draggedIndex = _pieces.indexOf(_draggedPiece!);
+                      return true;
+                    },
+                    onAcceptWithDetails: (details) {
+                      // Drop handled by child DropTarget
+                    },
+                    builder: (context, candidates, rejected) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(kGridRows, (r) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(kGridCols, (c) {
+                              final isGhost = _ghostPos != null &&
+                                  r >= _ghostPos!.$1 && r < _ghostPos!.$1 + (_draggedPiece?.height ?? 0) &&
+                                  c >= _ghostPos!.$2 && c < _ghostPos!.$2 + (_draggedPiece?.width ?? 0) &&
+                                  _draggedPiece!.matrix[r - _ghostPos!.$1][c - _ghostPos!.$2] == 1;
+                              return GestureDetector(
+                                onTap: () => _placePiece(r, c),
+                                onPanUpdate: (details) {
+                                  final dx = details.localPosition.dx / (kCellSize + kCellSpacing);
+                                  final dy = details.localPosition.dy / (kCellSize + kCellSpacing);
+                                  _onDragUpdate(dy.floor(), dx.floor());
+                                },
+                                child: Container(
+                                  width: kCellSize,
+                                  height: kCellSize,
+                                  margin: const EdgeInsets.all(kCellSpacing / 2),
+                                  decoration: BoxDecoration(
+                                    // --- CORRECTION ICI ---
+                                    color: isGhost 
+                                        ? kGhostColor 
+                                        : (_board.grid[r][c]?.color ?? kEmptyCellColor),
+                                    borderRadius: BorderRadius.circular(kCellRadius),
+                                    border: isGhost ? Border.all(color: Colors.black.withOpacity(0.3), width: 2) : null,
+                                  ),
+                                ),
+                              );
+                            }),
+                          );
+                        }),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
-            isLandscape
-                ? Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: _buildBoardSection(cellSize),
+
+            // Next Pieces
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
+                color: Color(0xFFF5F7FA),
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: _pieces.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final piece = entry.value;
+                  return Draggable<Piece>(
+                    data: piece,
+                    feedback: Material(
+                      color: Colors.transparent,
+                      child: Opacity(
+                        opacity: 0.8,
+                        child: _buildPieceWidget(piece),
                       ),
-                      Expanded(
-                        flex: 2,
-                        child: _buildSidePanel(cellSize),
+                    ),
+                    childWhenDragging: const SizedBox(width: 0, height: 0),
+                    onDragStarted: () {
+                      setState(() {
+                        _draggedPiece = piece;
+                        _draggedIndex = index;
+                      });
+                    },
+                    onDragEnd: (_) {
+                      setState(() {
+                        _draggedPiece = null;
+                        _ghostPos = null;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      _buildHeader(),
-                      _buildBoardSection(cellSize),
-                      const Spacer(),
-                      _buildBottomPanel(cellSize),
-                    ],
-                  ),
-            ..._overlayAnimations,
+                      child: _buildPieceWidget(piece),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.arrow_back, color: kPrimaryTextColor),
-            onPressed: () => Navigator.of(context).maybePop(),
-          ),
-          ScoreCard(
-            score: _engine.scoreManager.score,
-            bestScore: _engine.scoreManager.bestScore,
-            combo: _engine.scoreManager.combo,
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh, color: kPrimaryTextColor),
-            onPressed: () {
-              _engine.restart();
-              setState(() {});
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBoardSection(double cellSize) {
-    return Center(
-      child: DragTarget<Piece>(
-        onAcceptWithDetails: (details) {
-          final RenderBox box = _boardKey.currentContext!.findRenderObject() as RenderBox;
-          final localOffset = box.globalToLocal(details.offset);
-          
-          final effectiveCellSize = cellSize + kCellSpacing;
-          final col = (localOffset.dx / effectiveCellSize).floor();
-          final row = (localOffset.dy / effectiveCellSize).floor();
-          
-          _onBoardDrop(row, col);
-        },
-        builder: (context, candidateData, rejectedData) {
-          return BoardWidget(
-            key: _boardKey,
-            board: _engine.board,
-            cellSize: cellSize,
-            ghostPiece: candidateData.isNotEmpty ? candidateData.first : null,
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildSidePanel(double cellSize) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ScoreCard(
-            score: _engine.scoreManager.score,
-            bestScore: _engine.scoreManager.bestScore,
-            combo: _engine.scoreManager.combo,
-          ),
-          const SizedBox(height: 24),
-          ComboWidget(combo: _engine.scoreManager.combo),
-          const SizedBox(height: 24),
-          NextPiecesWidget(
-            pieces: _engine.availablePieces,
-            cellSize: cellSize,
-            onPieceDragStarted: _onPieceDragStarted,
-            onPieceDragEnded: _onPieceDragEnded,
-          ),
-          const SizedBox(height: 24),
-          _buildControlButtons(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBottomPanel(double cellSize) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ComboWidget(combo: _engine.scoreManager.combo),
-          const SizedBox(height: 12),
-          NextPiecesWidget(
-            pieces: _engine.availablePieces,
-            cellSize: cellSize,
-            onPieceDragStarted: _onPieceDragStarted,
-            onPieceDragEnded: _onPieceDragEnded,
-          ),
-          const SizedBox(height: 12),
-          _buildControlButtons(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildControlButtons() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _buildActionButton(
-          icon: Icons.pause,
-          onPressed: () {},
-        ),
-        const SizedBox(width: 16),
-        _buildActionButton(
-          icon: Icons.refresh,
-          onPressed: () {
-            _engine.restart();
-            setState(() {});
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActionButton({required IconData icon, required VoidCallback onPressed}) {
-    return Container(
-      decoration: BoxDecoration(
-        color: kCellBorderColor.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: IconButton(
-        icon: Icon(icon, color: kPrimaryTextColor),
-        onPressed: onPressed,
-      ),
+  Widget _buildPieceWidget(Piece piece) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(piece.height, (r) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: List.generate(piece.width, (c) {
+            return Container(
+              width: kCellSize * 0.6,
+              height: kCellSize * 0.6,
+              margin: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: piece.matrix[r][c] == 1 ? piece.color : Colors.transparent,
+                borderRadius: BorderRadius.circular(kCellRadius),
+              ),
+            );
+          }),
+        );
+      }),
     );
   }
 }

@@ -152,6 +152,7 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
                   ),
                   const SizedBox(height: 16),
 
+                  // CORRECTION : Suppression du .toList()
                   ...terms.where((t) => t.id != currentTerm?.id).map((t) {
                     final status = _getStatus(t);
                     return _buildSmallTermCard(
@@ -169,7 +170,7 @@ class _TermSelectionScreenState extends State<TermSelectionScreen>
                         );
                       },
                     );
-                  }).toList(),
+                  }),
 
                   const SizedBox(height: 40),
                 ],

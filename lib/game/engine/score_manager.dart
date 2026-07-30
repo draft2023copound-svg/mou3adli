@@ -1,115 +1,77 @@
 import 'package:flutter/foundation.dart';
 import '../utils/constants.dart';
-
-class ScoreResult {
-  final int baseScore, lineBonus, columnBonus, comboBonus, perfectClearBonus, totalScore, comboLevel;
-  final bool isPerfectClear;
-  const ScoreResult({
-    required this.baseScore,
-    required this.lineBonus,
-    required this.columnBonus,
-    required this.comboBonus,
-    required this.perfectClearBonus,
-    required this.totalScore,
-    required this.comboLevel,
-    required this.isPerfectClear,
-  });
-}
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ScoreManager extends ChangeNotifier {
   int _score = 0;
   int _bestScore = 0;
   int _combo = 0;
-  int _totalLinesCleared = 0;
-  int _totalColumnsCleared = 0;
 
   int get score => _score;
   int get bestScore => _bestScore;
   int get combo => _combo;
-  int get totalLinesCleared => _totalLinesCleared;
-  int get totalColumnsCleared => _totalColumnsCleared;
 
-  void initializeBestScore(int savedBest) {
-    _bestScore = savedBest;
+  ScoreManager() {
+    _loadBestScore();
+  }
+
+  Future<void> _loadBestScore() async {
+    final prefs = await SharedPreferences.getInstance();
+    _bestScore = prefs.getInt(kStorageKeyBestScore) ?? 0;
     notifyListeners();
   }
 
-  void addPlacementScore(int blockCount) {
-    _score += blockCount * kScorePerBlock;
+  Future<void> _saveBestScore() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(kStorageKeyBestScore, _bestScore);
+  }
+
+  void addPlacementScore(int blocks) {
+    _score += blocks * kScorePerBlock;
     _updateBestScore();
     notifyListeners();
   }
 
-  ScoreResult processClear({
-    required List<int> rowsCleared,
-    required List<int> colsCleared,
-    required bool perfectClear,
-  }) {
-    final int lineCount = rowsCleared.length;
-    final int colCount = colsCleared.length;
-    final int totalClears = lineCount + colCount;
-
-    if (totalClears > 0) {
+  int processClear({required int lines, required int cols, required bool perfect}) {
+    final totalClear = lines + cols;
+    // CORRECTION : Ajout d'accolades
+    if (totalClear > 0) {
       _combo++;
     } else {
       _combo = 0;
     }
 
-    final int cellsCleared = (lineCount * 8) + (colCount * 8) - (lineCount * colCount);
-    final int baseScore = cellsCleared * kScorePerBlock;
-    final int lineBonus = lineCount * kLineClearBonus;
-    final int columnBonus = colCount * kColumnClearBonus;
-    int clearBonus = 0;
-
-    if (totalClears == 2) {
-      clearBonus = kDoubleClearBonus;
-    } else if (totalClears >= 3) {
-      clearBonus = kTripleClearBonus;
+    int base = (lines * 8 + cols * 8 - lines * cols) * kScorePerBlock;
+    int bonus = 0;
+    if (totalClear == 2) {
+      bonus = kDoubleClearBonus;
+    }
+    if (totalClear >= 3) {
+      bonus = kTripleClearBonus;
+    }
+    if (perfect) {
+      bonus += kPerfectClearBonus;
+    }
+    if (_combo > 1) {
+      bonus += (base * (kComboMultiplierBase * (_combo - 1))).toInt();
     }
 
-    final int comboBonus = _combo > 1
-        ? (baseScore * (kComboMultiplierBase * (_combo - 1))).toInt()
-        : 0;
-
-    final int perfectClearBonus = perfectClear ? kPerfectClearBonus : 0;
-
-    final int total = baseScore + lineBonus + columnBonus + clearBonus +
-        comboBonus + perfectClearBonus;
-
-    _score += total;
-    _totalLinesCleared += lineCount;
-    _totalColumnsCleared += colCount;
+    _score += base + bonus;
     _updateBestScore();
     notifyListeners();
-
-    return ScoreResult(
-      baseScore: baseScore,
-      lineBonus: lineBonus,
-      columnBonus: columnBonus,
-      comboBonus: comboBonus,
-      perfectClearBonus: perfectClearBonus,
-      totalScore: total,
-      comboLevel: _combo,
-      isPerfectClear: perfectClear,
-    );
+    return base + bonus;
   }
 
   void _updateBestScore() {
     if (_score > _bestScore) {
       _bestScore = _score;
+      _saveBestScore();
     }
   }
 
   void reset() {
     _score = 0;
     _combo = 0;
-    _totalLinesCleared = 0;
-    _totalColumnsCleared = 0;
-    notifyListeners();
-  }
-
-  set bestScore(int value) {
-    _bestScore = value;
     notifyListeners();
   }
 }

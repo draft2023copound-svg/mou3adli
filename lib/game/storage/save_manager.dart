@@ -17,6 +17,7 @@ class SaveManager {
     return _prefs!;
   }
 
+  // On ne sauvegarde que l'état du jeu (le plateau et le score)
   Future<bool> saveGame(GameState state) async {
     try {
       return await _preferences.setString(
@@ -28,11 +29,9 @@ class SaveManager {
     }
   }
 
+  // Sauvegarde du meilleur score (utilisé par ScoreManager)
   Future<bool> saveBestScore(int score) =>
       _preferences.setInt(kStorageKeyBestScore, score);
-
-  Future<bool> saveCurrentScore(int score) =>
-      _preferences.setInt(kStorageKeyScore, score);
 
   GameState? loadGame() {
     try {
@@ -45,22 +44,12 @@ class SaveManager {
   }
 
   int loadBestScore() => _preferences.getInt(kStorageKeyBestScore) ?? 0;
-  int loadCurrentScore() => _preferences.getInt(kStorageKeyScore) ?? 0;
 
   Future<bool> clearGameSave() => _preferences.remove(kStorageKeyGameState);
 
   Future<bool> clearAll() async {
-    final keys = [
-      kStorageKeyBoard,
-      kStorageKeyScore,
-      kStorageKeyBestScore,
-      kStorageKeyPieces,
-      kStorageKeyGameState,
-    ];
-    // CORRECTION : Ajout des accolades dans la boucle for
-    for (final key in keys) {
-      await _preferences.remove(key);
-    }
+    await _preferences.remove(kStorageKeyGameState);
+    await _preferences.remove(kStorageKeyBestScore);
     return true;
   }
 }

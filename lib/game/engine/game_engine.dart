@@ -4,11 +4,20 @@ import '../models/game_state.dart';
 import '../models/piece.dart';
 import '../utils/constants.dart';
 import 'board_manager.dart';
-// SUPPRESSION DE L'IMPORT INUTILE : import 'collision_manager.dart';
 import 'piece_generator.dart';
 import 'score_manager.dart';
 
-enum GameEvent { piecePlaced, linesCleared, columnsCleared, doubleClear, tripleClear, combo, perfectClear, gameOver, newPiecesGenerated }
+enum GameEvent {
+  piecePlaced,
+  linesCleared,
+  columnsCleared,
+  doubleClear,
+  tripleClear,
+  combo,
+  perfectClear,
+  gameOver,
+  newPiecesGenerated
+}
 
 class GameEventData {
   final GameEvent event;
@@ -109,19 +118,20 @@ class GameEngine extends ChangeNotifier {
   }
 
   Future<void> _handleClear(PlacementResult result) async {
-    final scoreResult = _scoreManager.processClear(
-      rowsCleared: result.clearedRows,
-      colsCleared: result.clearedCols,
-      perfectClear: result.perfectClear,
+    final totalClear = result.clearedRows.length + result.clearedCols.length;
+    
+    _scoreManager.processClear(
+      lines: result.clearedRows.length,
+      cols: result.clearedCols.length,
+      perfect: result.perfectClear,
     );
-    GameEvent event;
-    final int totalClears = result.clearedRows.length + result.clearedCols.length;
 
+    GameEvent event;
     if (result.perfectClear) {
       event = GameEvent.perfectClear;
-    } else if (totalClears >= 3) {
+    } else if (totalClear >= 3) {
       event = GameEvent.tripleClear;
-    } else if (totalClears == 2 || (result.clearedRows.isNotEmpty && result.clearedCols.isNotEmpty)) {
+    } else if (totalClear == 2 || (result.clearedRows.isNotEmpty && result.clearedCols.isNotEmpty)) {
       event = GameEvent.doubleClear;
     } else if (result.clearedRows.isNotEmpty) {
       event = GameEvent.linesCleared;
@@ -131,19 +141,12 @@ class GameEngine extends ChangeNotifier {
 
     _emitEvent(
       event,
-      score: scoreResult.totalScore,
-      combo: scoreResult.comboLevel,
+      score: _scoreManager.score,
+      combo: _scoreManager.combo,
       rows: result.clearedRows,
       cols: result.clearedCols,
     );
 
-    if (scoreResult.comboLevel > 1) {
-      _emitEvent(
-        GameEvent.combo,
-        score: scoreResult.comboBonus,
-        combo: scoreResult.comboLevel,
-      );
-    }
     await Future.delayed(kCascadeDelay);
   }
 
@@ -163,7 +166,7 @@ class GameEngine extends ChangeNotifier {
 
   GameState get currentState => GameState(
         board: _boardManager.copyBoard(),
-        availablePieces: _availablePieces.map((p) => p.copy()).toList(),
+        // SUPPRESSION DE availablePieces (plus besoin de sauvegarder les pièces)
         score: _scoreManager.score,
         bestScore: _scoreManager.bestScore,
         combo: _scoreManager.combo,
@@ -176,8 +179,8 @@ class GameEngine extends ChangeNotifier {
 
   void restoreState(GameState state) {
     _boardManager = BoardManager(board: state.board.copy());
-    _availablePieces = state.availablePieces.map((p) => p.copy()).toList();
-    _scoreManager.initializeBestScore(state.bestScore);
+    // SUPPRESSION DE availablePieces (on ne restaure pas les pièces)
+    _scoreManager.reset();
     _movesPlayed = state.movesPlayed;
     _startTime = state.startTime;
     _isPaused = state.isPaused;
