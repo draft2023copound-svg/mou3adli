@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/app_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
-import 'game/screens/memory_screen.dart';
+import 'game/screens/games_hub_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +51,7 @@ class Mou3adliApp extends StatelessWidget {
           ),
           home: provider.isLoggedIn ? const HomeScreen() : const LoginScreen(),
           routes: {
-            '/game': (context) => const MemoryScreen(),
+            '/games': (context) => const GamesHubScreen(),
           },
         );
       },
