@@ -178,6 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: Row(
                     children: [
+                      // CORRECTION DE LA JAUGE
                       CircularPercentIndicator(
                         radius: 68,
                         lineWidth: 15,
@@ -187,6 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         progressColor: avg >= 10 ? kRoyalBlue : const Color(0xffC62828),
                         animation: true,
                         animationDuration: 1200,
+                        startAngle: 135, // Angle de 270° pour que le chiffre soit centré
                         center: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -223,6 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: TextStyle(
                                   color: avg > 0 ? _getMentionColor(avg) : Colors.grey,
                                   fontWeight: FontWeight.bold,
+                                  fontSize: avg > 0 ? 14 : 16, // Taille augmentée
                                 ),
                               ),
                             ),
@@ -369,7 +372,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // CORRECTION ICI : SUPPRESSION DU .toList()
                   ...provider.subjectRankings.take(3).map((s) {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 10),
@@ -498,8 +500,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          // ICÔNE JEUX REMPLACÉE PAR UNE PIÈCE DE PUZZLE
                           _buildIconContainer(
-                            Icons.sports_esports_rounded,
+                            Icons.extension_rounded,
                             'Jeux',
                             const Color(0xffFB8C00),
                             34,

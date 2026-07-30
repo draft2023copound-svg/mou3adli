@@ -30,6 +30,11 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
     setState(() {});
   }
 
+  // --- FENÊTRE D'AJOUT D'ÉVÉNEMENT (À développer plus tard) ---
+  void _openAddEventBottomSheet() {
+    // Placeholder pour l'ajout d'événement
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -58,6 +63,14 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
             },
           ),
         ),
+      ),
+      // --- AJOUT DU BOUTON FLOTTANT ICI ---
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openAddEventBottomSheet,
+        backgroundColor: const Color(0xFF4F8CFF),
+        elevation: 4,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
     );
   }
