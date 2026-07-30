@@ -7,7 +7,7 @@ import '../navigation/custom_bottom_nav.dart';
 import 'term_selection_screen.dart';
 import 'coefficients_screen.dart';
 import 'subject_list_screen.dart';
-import '../calendar_new/calendar_main_screen.dart';
+import 'package:mou3adli/calendar_new/calendar_main_screen.dart'; // <-- CORRIGÉ ICI
 
 const kCardRadius = 30.0;
 const kSpacing = 28.0;
@@ -178,7 +178,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: Row(
                     children: [
-                      // CORRECTION DE LA JAUGE
                       CircularPercentIndicator(
                         radius: 68,
                         lineWidth: 15,
@@ -188,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         progressColor: avg >= 10 ? kRoyalBlue : const Color(0xffC62828),
                         animation: true,
                         animationDuration: 1200,
-                        startAngle: 135, // Angle de 270° pour que le chiffre soit centré
+                        startAngle: 135,
                         center: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -225,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: TextStyle(
                                   color: avg > 0 ? _getMentionColor(avg) : Colors.grey,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: avg > 0 ? 14 : 16, // Taille augmentée
+                                  fontSize: avg > 0 ? 14 : 16,
                                 ),
                               ),
                             ),
@@ -500,7 +499,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // ICÔNE JEUX REMPLACÉE PAR UNE PIÈCE DE PUZZLE
                           _buildIconContainer(
                             Icons.extension_rounded,
                             'Jeux',

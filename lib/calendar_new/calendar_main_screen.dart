@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'controllers/calendar_controller.dart';
-import 'widgets/premium_calendar.dart';
+// CORRECTION : Utilisation des chemins absolus (package:mou3adli/...)
+import 'package:mou3adli/calendar_new/controllers/calendar_controller.dart';
+import 'package:mou3adli/calendar_new/widgets/premium_calendar.dart';
+import 'package:mou3adli/calendar_new/models/calendar_event.dart';
 
 class CalendarMainScreen extends StatefulWidget {
   const CalendarMainScreen({super.key});
@@ -11,28 +12,12 @@ class CalendarMainScreen extends StatefulWidget {
 }
 
 class _CalendarMainScreenState extends State<CalendarMainScreen> {
-  late CalendarController controller;
-  final Map<DateTime, int> _eventCounts = {};
+  late CalendarController _controller;
 
   @override
   void initState() {
     super.initState();
-    controller = CalendarController();
-    _loadEvents();
-  }
-
-  Future<void> _loadEvents() async {
-    final prefs = await SharedPreferences.getInstance();
-    final json = prefs.getString("calendar_events");
-    if (json == null) return;
-
-    // À développer plus tard avec tes événements
-    setState(() {});
-  }
-
-  // --- FENÊTRE D'AJOUT D'ÉVÉNEMENT (À développer plus tard) ---
-  void _openAddEventBottomSheet() {
-    // Placeholder pour l'ajout d'événement
+    _controller = CalendarController();
   }
 
   @override
@@ -52,26 +37,325 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-          child: PremiumCalendar(
-            controller: controller,
-            events: _eventCounts,
-            onSelect: (date) {
-              setState(() {});
-            },
+      body: Column(
+        children: [
+          // --- Le calendrier premium ---
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: PremiumCalendar(
+              controller: _controller,
+              onDateSelected: (date) {
+                setState(() {});
+              },
+            ),
           ),
-        ),
+
+          const SizedBox(height: 16),
+
+          // --- Titre de la section événements ---
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Événements du ${_controller.selectedDate.day}/${_controller.selectedDate.month}/${_controller.selectedDate.year}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+                Text(
+                  '${_controller.getEventsForDay(_controller.selectedDate).length} événement(s)',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // --- Liste des événements du jour ---
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              itemCount: _controller.getEventsForDay(_controller.selectedDate).length,
+              itemBuilder: (context, index) {
+                final event = _controller.getEventsForDay(_controller.selectedDate)[index];
+                return _buildEventCard(event);
+              },
+            ),
+          ),
+        ],
       ),
-      // --- AJOUT DU BOUTON FLOTTANT ICI ---
       floatingActionButton: FloatingActionButton(
-        onPressed: _openAddEventBottomSheet,
+        onPressed: () => _showAddEventBottomSheet(context),
         backgroundColor: const Color(0xFF4F8CFF),
         elevation: 4,
         shape: const CircleBorder(),
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
+    );
+  }
+
+  Widget _buildEventCard(CalendarEvent event) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(color: event.color.withOpacity(0.2), width: 1.5),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 8,
+            height: 48,
+            decoration: BoxDecoration(
+              color: event.color,
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  event.title,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Icon(Icons.access_time_rounded, size: 14, color: Colors.grey.shade600),
+                    const SizedBox(width: 6),
+                    Text(
+                      event.timeString,
+                      style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                    ),
+                    const SizedBox(width: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: event.typeColor.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        event.typeLabel,
+                        style: TextStyle(
+                          color: event.typeColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline_rounded, color: Colors.grey),
+            onPressed: () {
+              _controller.removeEvent(event.id);
+              setState(() {});
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddEventBottomSheet(BuildContext context) {
+    final titleController = TextEditingController();
+    final noteController = TextEditingController();
+    EventType selectedType = EventType.other;
+    TimeOfDay? selectedTime;
+    Color selectedColor = const Color(0xFF4F8CFF);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 40,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Nouvel événement',
+                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: titleController,
+                    decoration: InputDecoration(
+                      hintText: 'Titre de l\'événement',
+                      filled: true,
+                      fillColor: const Color(0xFFF5F7FB),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<EventType>(
+                    value: selectedType,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: const Color(0xFFF5F7FB),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    items: EventType.values.map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Text(type.label),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setModalState(() {
+                        selectedType = value!;
+                        selectedColor = switch (value) {
+                          EventType.exam => Colors.red,
+                          EventType.homework => Colors.orange,
+                          EventType.reminder => Colors.blue,
+                          EventType.other => const Color(0xFF4F8CFF),
+                        };
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  InkWell(
+                    onTap: () async {
+                      final time = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      );
+                      if (time != null) {
+                        setModalState(() {
+                          selectedTime = time;
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F7FB),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.access_time_rounded, color: Colors.grey),
+                          const SizedBox(width: 12),
+                          Text(
+                            selectedTime != null
+                                ? selectedTime!.format(context)
+                                : 'Choisir une heure',
+                            style: TextStyle(
+                              color: selectedTime != null ? Colors.black87 : Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: noteController,
+                    decoration: InputDecoration(
+                      hintText: 'Note (optionnel)',
+                      filled: true,
+                      fillColor: const Color(0xFFF5F7FB),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (titleController.text.isNotEmpty) {
+                          final event = CalendarEvent(
+                            id: DateTime.now().millisecondsSinceEpoch.toString(),
+                            title: titleController.text,
+                            date: _controller.selectedDate,
+                            time: selectedTime,
+                            color: selectedColor,
+                            type: selectedType,
+                            note: noteController.text.isNotEmpty ? noteController.text : null,
+                          );
+                          _controller.addEvent(event);
+                          Navigator.pop(context);
+                          setState(() {});
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF4F8CFF),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                      ),
+                      child: const Text(
+                        'Ajouter',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

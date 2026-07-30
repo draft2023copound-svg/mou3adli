@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mou3adli/screens/home_screen.dart';
 import 'package:mou3adli/screens/term_selection_screen.dart';
-import 'package:mou3adli/calendar_new/calendar_main_screen.dart';
+import 'package:mou3adli/calendar_new/calendar_main_screen.dart'; // <-- CORRIGÉ ICI
 import 'package:mou3adli/screens/edit_profile_screen.dart';
 import 'package:mou3adli/screens/settings_screen.dart';
 
