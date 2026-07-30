@@ -15,10 +15,7 @@ class Board {
   void _initializeGrid() {
     grid = List.generate(
       rows,
-      (r) => List.generate(
-        cols,
-        (c) => null,
-      ),
+      (r) => List.generate(cols, (c) => null),
     );
   }
 
@@ -78,9 +75,6 @@ class Board {
     }
     return true;
   }
-
-  // --- SUPPRESSION DE LA MÉTHODE placeAtCurrentPosition ---
-  // Elle utilisait piece.offsetRow et piece.offsetCol qui n'existent pas.
 
   List<int> getCompleteRows() {
     final List<int> completeRows = [];
@@ -243,9 +237,9 @@ class Board {
       rows: json['rows'] as int,
       cols: json['cols'] as int,
     );
-    final gridData = json['grid'] as List<dynamic>;
+    final gridData = json['grid'] as List;
     for (int r = 0; r < board.rows; r++) {
-      final rowData = gridData[r] as List<dynamic>;
+      final rowData = gridData[r] as List;
       for (int c = 0; c < board.cols; c++) {
         final cellData = rowData[c];
         if (cellData != null) {

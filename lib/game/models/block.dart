@@ -1,28 +1,75 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 class Block {
-  final int row, col;
-  final Color color;
   final String id;
+  final int row;
+  final int col;
+  final Color color;
 
-  const Block({required this.row, required this.col, required this.color, required this.id});
+  Block({
+    required this.id,
+    required this.row,
+    required this.col,
+    required this.color,
+  });
 
-  factory Block.autoId({required int row, required int col, required Color color}) {
-    return Block(row: row, col: col, color: color, id: '${row}_${col}_${DateTime.now().millisecondsSinceEpoch}_${_randomId()}');
+  static final Random _random = Random();
+
+  factory Block.autoId({
+    required int row,
+    required int col,
+    required Color color,
+  }) {
+    return Block(
+      id: 'blk_${row}_${col}_${DateTime.now().millisecondsSinceEpoch}_${_random.nextInt(99999)}',
+      row: row,
+      col: col,
+      color: color,
+    );
   }
 
-  static String _randomId() => '${DateTime.now().microsecond}${DateTime.now().millisecond}';
-
-  Block copyWith({int? row, int? col, Color? color, String? id}) {
-    return Block(row: row ?? this.row, col: col ?? this.col, color: color ?? this.color, id: id ?? this.id);
+  Block copyWith({
+    String? id,
+    int? row,
+    int? col,
+    Color? color,
+  }) {
+    return Block(
+      id: id ?? this.id,
+      row: row ?? this.row,
+      col: col ?? this.col,
+      color: color ?? this.color,
+    );
   }
 
-  Block translate(int dRow, int dCol) => copyWith(row: row + dRow, col: col + dCol);
-  bool isInBounds(int rows, int cols) => row >= 0 && row < rows && col >= 0 && col < cols;
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'row': row,
+      'col': col,
+      'color': color.value,
+    };
+  }
 
-  Map<String, dynamic> toJson() => {'row': row, 'col': col, 'color': color.value, 'id': id};
-  factory Block.fromJson(Map<String, dynamic> json) => Block(row: json['row'], col: json['col'], color: Color(json['color']), id: json['id']);
+  factory Block.fromJson(Map<String, dynamic> json) {
+    return Block(
+      id: json['id'] as String,
+      row: json['row'] as int,
+      col: json['col'] as int,
+      color: Color(json['color'] as int),
+    );
+  }
 
-  @override bool operator ==(Object other) => identical(this, other) || other is Block && other.row == row && other.col == col && other.color == color && other.id == id;
-  @override int get hashCode => Object.hash(row, col, color, id);
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Block && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'Block($id at [$row,$col])';
 }
