@@ -51,7 +51,7 @@ class Mou3adliApp extends StatelessWidget {
           ),
           home: provider.isLoggedIn ? const HomeScreen() : const LoginScreen(),
           routes: {
-            '/games': (context) => const GamesHubScreen(),
+            '/game': (context) => const GamesHubScreen(),
           },
         );
       },
