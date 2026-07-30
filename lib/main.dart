@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'providers/app_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
-import 'game/screens/blast_screen.dart';
+import 'game/screens/memory_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,14 +41,17 @@ class Mou3adliApp extends StatelessWidget {
               backgroundColor: Colors.transparent,
               elevation: 0,
               centerTitle: true,
-              titleTextStyle: TextStyle(color: Colors.black, fontSize: 18, fontWeight: FontWeight.bold),
+              titleTextStyle: TextStyle(
+                color: Colors.black,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
               iconTheme: IconThemeData(color: Colors.black),
             ),
           ),
           home: provider.isLoggedIn ? const HomeScreen() : const LoginScreen(),
           routes: {
-            // C'est ici que le jeu est connecté à ton application
-            '/game': (context) => const BlastScreen(),
+            '/game': (context) => const MemoryScreen(),
           },
         );
       },

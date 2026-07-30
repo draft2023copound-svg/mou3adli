@@ -1,218 +1,38 @@
-import 'package:flutter/foundation.dart';
-import '../models/board.dart';
-import '../models/game_state.dart';
-import '../models/piece.dart';
-import '../utils/constants.dart';
-import 'board_manager.dart';
-import 'piece_generator.dart';
-import 'score_manager.dart';
+import 'dart:math';
+import 'package:flutter/material.dart';
+import '../models/card_model.dart';
 
-enum GameEvent {
-  piecePlaced,
-  linesCleared,
-  columnsCleared,
-  doubleClear,
-  tripleClear,
-  combo,
-  perfectClear,
-  gameOver,
-  newPiecesGenerated
-}
+class GameEngine {
+  static final Random _random = Random();
 
-class GameEventData {
-  final GameEvent event;
-  final int? score, combo;
-  final List<int>? rows, cols;
-  final Piece? piece;
-  final int? row, col;
+  static const List<String> _emojis = [
+    '🦁', '🦊', '🐼', '🐨', '🐯', '🐷',
+    '🐸', '🐙', '🦄', '🦋', '🌵', '🍄',
+    '🚀', '🎸', '🎨', '⚽', '🍕', '🍦',
+  ];
 
-  const GameEventData({
-    required this.event,
-    this.score,
-    this.combo,
-    this.rows,
-    this.cols,
-    this.piece,
-    this.row,
-    this.col,
-  });
-}
+  static const List<Color> _colors = [
+    Color(0xFFEF4444),
+    Color(0xFFF97316),
+    Color(0xFFEAB308),
+    Color(0xFF22C55E),
+    Color(0xFF3B82F6),
+    Color(0xFF8B5CF6),
+    Color(0xFFEC4899),
+    Color(0xFF14B8A6),
+  ];
 
-class GameEngine extends ChangeNotifier {
-  final ScoreManager _scoreManager;
-  final PieceGenerator _pieceGenerator;
-  BoardManager _boardManager;
-  List<Piece> _availablePieces = [];
-  bool _isGameOver = false, _isPaused = false;
-  int _movesPlayed = 0;
-  DateTime _startTime = DateTime.now();
-  final ValueNotifier<GameEventData?> eventNotifier = ValueNotifier(null);
+  static List<CardModel> generateDeck(int pairCount) {
+    final selected = _emojis.sublist(0, pairCount);
+    final List<CardModel> deck = [];
 
-  Board get board => _boardManager.board;
-  ScoreManager get scoreManager => _scoreManager;
-  List<Piece> get availablePieces => List.unmodifiable(_availablePieces);
-  bool get isGameOver => _isGameOver;
-  bool get isPaused => _isPaused;
-  int get movesPlayed => _movesPlayed;
-
-  GameEngine({
-    ScoreManager? scoreManager,
-    PieceGenerator? pieceGenerator,
-    BoardManager? boardManager,
-  })  : _scoreManager = scoreManager ?? ScoreManager(),
-        _pieceGenerator = pieceGenerator ?? PieceGenerator(),
-        _boardManager = boardManager ?? BoardManager();
-
-  void startGame() {
-    _boardManager.reset();
-    _scoreManager.reset();
-    _availablePieces.clear();
-    _isGameOver = false;
-    _isPaused = false;
-    _movesPlayed = 0;
-    _startTime = DateTime.now();
-    _generateNewPieces();
-    notifyListeners();
-  }
-
-  void pause() {
-    _isPaused = true;
-    notifyListeners();
-  }
-
-  void resume() {
-    _isPaused = false;
-    notifyListeners();
-  }
-
-  void restart() => startGame();
-
-  Future<bool> placePiece(Piece piece, int row, int col, {int? pieceIndex}) async {
-    if (_isGameOver || _isPaused) {
-      return false;
-    }
-    final result = _boardManager.placePiece(piece, row, col);
-    if (!result.success) {
-      return false;
-    }
-    _movesPlayed++;
-    _scoreManager.addPlacementScore(piece.blockCount);
-    _emitEvent(GameEvent.piecePlaced, piece: piece, row: row, col: col);
-
-    if (result.clearedRows.isNotEmpty || result.clearedCols.isNotEmpty) {
-      await _handleClear(result);
+    for (int i = 0; i < selected.length; i++) {
+      final color = _colors[i % _colors.length];
+      deck.add(CardModel(id: i * 2, emoji: selected[i], color: color));
+      deck.add(CardModel(id: i * 2 + 1, emoji: selected[i], color: color));
     }
 
-    if (pieceIndex != null) {
-      _availablePieces.removeAt(pieceIndex);
-    }
-
-    if (_availablePieces.isEmpty) {
-      await Future.delayed(kNewPiecesDelay);
-      _generateNewPieces();
-      _emitEvent(GameEvent.newPiecesGenerated);
-    }
-    _checkGameOver();
-    notifyListeners();
-    return true;
-  }
-
-  Future<void> _handleClear(PlacementResult result) async {
-    final totalClear = result.clearedRows.length + result.clearedCols.length;
-    
-    _scoreManager.processClear(
-      lines: result.clearedRows.length,
-      cols: result.clearedCols.length,
-      perfect: result.perfectClear,
-    );
-
-    GameEvent event;
-    if (result.perfectClear) {
-      event = GameEvent.perfectClear;
-    } else if (totalClear >= 3) {
-      event = GameEvent.tripleClear;
-    } else if (totalClear == 2 || (result.clearedRows.isNotEmpty && result.clearedCols.isNotEmpty)) {
-      event = GameEvent.doubleClear;
-    } else if (result.clearedRows.isNotEmpty) {
-      event = GameEvent.linesCleared;
-    } else {
-      event = GameEvent.columnsCleared;
-    }
-
-    _emitEvent(
-      event,
-      score: _scoreManager.score,
-      combo: _scoreManager.combo,
-      rows: result.clearedRows,
-      cols: result.clearedCols,
-    );
-
-    await Future.delayed(kCascadeDelay);
-  }
-
-  void _generateNewPieces() {
-    _availablePieces = _pieceGenerator.generateGuaranteedPlayable(_boardManager.board, kPiecePoolSize);
-  }
-
-  void _checkGameOver() {
-    if (_availablePieces.isEmpty) {
-      return;
-    }
-    if (!_boardManager.hasValidMove(_availablePieces)) {
-      _isGameOver = true;
-      _emitEvent(GameEvent.gameOver);
-    }
-  }
-
-  GameState get currentState => GameState(
-        board: _boardManager.copyBoard(),
-        // SUPPRESSION DE availablePieces (plus besoin de sauvegarder les pièces)
-        score: _scoreManager.score,
-        bestScore: _scoreManager.bestScore,
-        combo: _scoreManager.combo,
-        movesPlayed: _movesPlayed,
-        startTime: _startTime,
-        isPlaying: !_isGameOver && !_isPaused,
-        isPaused: _isPaused,
-        isGameOver: _isGameOver,
-      );
-
-  void restoreState(GameState state) {
-    _boardManager = BoardManager(board: state.board.copy());
-    // SUPPRESSION DE availablePieces (on ne restaure pas les pièces)
-    _scoreManager.reset();
-    _movesPlayed = state.movesPlayed;
-    _startTime = state.startTime;
-    _isPaused = state.isPaused;
-    _isGameOver = state.isGameOver;
-    notifyListeners();
-  }
-
-  void _emitEvent(
-    GameEvent event, {
-    int? score,
-    int? combo,
-    List<int>? rows,
-    List<int>? cols,
-    Piece? piece,
-    int? row,
-    int? col,
-  }) {
-    eventNotifier.value = GameEventData(
-      event: event,
-      score: score,
-      combo: combo,
-      rows: rows,
-      cols: cols,
-      piece: piece,
-      row: row,
-      col: col,
-    );
-  }
-
-  @override
-  void dispose() {
-    eventNotifier.dispose();
-    super.dispose();
+    deck.shuffle(_random);
+    return deck;
   }
 }
