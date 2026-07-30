@@ -9,6 +9,9 @@ class GameEngine {
     '🦁', '🦊', '🐼', '🐨', '🐯', '🐷',
     '🐸', '🐙', '🦄', '🦋', '🌵', '🍄',
     '🚀', '🎸', '🎨', '⚽', '🍕', '🍦',
+    '🌈', '🔥', '💎', '🎭', '🎪', '🎯',
+    '🎲', '🎳', '🏆', '👑', '🎁', '🎀',
+    '💣', '🔮', '🧿', '🪄', '🧩', '🎰',
   ];
 
   static const List<Color> _colors = [
@@ -20,6 +23,16 @@ class GameEngine {
     Color(0xFF8B5CF6),
     Color(0xFFEC4899),
     Color(0xFF14B8A6),
+    Color(0xFF6366F1),
+    Color(0xFFF43F5E),
+    Color(0xFF0EA5E9),
+    Color(0xFF84CC16),
+    Color(0xFFD946EF),
+    Color(0xFFF59E0B),
+    Color(0xFF10B981),
+    Color(0xFF64748B),
+    Color(0xFFDC2626),
+    Color(0xFF7C3AED),
   ];
 
   static List<CardModel> generateDeck(int pairCount) {
