@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-// CORRECTION : Utilisation des chemins absolus (package:mou3adli/...)
 import 'package:mou3adli/calendar_new/controllers/calendar_controller.dart';
 import 'package:mou3adli/calendar_new/widgets/premium_calendar.dart';
 import 'package:mou3adli/calendar_new/models/calendar_event.dart';
+import 'package:mou3adli/widgets/custom_widgets.dart';
 
 class CalendarMainScreen extends StatefulWidget {
   const CalendarMainScreen({super.key});
@@ -22,6 +22,8 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final events = _controller.getEventsForDay(_controller.selectedDate);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FB),
       appBar: AppBar(
@@ -39,38 +41,62 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
       ),
       body: Column(
         children: [
-          // --- Le calendrier premium ---
+          // --- Calendrier Premium ---
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: PremiumCalendar(
-              controller: _controller,
-              onDateSelected: (date) {
-                setState(() {});
-              },
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: PremiumCalendar(
+                controller: _controller,
+                onDateSelected: (date) {
+                  setState(() {});
+                },
+              ),
             ),
           ),
 
           const SizedBox(height: 16),
 
-          // --- Titre de la section événements ---
+          // --- En-tête événements ---
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  'Événements du ${_controller.selectedDate.day}/${_controller.selectedDate.month}/${_controller.selectedDate.year}',
+                  'Événements du ${_controller.selectedDate.day}/${_controller.selectedDate.month}',
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: Colors.black87,
                   ),
                 ),
-                Text(
-                  '${_controller.getEventsForDay(_controller.selectedDate).length} événement(s)',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFFC5A059), Color(0xFFF5D799)],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '${events.length} événement(s)',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ],
@@ -79,23 +105,82 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
 
           const SizedBox(height: 8),
 
-          // --- Liste des événements du jour ---
+          // --- Liste ou État vide premium ---
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-              itemCount: _controller.getEventsForDay(_controller.selectedDate).length,
-              itemBuilder: (context, index) {
-                final event = _controller.getEventsForDay(_controller.selectedDate)[index];
-                return _buildEventCard(event);
-              },
-            ),
+            child: events.isEmpty
+                ? Center(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: 240,
+                            height: 240,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  kRoyalBlue.withOpacity(0.08),
+                                  const Color(0xFFC5A059).withOpacity(0.04),
+                                  Colors.transparent,
+                                ],
+                                stops: const [0.0, 0.5, 1.0],
+                              ),
+                            ),
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: Image.asset(
+                                'assets/images/calendar_illustration.png',
+                                height: 160,
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            "Journée libre ✨",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: kRoyalBlue,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            "Profite de ce moment de calme.",
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 15,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            "Clique sur le bouton + pour organiser ta journée.",
+                            style: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontSize: 13,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    itemCount: events.length,
+                    itemBuilder: (context, index) {
+                      final event = events[index];
+                      return _buildEventCard(event);
+                    },
+                  ),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEventBottomSheet(context),
-        backgroundColor: const Color(0xFF4F8CFF),
-        elevation: 4,
+        backgroundColor: kRoyalBlue,
+        elevation: 8,
         shape: const CircleBorder(),
         child: const Icon(Icons.add, color: Colors.white, size: 28),
       ),
@@ -121,11 +206,11 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
       child: Row(
         children: [
           Container(
-            width: 8,
+            width: 6,
             height: 48,
             decoration: BoxDecoration(
               color: event.color,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(6),
             ),
           ),
           const SizedBox(width: 16),
@@ -188,7 +273,7 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
     final noteController = TextEditingController();
     EventType selectedType = EventType.other;
     TimeOfDay? selectedTime;
-    Color selectedColor = const Color(0xFF4F8CFF);
+    Color selectedColor = kRoyalBlue;
 
     showModalBottomSheet(
       context: context,
@@ -229,6 +314,7 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: titleController,
+                    // SUPPRESSION DU 'const' ICI
                     decoration: InputDecoration(
                       hintText: 'Titre de l\'événement',
                       filled: true,
@@ -240,9 +326,12 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
+
                   DropdownButtonFormField<EventType>(
                     value: selectedType,
+                    // SUPPRESSION DU 'const' ICI
                     decoration: InputDecoration(
+                      hintText: 'Type',
                       filled: true,
                       fillColor: const Color(0xFFF5F7FB),
                       border: OutlineInputBorder(
@@ -263,7 +352,7 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                           EventType.exam => Colors.red,
                           EventType.homework => Colors.orange,
                           EventType.reminder => Colors.blue,
-                          EventType.other => const Color(0xFF4F8CFF),
+                          EventType.other => kRoyalBlue,
                         };
                       });
                     },
@@ -306,6 +395,7 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                   const SizedBox(height: 12),
                   TextField(
                     controller: noteController,
+                    // SUPPRESSION DU 'const' ICI
                     decoration: InputDecoration(
                       hintText: 'Note (optionnel)',
                       filled: true,
@@ -338,7 +428,7 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF4F8CFF),
+                        backgroundColor: kRoyalBlue,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),

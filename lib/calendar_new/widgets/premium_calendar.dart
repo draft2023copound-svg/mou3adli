@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../controllers/calendar_controller.dart';
-import '../models/calendar_event.dart';
+// --- IMPORT DU BLEU ROYAL DEPUIS LE FICHIER PRINCIPAL DE TON APP ---
+import 'package:mou3adli/widgets/custom_widgets.dart'; // kRoyalBlue est défini ici
 
 class PremiumCalendar extends StatefulWidget {
   final CalendarController controller;
@@ -123,19 +124,20 @@ class _PremiumCalendarState extends State<PremiumCalendar> {
                             height: 48,
                             margin: const EdgeInsets.all(2),
                             decoration: BoxDecoration(
+                              // --- UTILISATION DE kRoyalBlue (Le même que ta navbar) ---
                               color: isSelected
-                                  ? const Color(0xFF4F8CFF)
+                                  ? kRoyalBlue
                                   : isToday
                                       ? const Color(0xFFEEF4FF)
                                       : Colors.transparent,
                               borderRadius: BorderRadius.circular(14),
                               border: isToday && !isSelected
-                                  ? Border.all(color: const Color(0xFF4F8CFF), width: 2)
+                                  ? Border.all(color: kRoyalBlue, width: 2)
                                   : null,
                               boxShadow: isSelected
                                   ? [
                                       BoxShadow(
-                                        color: const Color(0xFF4F8CFF).withOpacity(0.3),
+                                        color: kRoyalBlue.withOpacity(0.3),
                                         blurRadius: 12,
                                         offset: const Offset(0, 4),
                                       )
@@ -151,7 +153,7 @@ class _PremiumCalendarState extends State<PremiumCalendar> {
                                       color: isSelected
                                           ? Colors.white
                                           : isToday
-                                              ? const Color(0xFF4F8CFF)
+                                              ? kRoyalBlue
                                               : Colors.black87,
                                       fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
                                     ),
