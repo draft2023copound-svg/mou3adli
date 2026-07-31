@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import '../../providers/games_provider.dart';
 import '../data/quiz_questions.dart';
 
 class QuizScreen extends StatefulWidget {
@@ -151,6 +153,11 @@ class _QuizScreenState extends State<QuizScreen>
 
   void _showResults() {
     final percentage = (_score / _questions.length * 100).round();
+    
+    // SAUVEGARDE DU SCORE
+    final gamesProvider = Provider.of<GamesProvider>(context, listen: false);
+    gamesProvider.saveQuizResult(_score, _bestStreak);
+    
     String title;
     String subtitle;
     Color color;
@@ -196,6 +203,10 @@ class _QuizScreenState extends State<QuizScreen>
       ),
     );
   }
+
+  // ═══════════════════════════════════════════════════════════
+  // BUILD
+  // ═══════════════════════════════════════════════════════════
 
   @override
   Widget build(BuildContext context) {
@@ -567,6 +578,10 @@ class _QuizScreenState extends State<QuizScreen>
   }
 }
 
+// ═══════════════════════════════════════════════════════════
+// RESULT DIALOG
+// ═══════════════════════════════════════════════════════════
+
 class _ResultDialog extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -694,12 +709,21 @@ class _ResultDialog extends StatelessWidget {
                   icon: Icons.local_fire_department,
                   label: 'Série max',
                   value: '$bestStreak',
+                  iconColor: const Color(0xFFD4AF37),
                 ),
                 const SizedBox(width: 16),
                 _StatBadge(
                   icon: Icons.check_circle,
                   label: 'Correctes',
                   value: '$score',
+                  iconColor: const Color(0xFF22C55E),
+                ),
+                const SizedBox(width: 16),
+                _StatBadge(
+                  icon: Icons.percent,
+                  label: 'Réussite',
+                  value: '$percentage%',
+                  iconColor: const Color(0xFF3B82F6),
                 ),
               ],
             ),
@@ -774,15 +798,21 @@ class _ResultDialog extends StatelessWidget {
   }
 }
 
+// ═══════════════════════════════════════════════════════════
+// STAT BADGE
+// ═══════════════════════════════════════════════════════════
+
 class _StatBadge extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+  final Color? iconColor;
 
   const _StatBadge({
     required this.icon,
     required this.label,
     required this.value,
+    this.iconColor,
   });
 
   @override
@@ -792,10 +822,18 @@ class _StatBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: const Color(0xFFE2E8F0).withOpacity(0.5),
+          width: 1,
+        ),
       ),
       child: Column(
         children: [
-          Icon(icon, color: const Color(0xFFD4AF37), size: 20),
+          Icon(
+            icon, 
+            color: iconColor ?? const Color(0xFFD4AF37), 
+            size: 20
+          ),
           const SizedBox(height: 4),
           Text(
             label,

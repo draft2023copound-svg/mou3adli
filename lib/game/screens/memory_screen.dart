@@ -2,13 +2,16 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+import '../../theme/app_theme.dart';
+import '../../providers/games_provider.dart';
 import '../models/card_model.dart';
 import '../models/level_config.dart';
 import '../engine/game_engine.dart';
 
 class MemoryScreen extends StatefulWidget {
-  final int startLevel;
-  const MemoryScreen({super.key, this.startLevel = 1});
+  final int? startLevel;
+  const MemoryScreen({super.key, this.startLevel});
 
   @override
   State<MemoryScreen> createState() => _MemoryScreenState();
@@ -50,7 +53,6 @@ class _MemoryScreenState extends State<MemoryScreen>
   @override
   void initState() {
     super.initState();
-    _currentLevel = widget.startLevel;
     _shakeController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 400),
@@ -68,6 +70,16 @@ class _MemoryScreenState extends State<MemoryScreen>
   }
 
   void _initLevel() {
+    final gamesProvider = Provider.of<GamesProvider>(context, listen: false);
+    final maxLevel = gamesProvider.memoryMaxLevel;
+
+    // Si startLevel est spécifié et débloqué, l'utiliser
+    if (widget.startLevel != null && widget.startLevel! <= maxLevel) {
+      _currentLevel = widget.startLevel!;
+    } else {
+      _currentLevel = 1;
+    }
+
     _config = LevelConfig.forLevel(_currentLevel);
     _cards = GameEngine.generateDeck(_config.pairCount);
     _moves = 0;
@@ -98,6 +110,7 @@ class _MemoryScreenState extends State<MemoryScreen>
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (!mounted) return;
       setState(() {
         _seconds++;
         if (_timeLimit != null && _seconds >= _timeLimit!) {
@@ -113,6 +126,7 @@ class _MemoryScreenState extends State<MemoryScreen>
 
     _speedProgress = 1.0;
     _speedTimer = Timer.periodic(const Duration(milliseconds: 50), (_) {
+      if (!mounted) return;
       setState(() {
         _speedProgress -= 0.05 / _config.speedRunSeconds!;
         if (_speedProgress <= 0) {
@@ -262,8 +276,13 @@ class _MemoryScreenState extends State<MemoryScreen>
       if (_matches == _config.pairCount) {
         _timer?.cancel();
         _speedTimer?.cancel();
+
+        // SAUVEGARDE PROGRESSION
+        final gamesProvider = Provider.of<GamesProvider>(context, listen: false);
+        gamesProvider.saveMemoryProgress(_currentLevel);
+
         await Future.delayed(const Duration(milliseconds: 500));
-        _showVictoryDialog();
+        if (mounted) _showVictoryDialog();
       }
     } else {
       await Future.delayed(const Duration(milliseconds: 600));
@@ -290,6 +309,13 @@ class _MemoryScreenState extends State<MemoryScreen>
     _timer?.cancel();
     _speedTimer?.cancel();
     setState(() => _isGameOver = true);
+
+    // SAUVEGARDE : niveau atteint (moins 1 car échec)
+    final gamesProvider = Provider.of<GamesProvider>(context, listen: false);
+    if (_currentLevel > 1) {
+      gamesProvider.saveMemoryProgress(_currentLevel - 1);
+    }
+
     _showGameOverDialog(reason);
   }
 
@@ -350,9 +376,7 @@ class _MemoryScreenState extends State<MemoryScreen>
         child: Container(
           padding: const EdgeInsets.all(32),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFFFFD700), Color(0xFFFF8C00)],
-            ),
+            gradient: AppGradients.matteGold,
             borderRadius: BorderRadius.circular(28),
           ),
           child: Column(
@@ -399,7 +423,7 @@ class _MemoryScreenState extends State<MemoryScreen>
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFFFF8C00),
+                      color: AppColors.matteGold,
                     ),
                   ),
                 ),
@@ -411,6 +435,122 @@ class _MemoryScreenState extends State<MemoryScreen>
     );
   }
 
+  void _showLevelSelector() {
+    final gamesProvider = Provider.of<GamesProvider>(context, listen: false);
+    final maxLevel = gamesProvider.memoryMaxLevel;
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => Container(
+        height: MediaQuery.of(context).size.height * 0.7,
+        decoration: const BoxDecoration(
+          color: AppColors.darkBackground,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'CHOISIR UN NIVEAU',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: Colors.white,
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Niveau max atteint: $maxLevel',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white.withOpacity(0.6),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Expanded(
+              child: GridView.builder(
+                padding: const EdgeInsets.all(20),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 5,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: 50,
+                itemBuilder: (context, index) {
+                  final level = index + 1;
+                  final isUnlocked = level <= maxLevel;
+                  final isCurrent = level == _currentLevel;
+
+                  return GestureDetector(
+                    onTap: isUnlocked
+                        ? () {
+                            Navigator.pop(context);
+                            setState(() => _currentLevel = level);
+                            _initLevel();
+                          }
+                        : null,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isUnlocked
+                            ? (isCurrent
+                                ? AppColors.royalBlue
+                                : AppColors.darkSurface)
+                            : Colors.white.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isUnlocked
+                              ? (isCurrent
+                                  ? AppColors.royalBlue
+                                  : AppColors.darkBorder)
+                              : Colors.white.withOpacity(0.1),
+                          width: 2,
+                        ),
+                      ),
+                      child: Center(
+                        child: isUnlocked
+                            ? Text(
+                                '$level',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w800,
+                                  color: isCurrent
+                                      ? Colors.white
+                                      : Colors.white.withOpacity(0.8),
+                                ),
+                              )
+                            : Icon(
+                                Icons.lock,
+                                color: Colors.white.withOpacity(0.2),
+                                size: 16,
+                              ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // BUILD
+  // ═══════════════════════════════════════════════════════════
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -420,7 +560,7 @@ class _MemoryScreenState extends State<MemoryScreen>
     final cardSize = (safeWidth / _config.gridCols).clamp(50.0, 80.0);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0F0F0F),
+      backgroundColor: AppColors.darkBackground,
       body: SafeArea(
         child: Stack(
           children: [
@@ -456,17 +596,9 @@ class _MemoryScreenState extends State<MemoryScreen>
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
-        ),
+        gradient: AppGradients.royalBlue,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF3B82F6).withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: [AppShadows.colored(AppColors.royalBlue, 0.3)],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -474,12 +606,21 @@ class _MemoryScreenState extends State<MemoryScreen>
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'NIVEAU $_currentLevel',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
+              GestureDetector(
+                onTap: _showLevelSelector,
+                child: Row(
+                  children: [
+                    Text(
+                      'NIVEAU $_currentLevel',
+                      style: AppTextStyles.scoreLarge.copyWith(fontSize: 20),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Colors.white.withOpacity(0.7),
+                      size: 20,
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 2),
@@ -497,11 +638,10 @@ class _MemoryScreenState extends State<MemoryScreen>
             children: [
               if (_config.hasTimeLimit)
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: _timeLimit != null && _timeLimit! - _seconds <= 10
-                        ? Colors.red.withOpacity(0.3)
+                        ? AppColors.error.withOpacity(0.3)
                         : Colors.white.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -509,9 +649,8 @@ class _MemoryScreenState extends State<MemoryScreen>
                     children: [
                       Icon(
                         Icons.timer,
-                        color: _timeLimit != null &&
-                                _timeLimit! - _seconds <= 10
-                            ? Colors.red
+                        color: _timeLimit != null && _timeLimit! - _seconds <= 10
+                            ? AppColors.error
                             : Colors.white,
                         size: 16,
                       ),
@@ -521,9 +660,8 @@ class _MemoryScreenState extends State<MemoryScreen>
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
-                          color: _timeLimit != null &&
-                                  _timeLimit! - _seconds <= 10
-                              ? Colors.red
+                          color: _timeLimit != null && _timeLimit! - _seconds <= 10
+                              ? AppColors.error
                               : Colors.white,
                         ),
                       ),
@@ -532,24 +670,18 @@ class _MemoryScreenState extends State<MemoryScreen>
                 ),
               const SizedBox(width: 12),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.touch_app,
-                        color: Colors.white, size: 16),
+                    const Icon(Icons.touch_app, color: Colors.white, size: 16),
                     const SizedBox(width: 4),
                     Text(
                       '$_moves',
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
+                      style: AppTextStyles.scoreMedium.copyWith(fontSize: 14),
                     ),
                   ],
                 ),
@@ -571,10 +703,10 @@ class _MemoryScreenState extends State<MemoryScreen>
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.darkSurface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF333333),
+          color: AppColors.darkBorder,
           width: 1,
         ),
       ),
@@ -600,13 +732,13 @@ class _MemoryScreenState extends State<MemoryScreen>
         borderRadius: BorderRadius.circular(6),
         child: LinearProgressIndicator(
           value: _speedProgress.clamp(0.0, 1.0),
-          backgroundColor: const Color(0xFF333333),
+          backgroundColor: AppColors.darkBorder,
           valueColor: AlwaysStoppedAnimation(
             _speedProgress > 0.5
-                ? Colors.green
+                ? AppColors.success
                 : _speedProgress > 0.2
-                    ? Colors.orange
-                    : Colors.red,
+                    ? AppColors.warning
+                    : AppColors.error,
           ),
           minHeight: 6,
         ),
@@ -629,8 +761,7 @@ class _MemoryScreenState extends State<MemoryScreen>
               : Matrix4.identity(),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: cardSize * _config.gridCols +
-                  10 * (_config.gridCols - 1),
+              maxWidth: cardSize * _config.gridCols + 10 * (_config.gridCols - 1),
             ),
             child: GridView.builder(
               physics: const NeverScrollableScrollPhysics(),
@@ -675,13 +806,13 @@ class _MemoryScreenState extends State<MemoryScreen>
                 decoration: BoxDecoration(
                   color: isFlipped
                       ? (card.color == Colors.transparent
-                          ? const Color(0xFF1A1A1A)
+                          ? AppColors.darkSurface
                           : card.color)
                       : const Color(0xFF2A2A2A),
                   borderRadius: BorderRadius.circular(14),
                   border: card.isMatched && card.color == Colors.transparent
                       ? Border.all(
-                          color: const Color(0xFF333333),
+                          color: AppColors.darkBorder,
                           width: 1,
                         )
                       : null,
@@ -700,7 +831,7 @@ class _MemoryScreenState extends State<MemoryScreen>
                       ? card.color == Colors.transparent
                           ? Icon(
                               Icons.check_circle,
-                              color: const Color(0xFF333333),
+                              color: AppColors.darkBorder,
                               size: size * 0.4,
                             )
                           : Text(
@@ -726,7 +857,7 @@ class _MemoryScreenState extends State<MemoryScreen>
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1A1A1A),
+        color: AppColors.darkSurface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -736,15 +867,16 @@ class _MemoryScreenState extends State<MemoryScreen>
           Container(
             width: 1,
             height: 30,
-            color: const Color(0xFF333333),
+            color: AppColors.darkBorder,
           ),
           _InfoItem(
-              label: 'Grille',
-              value: '${_config.gridCols}x${_config.gridRows}'),
+            label: 'Grille',
+            value: '${_config.gridCols}x${_config.gridRows}',
+          ),
           Container(
             width: 1,
             height: 30,
-            color: const Color(0xFF333333),
+            color: AppColors.darkBorder,
           ),
           _InfoItem(label: 'Temps', value: _timeString),
         ],
@@ -755,12 +887,12 @@ class _MemoryScreenState extends State<MemoryScreen>
   Widget _buildRedFlashOverlay() {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      color: Colors.red.withOpacity(0.15),
+      color: AppColors.error.withOpacity(0.15),
       child: Center(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           decoration: BoxDecoration(
-            color: Colors.red.withOpacity(0.9),
+            color: AppColors.error.withOpacity(0.9),
             borderRadius: BorderRadius.circular(16),
           ),
           child: const Row(
@@ -804,7 +936,7 @@ class _MemoryScreenState extends State<MemoryScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: Colors.red.withOpacity(0.9),
+            color: AppColors.error.withOpacity(0.9),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Text(
@@ -881,7 +1013,7 @@ class _MemoryScreenState extends State<MemoryScreen>
       case DifficultyModifier.shuffleOnFail:
         return Colors.purple;
       case DifficultyModifier.redFlash:
-        return Colors.red;
+        return AppColors.error;
       case DifficultyModifier.invisibleMatch:
         return Colors.grey;
       case DifficultyModifier.rotatingGrid:
@@ -997,12 +1129,12 @@ class _VictoryDialog extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
+          color: AppColors.darkSurface,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: const Color(0xFF333333)),
+          border: Border.all(color: AppColors.darkBorder),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF22C55E).withOpacity(0.2),
+              color: AppColors.success.withOpacity(0.2),
               blurRadius: 40,
               spreadRadius: 5,
             ),
@@ -1014,13 +1146,11 @@ class _VictoryDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
-                ),
+                gradient: AppGradients.success,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF22C55E).withOpacity(0.3),
+                    color: AppColors.success.withOpacity(0.3),
                     blurRadius: 20,
                     spreadRadius: 4,
                   ),
@@ -1077,7 +1207,7 @@ class _VictoryDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF333333),
+                        color: AppColors.darkBorder,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Center(
@@ -1100,13 +1230,11 @@ class _VictoryDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF3B82F6), Color(0xFF2563EB)],
-                        ),
+                        gradient: AppGradients.royalBlue,
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
-                            color: const Color(0xFF3B82F6).withOpacity(0.3),
+                            color: AppColors.royalBlue.withOpacity(0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -1158,9 +1286,9 @@ class _GameOverDialog extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
+          color: AppColors.darkSurface,
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: const Color(0xFF333333)),
+          border: Border.all(color: AppColors.darkBorder),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -1168,12 +1296,12 @@ class _GameOverDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.2),
+                color: AppColors.error.withOpacity(0.2),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
                 Icons.close_rounded,
-                color: Colors.red,
+                color: AppColors.error,
                 size: 40,
               ),
             ),
@@ -1184,7 +1312,7 @@ class _GameOverDialog extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
-                color: Colors.red,
+                color: AppColors.error,
               ),
             ),
             const SizedBox(height: 8),
@@ -1221,7 +1349,7 @@ class _GameOverDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF333333),
+                        color: AppColors.darkBorder,
                         borderRadius: BorderRadius.circular(14),
                       ),
                       child: const Center(
@@ -1244,13 +1372,11 @@ class _GameOverDialog extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFFDC2626), Color(0xFFB91C1C)],
-                        ),
+                        gradient: AppGradients.error,
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red.withOpacity(0.3),
+                            color: AppColors.error.withOpacity(0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),

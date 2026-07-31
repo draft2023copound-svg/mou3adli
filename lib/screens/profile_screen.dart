@@ -846,7 +846,7 @@ class ProfileScreen extends StatelessWidget {
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 16),
-          Wrap(
+          const Wrap(
             spacing: 10,
             runSpacing: 10,
             children: [
@@ -909,11 +909,11 @@ class ProfileScreen extends StatelessWidget {
         color: Colors.orange.withOpacity(.08),
         borderRadius: BorderRadius.circular(22),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          const Icon(Icons.local_fire_department, color: Colors.deepOrange, size: 36),
-          const SizedBox(width: 18),
-          const Expanded(
+          Icon(Icons.local_fire_department, color: Colors.deepOrange, size: 36),
+          SizedBox(width: 18),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -926,7 +926,7 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
           ),
-          const Text(
+          Text(
             "🔥 25",
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.deepOrange),
           ),

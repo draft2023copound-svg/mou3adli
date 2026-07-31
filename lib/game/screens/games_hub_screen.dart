@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../theme/app_theme.dart';
+import '../../providers/games_provider.dart';
 import 'memory_screen.dart';
 import 'quiz_screen.dart';
 
@@ -8,106 +11,239 @@ class GamesHubScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
+      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-
-            // Header
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF1E3A8A).withOpacity(0.25),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
+        child: Consumer<GamesProvider>(
+          builder: (context, games, _) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  const Icon(
-                    Icons.games_rounded,
-                    color: Color(0xFFD4AF37),
-                    size: 48,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'ZONE DE JEUX',
-                    style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.white,
-                      letterSpacing: 4,
+                  const SizedBox(height: 20),
+                  _buildHeader(),
+                  const SizedBox(height: 24),
+                  if (games.badges.isNotEmpty) ...[
+                    _buildBadges(games),
+                    const SizedBox(height: 24),
+                  ],
+                  _buildStats(games),
+                  const SizedBox(height: 32),
+                  _buildGameCard(
+                    title: 'MEMORY',
+                    subtitle: 'Teste ta mémoire visuelle',
+                    icon: Icons.grid_view_rounded,
+                    gradient: AppGradients.royalBlue,
+                    description: '50 niveaux de difficulté croissante. Flash rouge, miroir, blackout...',
+                    stats: 'Niveau max: ${games.memoryMaxLevel}',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const MemoryScreen()),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Choisis ton défi',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withOpacity(0.7),
-                      fontWeight: FontWeight.w500,
+                  const SizedBox(height: 20),
+                  _buildGameCard(
+                    title: 'CULTURE G',
+                    subtitle: 'Défie tes connaissances',
+                    icon: Icons.psychology_rounded,
+                    gradient: AppGradients.matteGold,
+                    description: '56 questions sur sport, musique, sciences, cinéma et littérature.',
+                    stats: 'Meilleur: ${games.quizBestScore}/10',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const QuizScreen()),
                     ),
                   ),
+                  const SizedBox(height: 40),
                 ],
               ),
-            ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 
-            const SizedBox(height: 40),
+  Widget _buildHeader() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: AppGradients.royalBlue,
+        borderRadius: BorderRadius.circular(AppSizes.radiusXXLarge),
+        boxShadow: [AppShadows.colored(AppColors.royalBlue, 0.25)],
+      ),
+      child: Column(
+        children: [
+          const Icon(
+            Icons.games_rounded,
+            color: AppColors.matteGold,
+            size: 48,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'ZONE DE JEUX',
+            style: AppTextStyles.headlineLarge.copyWith(color: Colors.white),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Choisis ton défi et bats tes records',
+            style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // Game cards
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+  Widget _buildBadges(GamesProvider games) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Tes badges', style: AppTextStyles.headlineSmall),
+        const SizedBox(height: 12),
+        SizedBox(
+          height: 100,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            itemCount: games.badges.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 12),
+            itemBuilder: (context, index) {
+              final badge = games.badges[index];
+              return Container(
+                width: 80,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.surface,
+                  borderRadius: BorderRadius.circular(AppSizes.radiusLarge),
+                  border: Border.all(color: AppColors.border),
+                  boxShadow: [AppShadows.small],
+                ),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _GameCard(
-                      title: 'MEMORY',
-                      subtitle: 'Teste ta mémoire visuelle',
-                      icon: Icons.grid_view_rounded,
-                      iconColor: const Color(0xFF3B82F6),
-                      gradient: const [
-                        Color(0xFF1E3A8A),
-                        Color(0xFF3B82F6),
-                      ],
-                      description: 'Retrouve les paires de cartes cachées. 50 niveaux de difficulté croissante avec des effets spéciaux.',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const MemoryScreen()),
-                      ),
+                    Text(
+                      games.getBadgeIcon(badge),
+                      style: const TextStyle(fontSize: 32),
                     ),
-                    const SizedBox(height: 20),
-                    _GameCard(
-                      title: 'CULTURE G',
-                      subtitle: 'Défie tes connaissances',
-                      icon: Icons.psychology_rounded,
-                      iconColor: const Color(0xFFD4AF37),
-                      gradient: const [
-                        Color(0xFFB8941F),
-                        Color(0xFFD4AF37),
-                      ],
-                      description: 'Questions de culture générale en arabe. Sport, musique, sciences, cinéma et littérature.',
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const QuizScreen()),
+                    const SizedBox(height: 4),
+                    Text(
+                      games.getBadgeLabel(badge),
+                      style: const TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textSecondary,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStats(GamesProvider games) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSizes.radiusXXLarge),
+        border: Border.all(color: AppColors.border),
+        boxShadow: [AppShadows.small],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _StatItem(
+            icon: Icons.games_rounded,
+            label: 'Parties',
+            value: '${games.memoryGamesPlayed + games.quizGamesPlayed}',
+          ),
+          Container(width: 1, height: 40, color: AppColors.divider),
+          _StatItem(
+            icon: Icons.star_rounded,
+            label: 'Score total',
+            value: '${games.totalScore}',
+          ),
+          Container(width: 1, height: 40, color: AppColors.divider),
+          _StatItem(
+            icon: Icons.emoji_events_rounded,
+            label: 'Badges',
+            value: '${games.badges.length}',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGameCard({
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required LinearGradient gradient,
+    required String description,
+    required String stats,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(AppSizes.radiusXXLarge),
+          border: Border.all(color: AppColors.border),
+          boxShadow: [AppShadows.medium],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: gradient,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [AppShadows.colored(gradient.colors[0], 0.3)],
+              ),
+              child: Icon(icon, color: Colors.white, size: 32),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTextStyles.headlineSmall),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: AppTextStyles.bodyMedium),
+                  const SizedBox(height: 8),
+                  Text(
+                    description,
+                    style: AppTextStyles.bodySmall.copyWith(height: 1.4),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: AppColors.royalBlue.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      stats,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.royalBlue,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-
-            const SizedBox(height: 20),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: AppColors.textMuted,
+              size: 20,
+            ),
           ],
         ),
       ),
@@ -115,121 +251,33 @@ class GamesHubScreen extends StatelessWidget {
   }
 }
 
-class _GameCard extends StatelessWidget {
-  final String title;
-  final String subtitle;
+class _StatItem extends StatelessWidget {
   final IconData icon;
-  final Color iconColor;
-  final List<Color> gradient;
-  final String description;
-  final VoidCallback onTap;
+  final String label;
+  final String value;
 
-  const _GameCard({
-    required this.title,
-    required this.subtitle,
+  const _StatItem({
     required this.icon,
-    required this.iconColor,
-    required this.gradient,
-    required this.description,
-    required this.onTap,
+    required this.label,
+    required this.value,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: const Color(0xFFE2E8F0),
-            width: 1,
+    return Column(
+      children: [
+        Icon(icon, color: AppColors.matteGold, size: 24),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.04),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
         ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: gradient,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: gradient[0].withOpacity(0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 32,
-              ),
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1E293B),
-                      letterSpacing: 1,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF64748B),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: const Color(0xFF64748B).withOpacity(0.8),
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.arrow_forward_ios_rounded,
-                color: Color(0xFF94A3B8),
-                size: 16,
-              ),
-            ),
-          ],
-        ),
-      ),
+        Text(label, style: AppTextStyles.bodySmall),
+      ],
     );
   }
 }
