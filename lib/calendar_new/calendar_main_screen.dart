@@ -105,17 +105,17 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
 
           const SizedBox(height: 8),
 
-          // --- Liste ou État vide premium ---
+          // --- Liste ou État vide ---
           Expanded(
             child: events.isEmpty
-                ? Center(
-                    child: SingleChildScrollView(
+                ? SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Container(
-                            width: 240,
-                            height: 240,
+                            width: 200,
+                            height: 200,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
@@ -131,31 +131,23 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                               alignment: Alignment.center,
                               child: Image.asset(
                                 'assets/images/calendar_illustration.png',
-                                height: 160,
+                                height: 130,
                                 fit: BoxFit.contain,
                               ),
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          const SizedBox(height: 16),
                           const Text(
-                            "Journée libre ✨",
+                            "Journée libre",
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
                               color: kRoyalBlue,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 10),
                           Text(
-                            "Profite de ce moment de calme.",
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 15,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            "Clique sur le bouton + pour organiser ta journée.",
+                            "Clique sur le bouton + pour ajouter un événement.",
                             style: TextStyle(
                               color: Colors.grey.shade500,
                               fontSize: 13,
@@ -314,7 +306,6 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: titleController,
-                    // SUPPRESSION DU 'const' ICI
                     decoration: InputDecoration(
                       hintText: 'Titre de l\'événement',
                       filled: true,
@@ -327,9 +318,8 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                   ),
                   const SizedBox(height: 12),
 
-                  DropdownButtonFormField<EventType>(
+                  DropdownButtonFormField(
                     value: selectedType,
-                    // SUPPRESSION DU 'const' ICI
                     decoration: InputDecoration(
                       hintText: 'Type',
                       filled: true,
@@ -395,7 +385,6 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                   const SizedBox(height: 12),
                   TextField(
                     controller: noteController,
-                    // SUPPRESSION DU 'const' ICI
                     decoration: InputDecoration(
                       hintText: 'Note (optionnel)',
                       filled: true,

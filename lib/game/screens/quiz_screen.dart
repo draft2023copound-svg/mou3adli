@@ -13,8 +13,7 @@ class QuizScreen extends StatefulWidget {
   State<QuizScreen> createState() => _QuizScreenState();
 }
 
-class _QuizScreenState extends State<QuizScreen>
-    with TickerProviderStateMixin {
+class _QuizScreenState extends State<QuizScreen> {
   static const int _questionsPerGame = 10;
 
   late List<Map<String, dynamic>> _questions;
@@ -28,9 +27,6 @@ class _QuizScreenState extends State<QuizScreen>
   int _seconds = 0;
   static const int _timePerQuestion = 20;
 
-  late AnimationController _cardController;
-  late Animation<double> _cardSlide;
-
   int _streak = 0;
   int _bestStreak = 0;
   bool _showCelebration = false;
@@ -38,20 +34,12 @@ class _QuizScreenState extends State<QuizScreen>
   @override
   void initState() {
     super.initState();
-    _cardController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 400),
-    );
-    _cardSlide = Tween<double>(begin: 1.0, end: 0.0).animate(
-      CurvedAnimation(parent: _cardController, curve: Curves.easeOutCubic),
-    );
     _initGame();
   }
 
   @override
   void dispose() {
     _timer?.cancel();
-    _cardController.dispose();
     super.dispose();
   }
 
@@ -88,6 +76,7 @@ class _QuizScreenState extends State<QuizScreen>
   }
 
   void _onTimeUp() {
+    if (!mounted) return;
     if (!_isAnswered) {
       setState(() {
         _isAnswered = true;
@@ -135,17 +124,14 @@ class _QuizScreenState extends State<QuizScreen>
 
   void _nextQuestion() {
     if (_currentIndex < _questions.length - 1) {
-      _cardController.forward().then((_) {
-        setState(() {
-          _currentIndex++;
-          _isAnswered = false;
-          _selectedAnswer = null;
-          _correctAnswer = null;
-          _showCelebration = false;
-        });
-        _cardController.reset();
-        _startQuestionTimer();
+      setState(() {
+        _currentIndex++;
+        _isAnswered = false;
+        _selectedAnswer = null;
+        _correctAnswer = null;
+        _showCelebration = false;
       });
+      _startQuestionTimer();
     } else {
       _showResults();
     }
@@ -153,11 +139,10 @@ class _QuizScreenState extends State<QuizScreen>
 
   void _showResults() {
     final percentage = (_score / _questions.length * 100).round();
-    
-    // SAUVEGARDE DU SCORE
+
     final gamesProvider = Provider.of<GamesProvider>(context, listen: false);
     gamesProvider.saveQuizResult(_score, _bestStreak);
-    
+
     String title;
     String subtitle;
     Color color;
@@ -221,18 +206,26 @@ class _QuizScreenState extends State<QuizScreen>
             _buildHeader(progress),
             const SizedBox(height: 20),
             Expanded(
-              child: AnimatedBuilder(
-                animation: _cardController,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(
-                      _cardSlide.value * MediaQuery.of(context).size.width,
-                      0,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 400),
+                transitionBuilder: (child, animation) {
+                  final slideAnimation = Tween<Offset>(
+                    begin: const Offset(1.0, 0.0),
+                    end: Offset.zero,
+                  ).animate(CurvedAnimation(
+                    parent: animation,
+                    curve: Curves.easeOutCubic,
+                  ));
+                  return SlideTransition(
+                    position: slideAnimation,
+                    child: FadeTransition(
+                      opacity: animation,
+                      child: child,
                     ),
-                    child: child,
                   );
                 },
                 child: Padding(
+                  key: ValueKey<int>(_currentIndex),
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
@@ -830,9 +823,9 @@ class _StatBadge extends StatelessWidget {
       child: Column(
         children: [
           Icon(
-            icon, 
-            color: iconColor ?? const Color(0xFFD4AF37), 
-            size: 20
+            icon,
+            color: iconColor ?? const Color(0xFFD4AF37),
+            size: 20,
           ),
           const SizedBox(height: 4),
           Text(
