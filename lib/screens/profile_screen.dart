@@ -27,7 +27,6 @@ class ProfileScreen extends StatelessWidget {
         final displayStream = user?.displayStream ?? '';
         final classLevel = user?.classLevel ?? '';
 
-        // La filière n'existe qu'à partir de la 2ème année secondaire
         final hasStream = classLevel == '2eme' ||
             classLevel == '3eme' ||
             classLevel == '4eme';
@@ -114,22 +113,6 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 18),
                     _buildGoalsCard(context, avg, annualAvg, term),
-                    const SizedBox(height: 30),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 22),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "Paramètres",
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    _buildSettingsSection(context, provider),
                     const SizedBox(height: 40),
                   ],
                 ),
@@ -141,7 +124,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // ─── HEADER AVEC VRAIES DONNÉES ───
+  // ─── HEADER ───
   Widget _buildHeader(BuildContext context, String displayName, String classLabel, String schoolName, String? photoUrl) {
     return Container(
       margin: const EdgeInsets.all(20),
@@ -365,7 +348,7 @@ class ProfileScreen extends StatelessWidget {
     return "Nouvel élève";
   }
 
-  // ─── CARTE PERFORMANCE AVEC VRAIES DONNÉES ───
+  // ─── CARTE PERFORMANCE ───
   Widget _buildPerformanceCard(BuildContext context, double avg, double annualAvg, dynamic term) {
     const target = 18.0;
     final progress = avg > 0 ? (avg / target).clamp(0.0, 1.0) : 0.0;
@@ -531,7 +514,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // ─── GRILLE STATISTIQUES AVEC VRAIES DONNÉES ───
+  // ─── GRILLE STATISTIQUES ───
   Widget _buildStatisticsGrid(BuildContext context, AppProvider provider) {
     final term = provider.currentTerm;
     final completedSubjects = term?.completedSubjects ?? 0;
@@ -695,7 +678,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // ─── TIMELINE ACTIVITÉ AVEC VRAIES DONNÉES ───
+  // ─── TIMELINE ACTIVITÉ ───
   Widget _buildActivityTimeline(BuildContext context, AppProvider provider) {
     final term = provider.currentTerm;
 
@@ -872,7 +855,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // ─── OBJECTIFS ET PROGRESSION AVEC VRAIES DONNÉES ───
+  // ─── OBJECTIFS ET PROGRESSION ───
   Widget _buildGoalsCard(BuildContext context, double avg, double annualAvg, dynamic term) {
     const target = 18.0;
     final progress = avg > 0 ? (avg / target).clamp(0.0, 1.0) : 0.0;
@@ -1059,176 +1042,6 @@ class ProfileScreen extends StatelessWidget {
         label: badge['label'] as String,
         color: badge['color'] as Color,
       )).toList(),
-    );
-  }
-
-  // ─── PARAMÈTRES AVEC VRAIE DÉCONNEXION ───
-  Widget _buildSettingsSection(BuildContext context, AppProvider provider) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        children: [
-          _settingTile(
-            context: context,
-            icon: Icons.person_outline,
-            title: "Informations personnelles",
-            subtitle: "${provider.user?.fullName ?? ''} — ${provider.user?.displayClass ?? ''}",
-            color: Colors.blue,
-          ),
-          _settingTile(
-            context: context,
-            icon: Icons.notifications_none_rounded,
-            title: "Notifications",
-            subtitle: "Examens, devoirs et rappels",
-            color: Colors.deepPurple,
-          ),
-          _settingTile(
-            context: context,
-            icon: Icons.dark_mode_outlined,
-            title: "Thème",
-            subtitle: "Mode clair / sombre",
-            color: Colors.indigo,
-          ),
-          _settingTile(
-            context: context,
-            icon: Icons.language_rounded,
-            title: "Langue",
-            subtitle: "Français",
-            color: Colors.teal,
-          ),
-          _settingTile(
-            context: context,
-            icon: Icons.help_outline,
-            title: "Aide & Support",
-            subtitle: "FAQ et assistance",
-            color: Colors.orange,
-          ),
-          _settingTile(
-            context: context,
-            icon: Icons.privacy_tip_outlined,
-            title: "Confidentialité",
-            subtitle: "Sécurité des données",
-            color: Colors.green,
-          ),
-          const SizedBox(height: 18),
-          _logoutCard(context, provider),
-          const SizedBox(height: 30),
-          Text(
-            "Mou3adli v1.0.0",
-            style: TextStyle(color: Colors.grey.shade500, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            "© 2026 Tous droits réservés",
-            style: TextStyle(color: Colors.grey.shade500),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _settingTile({
-    required BuildContext context,
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(.04),
-            blurRadius: 18,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-        leading: Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            color: color.withOpacity(.10),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Icon(icon, color: color),
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
-        ),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.chevron_right_rounded),
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("🛠️ $title")),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _logoutCard(BuildContext context, AppProvider provider) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            Color(0xffFF6B6B),
-            Color(0xffFF4D4D),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.red.withOpacity(.25),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-        leading: const Icon(Icons.logout_rounded, color: Colors.white),
-        title: const Text(
-          "Déconnexion",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 17),
-        ),
-        subtitle: const Text(
-          "Quitter votre compte",
-          style: TextStyle(color: Colors.white70),
-        ),
-        trailing: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 18),
-        onTap: () {
-          showDialog(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: const Text("Déconnexion"),
-              content: const Text("Voulez-vous vraiment vous déconnecter ?"),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx),
-                  child: const Text("Annuler"),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(ctx);
-                    provider.logout();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("👋 Déconnecté !")),
-                    );
-                  },
-                  child: const Text("Se déconnecter"),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
     );
   }
 }
