@@ -108,14 +108,16 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
           // --- Liste ou État vide ---
           Expanded(
             child: events.isEmpty
-                ? SingleChildScrollView(
-                    child: Padding(
+                ? Align(
+                    alignment: Alignment.topCenter,
+                    child: SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                       child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Container(
-                            width: 200,
-                            height: 200,
+                            width: 160,
+                            height: 160,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
@@ -127,27 +129,40 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                                 stops: const [0.0, 0.5, 1.0],
                               ),
                             ),
-                            child: Align(
-                              alignment: Alignment.center,
+                            child: Center(
                               child: Image.asset(
                                 'assets/images/calendar_illustration.png',
-                                height: 130,
+                                height: 100,
                                 fit: BoxFit.contain,
+                                errorBuilder: (_, __, ___) => Icon(
+                                  Icons.calendar_month_rounded,
+                                  size: 60,
+                                  color: kRoyalBlue.withOpacity(0.3),
+                                ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
                           const Text(
-                            "Journée libre",
+                            "Journée libre ✨",
                             style: TextStyle(
-                              fontSize: 22,
+                              fontSize: 20,
                               fontWeight: FontWeight.w800,
                               color: kRoyalBlue,
                             ),
                           ),
-                          const SizedBox(height: 10),
+                          const SizedBox(height: 6),
                           Text(
-                            "Clique sur le bouton + pour ajouter un événement.",
+                            "Profite de ce moment de calme.",
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 14,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Clique sur le bouton + pour organiser ta journée.",
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.grey.shade500,
                               fontSize: 13,
