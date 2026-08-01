@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_widgets.dart';
+import '../widgets/custom_widgets.dart' as cw;
 import '../screens/subject_list_screen.dart';
 import '../screens/profile_screen.dart';
 
@@ -91,11 +91,11 @@ class CustomBottomNav extends StatelessWidget {
                 height: 60,
                 margin: const EdgeInsets.only(bottom: 10),
                 decoration: BoxDecoration(
-                  color: kRoyalBlue,
+                  color: cw.kRoyalBlue,
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: kRoyalBlue.withOpacity(0.4),
+                      color: cw.kRoyalBlue.withOpacity(0.4),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -129,7 +129,7 @@ class CustomBottomNav extends StatelessWidget {
         children: [
           Icon(
             icon,
-            color: isSelected ? kRoyalBlue : Colors.grey.shade400,
+            color: isSelected ? cw.kRoyalBlue : Colors.grey.shade400,
             size: 28,
           ),
           const SizedBox(height: 4),
@@ -137,7 +137,7 @@ class CustomBottomNav extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: 11,
-              color: isSelected ? kRoyalBlue : Colors.grey.shade400,
+              color: isSelected ? cw.kRoyalBlue : Colors.grey.shade400,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
           ),

@@ -9,6 +9,8 @@ import 'settings_screen.dart';
 const Color kPrimary = Color(0xff4F8CFF);
 const Color kSecondary = Color(0xff6C63FF);
 const Color kBackground = Color(0xffF8FAFC);
+const Color kRoyalBlue = Color(0xFF1C3F7A);
+const Color kMatteGold = Color(0xFFC5A059);
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -31,7 +33,7 @@ class ProfileScreen extends StatelessWidget {
             classLevel == '3eme' ||
             classLevel == '4eme';
         final classLabel = (hasStream && displayStream.isNotEmpty)
-            ? '$displayClass • $displayStream'
+            ? '$displayClass \u2022 $displayStream'
             : displayClass;
         final schoolName = user?.schoolName ?? '';
 
@@ -113,6 +115,8 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 18),
                     _buildGoalsCard(context, avg, annualAvg, term),
+                    const SizedBox(height: 30),
+                    _buildLogoutButton(context, provider),
                     const SizedBox(height: 40),
                   ],
                 ),
@@ -1042,6 +1046,131 @@ class ProfileScreen extends StatelessWidget {
         label: badge['label'] as String,
         color: badge['color'] as Color,
       )).toList(),
+    );
+  }
+
+  // ─── BOUTON DÉCONNEXION BLEU ROYAL + DORÉ ───
+  Widget _buildLogoutButton(BuildContext context, AppProvider provider) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: InkWell(
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              title: const Row(
+                children: [
+                  Icon(Icons.logout_rounded, color: kRoyalBlue),
+                  SizedBox(width: 10),
+                  Text("Déconnexion", style: TextStyle(fontWeight: FontWeight.w800)),
+                ],
+              ),
+              content: const Text("Voulez-vous vraiment vous déconnecter ?"),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text("Annuler", style: TextStyle(color: Colors.grey)),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: kRoyalBlue,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    provider.logout();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("👋 Déconnecté !")),
+                    );
+                  },
+                  child: const Text("Se déconnecter"),
+                ),
+              ],
+            ),
+          );
+        },
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 24),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                kRoyalBlue,
+                Color(0xFF2A4F8F),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: kRoyalBlue.withOpacity(.3),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+            border: Border.all(
+              color: kMatteGold.withOpacity(.4),
+              width: 1.5,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: kMatteGold.withOpacity(.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.logout_rounded,
+                  color: kMatteGold,
+                  size: 22,
+                ),
+              ),
+              const SizedBox(width: 14),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Se déconnecter",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 17,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    "Quitter votre compte",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: kMatteGold.withOpacity(.15),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: kMatteGold,
+                  size: 16,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
