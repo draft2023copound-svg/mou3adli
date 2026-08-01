@@ -314,9 +314,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
+  /// La filière n'existe qu'à partir de la 2ème année secondaire.
+  /// 1ère année = programme commun, pas de filière.
   bool _shouldShowStream(String classLevel) {
-    return classLevel == '1ere' ||
-        classLevel == '2eme' ||
+    return classLevel == '2eme' ||
         classLevel == '3eme' ||
         classLevel == '4eme';
   }
@@ -389,6 +390,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
+    // La filière n'est obligatoire qu'à partir de la 2ème année
     if (_shouldShowStream(_selectedClassLevel!) && _selectedStream == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("❌ Veuillez sélectionner une filière")),
