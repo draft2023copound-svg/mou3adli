@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:mou3adli/screens/home_screen.dart';
-import 'package:mou3adli/screens/term_selection_screen.dart';
-import 'package:mou3adli/calendar_new/calendar_main_screen.dart'; // <-- CORRIGÉ ICI
-import 'package:mou3adli/screens/edit_profile_screen.dart';
-import 'package:mou3adli/screens/settings_screen.dart';
+import 'package:provider/provider.dart';
+import '../providers/app_provider.dart';
+import 'home_screen.dart';
+import 'term_selection_screen.dart';
+import 'edit_profile_screen.dart';
+import 'settings_screen.dart';
 
 const Color kPrimary = Color(0xff4F8CFF);
 const Color kSecondary = Color(0xff6C63FF);
@@ -14,111 +15,128 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kBackground,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xffFDFEFF),
-              Color(0xffF7F9FD),
-              Color(0xffF2F6FC),
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                _buildHeader(context),
-                const SizedBox(height: 30),
-                _buildPerformanceCard(context),
-                const SizedBox(height: 25),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 22),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Vue d'ensemble",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                _buildStatisticsGrid(context),
-                const SizedBox(height: 30),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 22),
-                  child: Row(
-                    children: [
-                      Text(
-                        "Activité récente",
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w800,
+    return Consumer<AppProvider>(
+      builder: (context, provider, _) {
+        final user = provider.user;
+        final term = provider.currentTerm;
+        final avg = provider.currentGeneralAverage;
+        final annualAvg = provider.annualAverage;
+
+        final displayName = user?.fullName ?? 'Élève';
+        final displayClass = user?.displayClass ?? '';
+        final displayStream = user?.displayStream ?? '';
+        final classLabel = displayStream.isNotEmpty
+            ? '$displayClass • $displayStream'
+            : displayClass;
+        final schoolName = user?.schoolName ?? '';
+
+        return Scaffold(
+          backgroundColor: kBackground,
+          body: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xffFDFEFF),
+                  Color(0xffF7F9FD),
+                  Color(0xffF2F6FC),
+                ],
+              ),
+            ),
+            child: SafeArea(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildHeader(context, displayName, classLabel, schoolName, user?.photoUrl),
+                    const SizedBox(height: 30),
+                    _buildPerformanceCard(context, avg, annualAvg, term),
+                    const SizedBox(height: 25),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 22),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Vue d'ensemble",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
-                      Spacer(),
-                      Text(
-                        "Voir tout",
-                        style: TextStyle(
-                          color: kPrimary,
-                          fontWeight: FontWeight.w700,
+                    ),
+                    const SizedBox(height: 18),
+                    _buildStatisticsGrid(context, provider),
+                    const SizedBox(height: 30),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 22),
+                      child: Row(
+                        children: [
+                          Text(
+                            "Activité récente",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          Spacer(),
+                          Text(
+                            "Voir tout",
+                            style: TextStyle(
+                              color: kPrimary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    _buildActivityTimeline(context, provider),
+                    const SizedBox(height: 30),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 22),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Objectifs & Progression",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 18),
-                _buildActivityTimeline(context),
-                const SizedBox(height: 30),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 22),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Objectifs & Progression",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
+                    ),
+                    const SizedBox(height: 18),
+                    _buildGoalsCard(context, avg, annualAvg, term),
+                    const SizedBox(height: 30),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 22),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Paramètres",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 18),
+                    _buildSettingsSection(context, provider),
+                    const SizedBox(height: 40),
+                  ],
                 ),
-                const SizedBox(height: 18),
-                _buildGoalsCard(context),
-                const SizedBox(height: 30),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 22),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Paramètres",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 18),
-                _buildSettingsSection(context),
-                const SizedBox(height: 40),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
-  // --- HEADER PREMIUM ---
-  Widget _buildHeader(BuildContext context) {
+  // ─── HEADER AVEC VRAIES DONNÉES ───
+  Widget _buildHeader(BuildContext context, String displayName, String classLabel, String schoolName, String? photoUrl) {
     return Container(
       margin: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -220,16 +238,29 @@ class ProfileScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const CircleAvatar(
+                    child: CircleAvatar(
                       radius: 50,
-                      backgroundImage: NetworkImage("https://i.pravatar.cc/300?img=11"),
+                      backgroundColor: Colors.white,
+                      backgroundImage: photoUrl != null && photoUrl.isNotEmpty
+                          ? NetworkImage(photoUrl)
+                          : null,
+                      child: photoUrl == null || photoUrl.isEmpty
+                          ? Text(
+                              displayName.isNotEmpty ? displayName[0].toUpperCase() : 'M',
+                              style: const TextStyle(
+                                fontSize: 40,
+                                fontWeight: FontWeight.w900,
+                                color: kPrimary,
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                 ),
                 const SizedBox(height: 18),
-                const Text(
-                  "Ahmed Ben Ali",
-                  style: TextStyle(
+                Text(
+                  displayName,
+                  style: const TextStyle(
                     fontSize: 28,
                     color: Colors.white,
                     fontWeight: FontWeight.w900,
@@ -237,7 +268,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  "9ème Année • Lycée Pilote",
+                  classLabel.isNotEmpty ? classLabel : (schoolName.isNotEmpty ? schoolName : 'Élève'),
                   style: TextStyle(
                     color: Colors.white.withOpacity(.90),
                     fontSize: 16,
@@ -250,14 +281,14 @@ class ProfileScreen extends StatelessWidget {
                     color: Colors.white.withOpacity(.18),
                     borderRadius: BorderRadius.circular(30),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.workspace_premium, color: Colors.amber, size: 20),
-                      SizedBox(width: 8),
+                      const Icon(Icons.workspace_premium, color: Colors.amber, size: 20),
+                      const SizedBox(width: 8),
                       Text(
-                        "Excellent élève",
-                        style: TextStyle(
+                        _getMentionLabelFromAvg(0),
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -320,8 +351,21 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // --- CARTE PERFORMANCE ---
-  Widget _buildPerformanceCard(BuildContext context) {
+  String _getMentionLabelFromAvg(double avg) {
+    if (avg >= 16) return "Excellent élève";
+    if (avg >= 14) return "Très bon élève";
+    if (avg >= 12) return "Bon élève";
+    if (avg >= 10) return "Élève passable";
+    return "Nouvel élève";
+  }
+
+  // ─── CARTE PERFORMANCE AVEC VRAIES DONNÉES ───
+  Widget _buildPerformanceCard(BuildContext context, double avg, double annualAvg, dynamic term) {
+    const target = 18.0;
+    final progress = avg > 0 ? (avg / target).clamp(0.0, 1.0) : 0.0;
+    final percentage = (progress * 100).round();
+    final subjectCount = term?.subjects?.length ?? 0;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(24),
@@ -366,26 +410,27 @@ class ProfileScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(.12),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.trending_up, color: Colors.green, size: 18),
-                    SizedBox(width: 5),
-                    Text(
-                      "+0.85",
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
+              if (avg > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(.12),
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.trending_up, color: Colors.green, size: 18),
+                      const SizedBox(width: 5),
+                      Text(
+                        "+${(annualAvg - avg).abs().toStringAsFixed(2)}",
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
           const SizedBox(height: 30),
@@ -398,9 +443,9 @@ class ProfileScreen extends StatelessWidget {
                       colors: [kPrimary, kSecondary],
                     ).createShader(bounds);
                   },
-                  child: const Text(
-                    "17.45",
-                    style: TextStyle(
+                  child: Text(
+                    avg > 0 ? avg.toStringAsFixed(2) : '--',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 54,
                       fontWeight: FontWeight.w900,
@@ -419,7 +464,7 @@ class ProfileScreen extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: LinearProgressIndicator(
-              value: .87,
+              value: progress,
               minHeight: 12,
               backgroundColor: Colors.grey.shade200,
               valueColor: const AlwaysStoppedAnimation(kPrimary),
@@ -429,24 +474,24 @@ class ProfileScreen extends StatelessWidget {
           Row(
             children: [
               Text(
-                "Objectif : 18.00",
+                "Objectif : ${target.toStringAsFixed(2)}",
                 style: TextStyle(color: Colors.grey.shade600),
               ),
               const Spacer(),
-              const Text(
-                "87 %",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Text(
+                "$percentage %",
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ],
           ),
           const SizedBox(height: 30),
           Row(
             children: [
-              Expanded(child: _smallInfo("Classement", "4", Icons.emoji_events, Colors.orange)),
+              Expanded(child: _smallInfo("Trimestres", "3", Icons.calendar_month, Colors.orange)),
               const SizedBox(width: 15),
-              Expanded(child: _smallInfo("XP", "2450", Icons.bolt, Colors.deepPurple)),
+              Expanded(child: _smallInfo("Annuelle", annualAvg > 0 ? annualAvg.toStringAsFixed(2) : '--', Icons.school, Colors.deepPurple)),
               const SizedBox(width: 15),
-              Expanded(child: _smallInfo("Niveau", "15", Icons.star, Colors.green)),
+              Expanded(child: _smallInfo("Matières", "$subjectCount", Icons.menu_book, Colors.green)),
             ],
           ),
         ],
@@ -479,8 +524,14 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // --- GRILLE STATISTIQUES ---
-  Widget _buildStatisticsGrid(BuildContext context) {
+  // ─── GRILLE STATISTIQUES AVEC VRAIES DONNÉES ───
+  Widget _buildStatisticsGrid(BuildContext context, AppProvider provider) {
+    final term = provider.currentTerm;
+    final completedSubjects = term?.completedSubjects ?? 0;
+    final totalSubjects = term?.totalSubjects ?? 0;
+    final progressVal = term?.progress ?? 0;
+    final progress = (progressVal * 100).toStringAsFixed(0);
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: GridView.count(
@@ -494,57 +545,69 @@ class ProfileScreen extends StatelessWidget {
           _statItem(
             context: context,
             title: "Matières",
-            value: "12",
-            subtitle: "+2 ce mois",
+            value: "$totalSubjects",
+            subtitle: "$completedSubjects notées",
             icon: Icons.menu_book_rounded,
             color: Colors.blue,
             targetScreen: const HomeScreen(),
           ),
           _statItem(
             context: context,
-            title: "Devoirs",
-            value: "18",
-            subtitle: "4 cette semaine",
+            title: "Progression",
+            value: "$progress%",
+            subtitle: "du trimestre",
             icon: Icons.assignment_rounded,
             color: Colors.deepPurple,
             targetScreen: const TermSelectionScreen(),
           ),
           _statItem(
             context: context,
-            title: "Examens",
-            value: "3",
-            subtitle: "À venir",
+            title: "Moyenne",
+            value: provider.currentGeneralAverage > 0
+                ? provider.currentGeneralAverage.toStringAsFixed(2)
+                : '--',
+            subtitle: "/20",
             icon: Icons.event_note_rounded,
             color: Colors.orange,
-            targetScreen: const CalendarMainScreen(),
+            targetScreen: const TermSelectionScreen(),
           ),
           _statItem(
             context: context,
-            title: "Présence",
-            value: "98%",
-            subtitle: "Excellent",
+            title: "Annuelle",
+            value: provider.annualAverage > 0
+                ? provider.annualAverage.toStringAsFixed(2)
+                : '--',
+            subtitle: "/20",
             icon: Icons.verified_rounded,
             color: Colors.green,
           ),
           _statItem(
             context: context,
-            title: "Série",
-            value: "25",
-            subtitle: "Jours actifs",
+            title: "Mentions",
+            value: _getMentionShort(provider.currentGeneralAverage),
+            subtitle: _getMentionLabelFromAvg(provider.currentGeneralAverage),
             icon: Icons.local_fire_department_rounded,
             color: Colors.redAccent,
           ),
           _statItem(
             context: context,
             title: "Objectifs",
-            value: "5",
-            subtitle: "En cours",
+            value: provider.currentGeneralAverage >= 16 ? "✓" : "${(16 - provider.currentGeneralAverage).toStringAsFixed(1)}",
+            subtitle: provider.currentGeneralAverage >= 16 ? "Atteint" : "pts restants",
             icon: Icons.flag_rounded,
             color: Colors.teal,
           ),
         ],
       ),
     );
+  }
+
+  String _getMentionShort(double avg) {
+    if (avg >= 16) return "Exc";
+    if (avg >= 14) return "TB";
+    if (avg >= 12) return "B";
+    if (avg >= 10) return "P";
+    return "Ins";
   }
 
   Widget _statItem({
@@ -621,48 +684,88 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // --- TIMELINE ACTIVITÉ ---
-  Widget _buildActivityTimeline(BuildContext context) {
+  // ─── TIMELINE ACTIVITÉ AVEC VRAIES DONNÉES ───
+  Widget _buildActivityTimeline(BuildContext context, AppProvider provider) {
+    final term = provider.currentTerm;
+
+    // Construire une liste d'activités réelles basée sur les notes saisies
+    final List<Map<String, dynamic>> activities = [];
+
+    if (term != null) {
+      for (final subject in term.subjects) {
+        for (final eval in subject.evaluations) {
+          if (eval.score != null) {
+            activities.add({
+              'color': Colors.green,
+              'icon': Icons.grade_rounded,
+              'title': "Nouvelle note en ${subject.nameFr}",
+              'subtitle': "${eval.score!.toStringAsFixed(1)} /20 (${eval.nameFr})",
+              'time': "Récemment",
+            });
+          }
+        }
+      }
+    }
+
+    // Si pas d'activités, afficher un message
+    if (activities.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(.04),
+                blurRadius: 18,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Icon(Icons.info_outline, color: Colors.grey.shade400, size: 40),
+              const SizedBox(height: 12),
+              Text(
+                "Aucune activité récente",
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "Commence à saisir tes notes pour voir ton activité ici !",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.grey.shade500,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Trier par les plus récentes (dernières en haut) et limiter à 4
+    final recentActivities = activities.reversed.take(4).toList();
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-        children: [
-          _activityCard(
+        children: recentActivities.map((activity) {
+          return _activityCard(
             context: context,
-            color: Colors.green,
-            icon: Icons.grade_rounded,
-            title: "Nouvelle note en Mathématiques",
-            subtitle: "18.5 /20",
-            time: "Aujourd'hui • 09:45",
-            targetScreen: const HomeScreen(),
-          ),
-          _activityCard(
-            context: context,
-            color: Colors.orange,
-            icon: Icons.assignment_rounded,
-            title: "Devoir de Physique ajouté",
-            subtitle: "À rendre le 12 Juin",
-            time: "Hier • 18:20",
-            targetScreen: const TermSelectionScreen(),
-          ),
-          _activityCard(
-            context: context,
-            color: Colors.red,
-            icon: Icons.event_note_rounded,
-            title: "Examen de Français",
-            subtitle: "Dans 3 jours",
-            time: "Lundi",
-            targetScreen: const CalendarMainScreen(),
-          ),
-          _activityCard(
-            context: context,
-            color: Colors.blue,
-            icon: Icons.emoji_events,
-            title: "Objectif atteint",
-            subtitle: "Moyenne supérieure à 17",
-            time: "Cette semaine",
-          ),
-        ],
+            color: activity['color'] as Color,
+            icon: activity['icon'] as IconData,
+            title: activity['title'] as String,
+            subtitle: activity['subtitle'] as String,
+            time: activity['time'] as String,
+          );
+        }).toList(),
       ),
     );
   }
@@ -761,8 +864,13 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // --- OBJECTIFS ET PROGRESSION ---
-  Widget _buildGoalsCard(BuildContext context) {
+  // ─── OBJECTIFS ET PROGRESSION AVEC VRAIES DONNÉES ───
+  Widget _buildGoalsCard(BuildContext context, double avg, double annualAvg, dynamic term) {
+    const target = 18.0;
+    final progress = avg > 0 ? (avg / target).clamp(0.0, 1.0) : 0.0;
+    final percentage = (progress * 100).round();
+    final remaining = target - avg;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(24),
@@ -803,75 +911,54 @@ class ProfileScreen extends StatelessWidget {
                   color: Colors.green.withOpacity(.12),
                   borderRadius: BorderRadius.circular(30),
                 ),
-                child: const Text(
-                  "87 %",
-                  style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                child: Text(
+                  "$percentage %",
+                  style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 25),
-          const Text(
-            "18.00 /20",
-            style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900),
+          Text(
+            avg > 0 ? "${avg.toStringAsFixed(2)} /20" : "-- /20",
+            style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 6),
           Text(
-            "Encore 0.55 point pour atteindre ton objectif.",
+            avg > 0
+                ? remaining > 0
+                    ? "Encore ${remaining.toStringAsFixed(2)} point pour atteindre ton objectif."
+                    : "🎉 Objectif atteint ! Félicitations !"
+                : "Commence à saisir tes notes pour suivre ta progression.",
             style: TextStyle(color: Colors.grey.shade600),
           ),
           const SizedBox(height: 20),
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
-            child: const LinearProgressIndicator(
-              value: .87,
+            child: LinearProgressIndicator(
+              value: progress,
               minHeight: 12,
-              valueColor: AlwaysStoppedAnimation(kPrimary),
-              backgroundColor: Color(0xffEAEAEA),
+              valueColor: const AlwaysStoppedAnimation(kPrimary),
+              backgroundColor: const Color(0xffEAEAEA),
             ),
           ),
           const SizedBox(height: 28),
           Row(
             children: [
-              Expanded(child: _goalInfo("Niveau", "15", Icons.star_rounded, Colors.amber)),
+              Expanded(child: _goalInfo("Trimestre", term?.nameFr ?? "--", Icons.calendar_month, Colors.amber)),
               const SizedBox(width: 15),
-              Expanded(child: _goalInfo("XP", "2450", Icons.bolt_rounded, Colors.deepPurple)),
+              Expanded(child: _goalInfo("Annuelle", annualAvg > 0 ? annualAvg.toStringAsFixed(2) : '--', Icons.bolt_rounded, Colors.deepPurple)),
             ],
           ),
           const SizedBox(height: 18),
-          _streakCard(),
+          _streakCard(avg),
           const SizedBox(height: 22),
           const Text(
             "Badges obtenus",
             style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 16),
-          const Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: [
-              _BadgeChip(
-                icon: Icons.workspace_premium,
-                label: "Excellent élève",
-                color: Colors.orange,
-              ),
-              _BadgeChip(
-                icon: Icons.menu_book,
-                label: "Travailleur",
-                color: Colors.blue,
-              ),
-              _BadgeChip(
-                icon: Icons.local_fire_department,
-                label: "25 jours",
-                color: Colors.red,
-              ),
-              _BadgeChip(
-                icon: Icons.flag,
-                label: "Objectif",
-                color: Colors.green,
-              ),
-            ],
-          ),
+          _buildBadges(context, avg),
         ],
       ),
     );
@@ -902,41 +989,72 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _streakCard() {
+  Widget _streakCard(double avg) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.orange.withOpacity(.08),
         borderRadius: BorderRadius.circular(22),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.local_fire_department, color: Colors.deepOrange, size: 36),
-          SizedBox(width: 18),
+          const Icon(Icons.local_fire_department, color: Colors.deepOrange, size: 36),
+          const SizedBox(width: 18),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
+                const Text(
                   "Série actuelle",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                 ),
-                SizedBox(height: 4),
-                Text("25 jours de travail consécutifs"),
+                const SizedBox(height: 4),
+                Text(
+                  avg > 0
+                      ? "Tu progresses bien, continue comme ça !"
+                      : "Commence à travailler pour démarrer ta série !",
+                ),
               ],
             ),
           ),
           Text(
-            "🔥 25",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.deepOrange),
+            avg > 0 ? "🔥 ${avg.toStringAsFixed(0)}" : "🔥 0",
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: Colors.deepOrange),
           ),
         ],
       ),
     );
   }
 
-  // --- PARAMÈTRES ---
-  Widget _buildSettingsSection(BuildContext context) {
+  Widget _buildBadges(BuildContext context, double avg) {
+    final List<Map<String, dynamic>> badges = [];
+
+    if (avg >= 10) badges.add({'icon': Icons.school, 'label': "En route", 'color': Colors.blue});
+    if (avg >= 12) badges.add({'icon': Icons.menu_book, 'label': "Travailleur", 'color': Colors.blue});
+    if (avg >= 14) badges.add({'icon': Icons.workspace_premium, 'label': "Excellent élève", 'color': Colors.orange});
+    if (avg >= 16) badges.add({'icon': Icons.emoji_events, 'label': "Brillant", 'color': Colors.amber});
+    if (avg >= 18) badges.add({'icon': Icons.star, 'label': "Exceptionnel", 'color': Colors.purple});
+
+    if (badges.isEmpty) {
+      return Text(
+        "Saisis tes premières notes pour débloquer des badges !",
+        style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+      );
+    }
+
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: badges.map((badge) => _BadgeChip(
+        icon: badge['icon'] as IconData,
+        label: badge['label'] as String,
+        color: badge['color'] as Color,
+      )).toList(),
+    );
+  }
+
+  // ─── PARAMÈTRES AVEC VRAIE DÉCONNEXION ───
+  Widget _buildSettingsSection(BuildContext context, AppProvider provider) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -945,7 +1063,7 @@ class ProfileScreen extends StatelessWidget {
             context: context,
             icon: Icons.person_outline,
             title: "Informations personnelles",
-            subtitle: "Nom, classe, établissement",
+            subtitle: "${provider.user?.fullName ?? ''} — ${provider.user?.displayClass ?? ''}",
             color: Colors.blue,
           ),
           _settingTile(
@@ -984,7 +1102,7 @@ class ProfileScreen extends StatelessWidget {
             color: Colors.green,
           ),
           const SizedBox(height: 18),
-          _logoutCard(context),
+          _logoutCard(context, provider),
           const SizedBox(height: 30),
           Text(
             "Mou3adli v1.0.0",
@@ -1046,7 +1164,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _logoutCard(BuildContext context) {
+  Widget _logoutCard(BuildContext context, AppProvider provider) {
     return Container(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
@@ -1090,6 +1208,7 @@ class ProfileScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(ctx);
+                    provider.logout();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("👋 Déconnecté !")),
                     );
