@@ -15,7 +15,7 @@ android {
     namespace = "com.example.mou3adli"
     compileSdk = 35
     buildToolsVersion = "35.0.0"
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973" // <-- Version mise à jour ici
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
