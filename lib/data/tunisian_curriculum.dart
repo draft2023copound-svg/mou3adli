@@ -1,6 +1,3 @@
-// Retirer: import 'package:flutter/material.dart';
-// Ce fichier ne contient que des données pures, pas de widgets
-
 import '../models/evaluation_model.dart';
 import '../models/subject_model.dart';
 import '../models/term_model.dart';
@@ -16,42 +13,42 @@ class TunisianCurriculum {
   // COEFFICIENTS MATIÈRES — COLLÈGE
   // ───────────────────────────────────────────────
 
-  static const Map<String, double> _college7Classique = {
+  static const Map _college7Classique = {
     'arabe': 4, 'francais': 4, 'anglais': 1.5, 'math': 3,
     'physique': 1, 'svt': 1, 'histoire': 1, 'geo': 1,
     'techno': 1, 'islamique': 1, 'civique': 1,
     'informatique': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _college7Pilote = {
+  static const Map _college7Pilote = {
     'arabe': 4, 'francais': 4, 'anglais': 2, 'math': 3,
     'physique': 1, 'svt': 1, 'histoire': 1, 'geo': 1,
     'techno': 1, 'islamique': 1, 'civique': 1,
     'informatique': 1.5, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _college8Classique = {
+  static const Map _college8Classique = {
     'arabe': 4, 'francais': 4, 'anglais': 1.5, 'math': 3,
     'physique': 1, 'svt': 1, 'histoire': 1, 'geo': 1,
     'techno': 1, 'islamique': 1, 'civique': 1,
     'informatique': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _college8Pilote = {
+  static const Map _college8Pilote = {
     'arabe': 4, 'francais': 4, 'anglais': 2, 'math': 3,
     'physique': 1, 'svt': 1, 'histoire': 1, 'geo': 1,
     'techno': 1, 'islamique': 1, 'civique': 1,
     'informatique': 1.5, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _college9Classique = {
+  static const Map _college9Classique = {
     'arabe': 4, 'francais': 4, 'anglais': 1.5, 'math': 3,
     'physique': 1, 'svt': 1, 'histoire': 1, 'geo': 1,
     'techno': 1, 'islamique': 1, 'civique': 1,
     'informatique': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _college9Pilote = {
+  static const Map _college9Pilote = {
     'arabe': 4, 'francais': 4, 'anglais': 2, 'math': 3,
     'physique': 1, 'svt': 1, 'histoire': 1, 'geo': 1,
     'techno': 1, 'islamique': 1, 'civique': 1,
@@ -62,7 +59,7 @@ class TunisianCurriculum {
   // COEFFICIENTS MATIÈRES — LYCÉE 1ÈRE (Tronc commun)
   // ───────────────────────────────────────────────
 
-  static const Map<String, double> _lycee1ere = {
+  static const Map _lycee1ere = {
     'arabe': 3, 'francais': 2.5, 'anglais': 1.5,
     'histoire': 1.5, 'geo': 1.5, 'islamique': 1,
     'civique': 1, 'informatique': 1.5, 'math': 3,
@@ -74,27 +71,27 @@ class TunisianCurriculum {
   // COEFFICIENTS MATIÈRES — LYCÉE 2ÈME (Par filière)
   // ───────────────────────────────────────────────
 
-  static const Map<String, double> _lycee2Sciences = {
+  static const Map _lycee2Sciences = {
     'arabe': 2, 'francais': 2, 'anglais': 2,
     'histoire': 1, 'geo': 1, 'islamique': 1, 'civique': 1,
     'math': 4, 'physique': 4, 'svt': 2, 'techno': 2,
-    'educ_physique': 1,
+    'informatique': 1.5, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee2Lettres = {
+  static const Map _lycee2Lettres = {
     'arabe': 4, 'francais': 4, 'anglais': 3,
     'histoire': 1.5, 'geo': 1.5, 'islamique': 1, 'civique': 1,
     'math': 1, 'svt': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee2Economie = {
+  static const Map _lycee2Economie = {
     'arabe': 2, 'francais': 2, 'anglais': 2,
     'histoire': 1.5, 'geo': 1.5, 'islamique': 1, 'civique': 1,
     'economie': 3, 'gestion': 3, 'math': 2.5,
     'informatique': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee2TechInfo = {
+  static const Map _lycee2TechInfo = {
     'arabe': 2, 'francais': 2, 'anglais': 2,
     'math': 3, 'physique': 3, 'informatique': 4,
     'techno': 4, 'histoire': 1, 'geo': 1,
@@ -105,40 +102,40 @@ class TunisianCurriculum {
   // COEFFICIENTS MATIÈRES — LYCÉE 3ÈME (Par filière)
   // ───────────────────────────────────────────────
 
-  static const Map<String, double> _lycee3SciencesExp = {
+  static const Map _lycee3SciencesExp = {
     'arabe': 2, 'francais': 2, 'anglais': 2, 'philosophie': 2,
     'histoire': 1, 'geo': 1, 'islamique': 1,
     'math': 4, 'physique': 4, 'svt': 2,
     'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee3Math = {
+  static const Map _lycee3Math = {
     'arabe': 2, 'francais': 2, 'anglais': 2, 'philosophie': 2,
     'histoire': 1, 'geo': 1, 'islamique': 1,
     'math': 5, 'physique': 4, 'svt': 1,
     'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee3Lettres = {
+  static const Map _lycee3Lettres = {
     'arabe': 4, 'francais': 4, 'anglais': 3, 'philosophie': 3,
     'histoire': 1.5, 'geo': 1.5, 'islamique': 1,
     'math': 1, 'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee3Economie = {
+  static const Map _lycee3Economie = {
     'arabe': 3, 'francais': 3, 'anglais': 3, 'philosophie': 3,
     'histoire': 1.5, 'geo': 1.5, 'islamique': 1,
     'economie': 3, 'gestion': 3, 'math': 2.5,
     'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee3SciencesTech = {
+  static const Map _lycee3SciencesTech = {
     'arabe': 2, 'francais': 2, 'anglais': 2, 'philosophie': 2,
     'math': 4, 'physique': 4, 'techno': 5,
     'informatique': 2, 'optionnelle': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee3SciencesInfo = {
+  static const Map _lycee3SciencesInfo = {
     'arabe': 2, 'francais': 2, 'anglais': 2, 'philosophie': 2,
     'math': 4, 'physique': 3, 'algorithmique': 5,
     'systemes_reseaux': 4, 'tic': 4,
@@ -149,46 +146,46 @@ class TunisianCurriculum {
   // COEFFICIENTS MATIÈRES — LYCÉE 4ÈME BAC (Par filière)
   // ───────────────────────────────────────────────
 
-  static const Map<String, double> _lycee4SciencesExp = {
+  static const Map _lycee4SciencesExp = {
     'arabe': 3, 'francais': 3, 'anglais': 3, 'philosophie': 3,
     'math': 4, 'physique': 4, 'svt': 4,
     'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee4Math = {
+  static const Map _lycee4Math = {
     'arabe': 3, 'francais': 3, 'anglais': 3, 'philosophie': 3,
     'histoire': 1, 'geo': 1, 'islamique': 1,
     'math': 5, 'physique': 5, 'svt': 1.5,
     'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee4Lettres = {
+  static const Map _lycee4Lettres = {
     'arabe': 4, 'francais': 4, 'anglais': 3, 'philosophie': 3,
     'islamique': 1, 'histoire': 1.5, 'geo': 1.5,
     'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee4Economie = {
+  static const Map _lycee4Economie = {
     'arabe': 3, 'francais': 3, 'anglais': 3, 'philosophie': 3,
     'histoire': 1.5, 'geo': 1.5,
     'economie': 4, 'gestion': 4, 'math': 2.5,
     'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee4SciencesTech = {
+  static const Map _lycee4SciencesTech = {
     'arabe': 2, 'francais': 2, 'anglais': 2, 'philosophie': 2,
     'math': 4, 'physique': 4, 'techno': 5,
     'informatique': 2, 'optionnelle': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee4SciencesInfo = {
+  static const Map _lycee4SciencesInfo = {
     'arabe': 3, 'francais': 3, 'anglais': 3, 'philosophie': 3,
     'math': 4, 'physique': 3, 'algorithmique': 5,
     'systemes_reseaux': 4, 'tic': 4,
     'optionnelle': 1, 'educ_physique': 1,
   };
 
-  static const Map<String, double> _lycee4Sport = {
+  static const Map _lycee4Sport = {
     'arabe': 3, 'francais': 3, 'anglais': 3, 'philosophie': 3,
     'math': 3, 'physique': 3, 'biologie': 3,
     'informatique': 1, 'educ_physique': 4, 'specialite': 4,
@@ -279,7 +276,7 @@ class TunisianCurriculum {
   // ICONS
   // ───────────────────────────────────────────────
 
-  static const Map<String, String> _iconMap = {
+  static const Map _iconMap = {
     'arabe': 'menu_book',
     'francais': 'translate',
     'anglais': 'language',
@@ -308,7 +305,7 @@ class TunisianCurriculum {
   // BUILDERS
   // ───────────────────────────────────────────────
 
-  static Map<String, double> _getSubjectCoeffs(String cycle, String classLevel, String? stream) {
+  static Map _getSubjectCoeffs(String cycle, String classLevel, String? stream) {
     if (cycle == 'college') {
       final isPilote = stream == 'pilote';
       if (classLevel == '7eme') return isPilote ? _college7Pilote : _college7Classique;
