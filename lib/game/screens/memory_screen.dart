@@ -5,9 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../theme/app_theme.dart';
 import '../../providers/games_provider.dart';
-import '../models/card_model.dart';
 import '../models/level_config.dart';
 import '../engine/game_engine.dart';
+import '../models/card_model.dart';
 
 class MemoryScreen extends StatefulWidget {
   final int? startLevel;
@@ -138,6 +138,7 @@ class _MemoryScreenState extends State<MemoryScreen>
   }
 
   void _triggerRedFlash() {
+    if (!mounted) return;
     if (!_config.modifiers.contains(DifficultyModifier.redFlash) &&
         !_config.modifiers.contains(DifficultyModifier.nightmare)) return;
 
@@ -151,6 +152,7 @@ class _MemoryScreenState extends State<MemoryScreen>
   }
 
   void _triggerBlackout() {
+    if (!mounted) return;
     if (!_config.modifiers.contains(DifficultyModifier.blackout) &&
         !_config.modifiers.contains(DifficultyModifier.nightmare)) return;
 
@@ -161,17 +163,20 @@ class _MemoryScreenState extends State<MemoryScreen>
   }
 
   void _triggerChaosShuffle() {
+    if (!mounted) return;
     if (!_config.modifiers.contains(DifficultyModifier.chaosShuffle) &&
         !_config.modifiers.contains(DifficultyModifier.nightmare)) return;
 
     _chaosCounter++;
     if (_chaosCounter % 5 == 0) {
-      final unmatched = _cards.where((c) => !c.isMatched).toList();
+      final unmatched = _cards.where((CardModel card) => !card.isMatched)
+          .toList();
       unmatched.shuffle();
       int unmatchedIdx = 0;
       setState(() {
         for (int i = 0; i < _cards.length; i++) {
-          if (!_cards[i].isMatched) {
+          final card = _cards[i];
+          if (!card.isMatched) {
             _cards[i] = unmatched[unmatchedIdx++];
           }
         }
@@ -181,15 +186,18 @@ class _MemoryScreenState extends State<MemoryScreen>
   }
 
   void _triggerShuffleOnFail() {
+    if (!mounted) return;
     if (!_config.modifiers.contains(DifficultyModifier.shuffleOnFail) &&
         !_config.modifiers.contains(DifficultyModifier.nightmare)) return;
 
-    final unmatched = _cards.where((c) => !c.isMatched).toList();
+    final unmatched = _cards.where((CardModel card) => !card.isMatched)
+        .toList();
     unmatched.shuffle();
     int unmatchedIdx = 0;
     setState(() {
       for (int i = 0; i < _cards.length; i++) {
-        if (!_cards[i].isMatched) {
+        final card = _cards[i];
+        if (!card.isMatched) {
           _cards[i] = unmatched[unmatchedIdx++];
         }
       }
@@ -197,6 +205,7 @@ class _MemoryScreenState extends State<MemoryScreen>
   }
 
   void _rotateGrid() {
+    if (!mounted) return;
     if (!_config.modifiers.contains(DifficultyModifier.rotatingGrid) &&
         !_config.modifiers.contains(DifficultyModifier.nightmare)) return;
 
@@ -249,6 +258,7 @@ class _MemoryScreenState extends State<MemoryScreen>
     if (first.emoji == second.emoji) {
       await Future.delayed(const Duration(milliseconds: 300));
 
+      if (!mounted) return;
       setState(() {
         if (_config.modifiers.contains(DifficultyModifier.invisibleMatch) ||
             _config.modifiers.contains(DifficultyModifier.nightmare)) {
@@ -287,6 +297,7 @@ class _MemoryScreenState extends State<MemoryScreen>
     } else {
       await Future.delayed(const Duration(milliseconds: 600));
 
+      if (!mounted) return;
       _shakeController.forward().then((_) => _shakeController.reverse());
 
       setState(() {

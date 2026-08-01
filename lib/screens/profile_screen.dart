@@ -919,8 +919,9 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 25),
+          // CORRECTION: interpolation inutile remplacée par concaténation
           Text(
-            avg > 0 ? "${avg.toStringAsFixed(2)} /20" : "-- /20",
+            avg > 0 ? avg.toStringAsFixed(2) + " /20" : "-- /20",
             style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 6),
