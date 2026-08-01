@@ -25,7 +25,13 @@ class ProfileScreen extends StatelessWidget {
         final displayName = user?.fullName ?? 'Élève';
         final displayClass = user?.displayClass ?? '';
         final displayStream = user?.displayStream ?? '';
-        final classLabel = displayStream.isNotEmpty
+        final classLevel = user?.classLevel ?? '';
+
+        // La filière n'existe qu'à partir de la 2ème année secondaire
+        final hasStream = classLevel == '2eme' ||
+            classLevel == '3eme' ||
+            classLevel == '4eme';
+        final classLabel = (hasStream && displayStream.isNotEmpty)
             ? '$displayClass • $displayStream'
             : displayClass;
         final schoolName = user?.schoolName ?? '';
@@ -693,7 +699,6 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildActivityTimeline(BuildContext context, AppProvider provider) {
     final term = provider.currentTerm;
 
-    // Construire une liste d'activités réelles basée sur les notes saisies
     final List<Map<String, dynamic>> activities = [];
 
     if (term != null) {
@@ -712,7 +717,6 @@ class ProfileScreen extends StatelessWidget {
       }
     }
 
-    // Si pas d'activités, afficher un message
     if (activities.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -755,7 +759,6 @@ class ProfileScreen extends StatelessWidget {
       );
     }
 
-    // Trier par les plus récentes (dernières en haut) et limiter à 4
     final recentActivities = activities.reversed.take(4).toList();
 
     return Padding(
