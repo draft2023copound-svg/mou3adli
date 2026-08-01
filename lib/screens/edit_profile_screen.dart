@@ -25,7 +25,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialiser les contrôleurs avec les vraies données du provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<AppProvider>(context, listen: false);
       final user = provider.user;
@@ -76,7 +75,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Avatar au centre avec Hero
+                // Avatar
                 Center(
                   child: Hero(
                     tag: "profile",
@@ -126,15 +125,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Champs de formulaire
+                // Champs
                 _buildTextField(_nameController, "Nom complet", "Entrez votre nom"),
                 const SizedBox(height: 16),
                 _buildTextField(_emailController, "Email", "votre@email.com", keyboardType: TextInputType.emailAddress),
                 const SizedBox(height: 16),
-                _buildClassDropdown(provider),
+                _buildClassDropdown(),
                 const SizedBox(height: 16),
                 if (_selectedClassLevel != null && _shouldShowStream(_selectedClassLevel!))
-                  _buildStreamDropdown(provider),
+                  _buildStreamDropdown(),
                 if (_selectedClassLevel != null && _shouldShowStream(_selectedClassLevel!))
                   const SizedBox(height: 16),
                 _buildTextField(_schoolController, "Établissement", "Nom de votre école/lycée"),
@@ -203,14 +202,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
             ),
-            contentPadding: const EdgeInsets.all(18),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildClassDropdown(AppProvider provider) {
+  Widget _buildClassDropdown() {
     const classes = [
       '7eme',
       '8eme',
@@ -229,45 +228,40 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87),
         ),
         const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedClassLevel,
-              isExpanded: true,
-              hint: const Padding(
-                padding: EdgeInsets.all(18),
-                child: Text("Sélectionnez votre classe"),
-              ),
-              items: classes.map((cls) {
-                return DropdownMenuItem(
-                  value: cls,
-                  child: Padding(
-                    padding: const EdgeInsets.all(18),
-                    child: Text(_displayClassName(cls)),
-                  ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedClassLevel = value;
-                  // Réinitialiser la filière si la classe change
-                  if (value != null && !_shouldShowStream(value)) {
-                    _selectedStream = null;
-                  }
-                });
-              },
+        DropdownButtonFormField<String>(
+          value: _selectedClassLevel,
+          isExpanded: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
             ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            hintText: "Sélectionnez votre classe",
           ),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+          items: classes.map((cls) {
+            return DropdownMenuItem(
+              value: cls,
+              child: Text(_displayClassName(cls)),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedClassLevel = value;
+              if (value != null && !_shouldShowStream(value)) {
+                _selectedStream = null;
+              }
+            });
+          },
         ),
       ],
     );
   }
 
-  Widget _buildStreamDropdown(AppProvider provider) {
+  Widget _buildStreamDropdown() {
     const streams = [
       'classique',
       'pilote',
@@ -290,35 +284,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87),
         ),
         const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: _selectedStream,
-              isExpanded: true,
-              hint: const Padding(
-                padding: EdgeInsets.all(18),
-                child: Text("Sélectionnez votre filière"),
-              ),
-              items: streams.map((stream) {
-                return DropdownMenuItem(
-                  value: stream,
-                  child: Padding(
-                    padding: const EdgeInsets.all(18),
-                    child: Text(_displayStreamName(stream)),
-                  ),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedStream = value;
-                });
-              },
+        DropdownButtonFormField<String>(
+          value: _selectedStream,
+          isExpanded: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16),
+              borderSide: BorderSide.none,
             ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            hintText: "Sélectionnez votre filière",
           ),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+          items: streams.map((stream) {
+            return DropdownMenuItem(
+              value: stream,
+              child: Text(_displayStreamName(stream)),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedStream = value;
+            });
+          },
         ),
       ],
     );
@@ -326,9 +316,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   bool _shouldShowStream(String classLevel) {
     return classLevel == '1ere' ||
-           classLevel == '2eme' ||
-           classLevel == '3eme' ||
-           classLevel == '4eme';
+        classLevel == '2eme' ||
+        classLevel == '3eme' ||
+        classLevel == '4eme';
   }
 
   String _displayClassName(String cls) {
@@ -384,8 +374,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Future<void> _saveProfile(AppProvider provider) async {
     final name = _nameController.text.trim();
     final school = _schoolController.text.trim();
-    // email est affiché en lecture seule pour l'instant
-    // final email = _emailController.text.trim();
 
     if (name.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -414,15 +402,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       await provider.updateProfile(
         fullName: name,
         schoolName: school,
+        classLevel: _selectedClassLevel,
+        stream: _selectedStream,
       );
-
-      // Note: updateProfile dans AppProvider ne gère pas classLevel/stream/email
-      // Si vous voulez aussi mettre à jour ces champs, il faut modifier AppProvider
 
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Profil mis à jour avec succès !")),
+          const SnackBar(content: Text("✅ Profil mis à jour ! Matières et coefficients régénérés.")),
         );
       }
     } catch (e) {

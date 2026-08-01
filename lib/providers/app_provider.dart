@@ -106,16 +106,43 @@ class AppProvider extends ChangeNotifier {
   }
 
   /// 📝 METTRE À JOUR LE PROFIL
+  /// Si classLevel ou stream changent, les trimestres sont régénérés
+  /// avec les nouvelles matières et coefficients.
   Future<void> updateProfile({
     String? fullName,
     String? schoolName,
     String? photoUrl,
+    String? classLevel,
+    String? stream,
   }) async {
     if (_user == null) return;
+
+    bool shouldRegenerateTerms = false;
+
     if (fullName != null) _user!.fullName = fullName;
     if (schoolName != null) _user!.schoolName = schoolName;
     if (photoUrl != null) _user!.photoUrl = photoUrl;
+
+    if (classLevel != null && classLevel != _user!.classLevel) {
+      _user!.classLevel = classLevel;
+      shouldRegenerateTerms = true;
+    }
+    if (stream != null && stream != _user!.stream) {
+      _user!.stream = stream;
+      shouldRegenerateTerms = true;
+    }
+
     await _storage.saveUser(_user!);
+
+    if (shouldRegenerateTerms) {
+      _terms = TunisianCurriculum.generateTerms(
+        _user!.cycle,
+        _user!.classLevel,
+        _user!.stream,
+      );
+      await _storage.saveTerms(_terms);
+    }
+
     notifyListeners();
   }
 
