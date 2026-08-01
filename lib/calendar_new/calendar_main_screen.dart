@@ -144,24 +144,16 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                           ),
                           const SizedBox(height: 12),
                           const Text(
-                            "Journée libre ✨",
+                            "Journée libre",
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
                               color: kRoyalBlue,
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          Text(
-                            "Profite de ce moment de calme.",
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 14,
-                            ),
-                          ),
                           const SizedBox(height: 8),
                           Text(
-                            "Clique sur le bouton + pour organiser ta journée.",
+                            "Clique sur le bouton + pour ajouter un événement.",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.grey.shade500,
