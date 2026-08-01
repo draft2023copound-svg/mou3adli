@@ -507,6 +507,7 @@ class ProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, color: color),
           const SizedBox(height: 10),
@@ -540,7 +541,7 @@ class ProfileScreen extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,
-        childAspectRatio: 1.18,
+        childAspectRatio: 0.92,
         children: [
           _statItem(
             context: context,
@@ -650,7 +651,8 @@ class ProfileScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(18),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   height: 50,
@@ -661,20 +663,23 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   child: Icon(icon, color: color, size: 28),
                 ),
-                const Spacer(),
+                const SizedBox(height: 14),
                 Text(
                   value,
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 6),
                 Text(
                   title,
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
                 ),
               ],
             ),
@@ -919,7 +924,6 @@ class ProfileScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 25),
-          // CORRECTION: interpolation inutile remplacée par concaténation
           Text(
             avg > 0 ? avg.toStringAsFixed(2) + " /20" : "-- /20",
             style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w900),
@@ -973,6 +977,7 @@ class ProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, color: color),
           const SizedBox(height: 10),
