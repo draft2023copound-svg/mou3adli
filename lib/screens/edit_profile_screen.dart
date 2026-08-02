@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
-import '../data/tunisian_curriculum.dart';
 import '../data/options_curriculum.dart';
 
 class EditProfileScreen extends StatefulWidget {

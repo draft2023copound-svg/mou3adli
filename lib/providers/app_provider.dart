@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../models/term_model.dart';
+import '../models/evaluation_model.dart';
+import '../models/subject_model.dart';
+import '../models/term_model.dart';
 import '../data/tunisian_curriculum.dart';
 import '../services/storage_service.dart';
 

@@ -278,11 +278,6 @@ class TunisianCurriculum {
     Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
   ];
 
-  static List<Evaluation> _evalsArts() => [
-    Evaluation(id: 'dc', nameFr: 'Contrôle continu', nameAr: 'فرض المراقبة', weight: 1),
-    Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
-  ];
-
   static List<Evaluation> _evalsMusique() => [
     Evaluation(id: 'dc', nameFr: 'Contrôle continu', nameAr: 'فرض المراقبة', weight: 1),
     Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
@@ -312,11 +307,6 @@ class TunisianCurriculum {
   static List<Evaluation> _evalsSpecialite() => [
     Evaluation(id: 'dc1', nameFr: 'Contrôle continu n°1', nameAr: 'فرض المراقبة عدد 1', weight: 1),
     Evaluation(id: 'tp', nameFr: 'Pratique sportive', nameAr: 'تطبيقات رياضية', weight: 1),
-    Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
-  ];
-
-  static List<Evaluation> _evalsLanguesArts() => [
-    Evaluation(id: 'dc', nameFr: 'Contrôle continu', nameAr: 'فرض المراقبة', weight: 1),
     Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
   ];
 
