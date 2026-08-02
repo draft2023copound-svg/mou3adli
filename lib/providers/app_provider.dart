@@ -15,11 +15,13 @@ class AppProvider extends ChangeNotifier {
   List<Term> _terms = [];
   String _currentTermId = 't2';
   int _gameBestScore = 0;
+  bool _isDarkMode = false;
 
   User? get user => _user;
   List<Term> get terms => _terms;
   String get currentTermId => _currentTermId;
   int get gameBestScore => _gameBestScore;
+  bool get isDarkMode => _isDarkMode;
 
   Term? get currentTerm {
     try {
@@ -38,6 +40,7 @@ class AppProvider extends ChangeNotifier {
     await _storage.init();
     _user = _storage.getUser();
     _gameBestScore = _storage.getGameBestScore();
+    _isDarkMode = _storage.getDarkMode();
     final savedTerms = _storage.getTerms();
 
     if (_user != null && savedTerms != null) {
@@ -52,6 +55,13 @@ class AppProvider extends ChangeNotifier {
       await _storage.saveTerms(_terms);
     }
 
+    notifyListeners();
+  }
+
+  /// 🌙 BASCULER LE MODE SOMBRE
+  Future<void> toggleDarkMode(bool value) async {
+    _isDarkMode = value;
+    await _storage.saveDarkMode(value);
     notifyListeners();
   }
 
@@ -163,24 +173,20 @@ class AppProvider extends ChangeNotifier {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // 📸 MISE À JOUR DE LA PHOTO DE PROFIL (NOUVEAU)
+  // 📸 MISE À JOUR DE LA PHOTO DE PROFIL
   // ═══════════════════════════════════════════════════════════
 
-  /// Met à jour la photo de profil avec une image locale
   Future<bool> updateProfilePhoto(File imageFile) async {
     if (_user == null) return false;
 
     try {
-      // Supprime l'ancienne photo si elle existe
       if (_user!.photoUrl != null && _user!.photoUrl!.isNotEmpty) {
         await _storage.deleteProfileImage(_user!.photoUrl);
       }
 
-      // Sauvegarde la nouvelle image
       final savedPath = await _storage.saveProfileImage(imageFile);
       if (savedPath == null) return false;
 
-      // Met à jour le profil
       _user!.photoUrl = savedPath;
       await _storage.saveUser(_user!);
       notifyListeners();
@@ -191,7 +197,6 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-  /// Supprime la photo de profil (revient à l'initiale)
   Future<bool> removeProfilePhoto() async {
     if (_user == null) return false;
 
@@ -259,7 +264,7 @@ class AppProvider extends ChangeNotifier {
     }
   }
 
-  /// 📈 MOYENNE ANNUELLE (moyenne des 3 trimestres)
+  /// 📈 MOYENNE ANNUELLE
   double get annualAverage {
     if (_terms.isEmpty) return 0;
     double total = 0;
@@ -275,7 +280,7 @@ class AppProvider extends ChangeNotifier {
     return total / count;
   }
 
-  /// 🏆 CLASSEMENT DES MATIÈRES (meilleures → pires)
+  /// 🏆 CLASSEMENT DES MATIÈRES
   List<Map<String, dynamic>> get subjectRankings {
     final term = currentTerm;
     if (term == null) return [];

@@ -3,8 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import 'edit_profile_screen.dart';
 
-const Color kPrimary = Color(0xff4F8CFF);
-const Color kBackground = Color(0xffF8FAFC);
+const Color kPrimary = Color(0xFF1C3F7A);
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,7 +13,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _darkMode = false;
   bool _notifications = true;
   String _language = 'fr';
 
@@ -30,144 +28,162 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AppProvider>(
-      builder: (context, provider, _) {
-        return Scaffold(
-          backgroundColor: kBackground,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: true,
-            title: const Text(
-              "Paramètres",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.black87),
-            ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
-              onPressed: () => Navigator.pop(context),
-            ),
+    final isDark = context.watch<AppProvider>().isDarkMode;
+    final bgColor = isDark ? const Color(0xFF0F0F0F) : const Color(0xffF8FAFC);
+    final cardColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+    final textColor = isDark ? Colors.white : Colors.black87;
+    final subtitleColor = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
+    final sectionColor = isDark ? Colors.grey.shade500 : Colors.grey.shade700;
+
+    return Scaffold(
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          "Paramètres",
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textColor),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: textColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          // Section Compte
+          _buildSectionTitle("Compte", sectionColor),
+          _buildSettingTile(
+            icon: Icons.person_outline_rounded,
+            title: "Informations personnelles",
+            subtitle: "${context.watch<AppProvider>().user?.fullName ?? ''} — ${context.watch<AppProvider>().user?.displayClass ?? ''}",
+            color: Colors.blue,
+            cardColor: cardColor,
+            textColor: textColor,
+            subtitleColor: subtitleColor,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+              );
+            },
           ),
-          body: ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              // Section Compte
-              _buildSectionTitle("Compte"),
-              _buildSettingTile(
-                icon: Icons.person_outline_rounded,
-                title: "Informations personnelles",
-                subtitle: "${provider.user?.fullName ?? ''} — ${provider.user?.displayClass ?? ''}",
-                color: Colors.blue,
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const EditProfileScreen()),
-                  );
-                },
-              ),
 
-              const SizedBox(height: 30),
+          const SizedBox(height: 30),
 
-              // Section Préférences
-              _buildSectionTitle("Préférences"),
-              _buildToggleTile(
-                icon: Icons.dark_mode_outlined,
-                title: "Mode sombre",
-                subtitle: "Activer le thème sombre",
-                color: Colors.indigo,
-                value: _darkMode,
-                onChanged: (val) {
-                  setState(() => _darkMode = val);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(val ? "🌙 Mode sombre activé" : "☀️ Mode clair activé"),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                },
-              ),
-              _buildToggleTile(
-                icon: Icons.notifications_none_rounded,
-                title: "Notifications",
-                subtitle: "Rappels, devoirs, examens",
-                color: Colors.deepPurple,
-                value: _notifications,
-                onChanged: (val) {
-                  setState(() => _notifications = val);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(val ? "🔔 Notifications activées" : "🔕 Notifications désactivées"),
-                      duration: const Duration(seconds: 2),
-                    ),
-                  );
-                },
-              ),
-              _buildSettingTile(
-                icon: Icons.language_rounded,
-                title: "Langue",
-                subtitle: _languageName,
-                color: Colors.teal,
-                onTap: () => _showLanguagePicker(context),
-              ),
-
-              const SizedBox(height: 30),
-
-              // Section Aide
-              _buildSectionTitle("Aide et Support"),
-              _buildSettingTile(
-                icon: Icons.help_outline_rounded,
-                title: "Aide et FAQ",
-                subtitle: "Questions fréquentes",
-                color: Colors.orange,
-                onTap: () => _showFAQ(context),
-              ),
-              _buildSettingTile(
-                icon: Icons.privacy_tip_outlined,
-                title: "Confidentialité",
-                subtitle: "Sécurité des données",
-                color: Colors.green,
-                onTap: () => _showPrivacy(context),
-              ),
-
-              const SizedBox(height: 30),
-
-              // Section Données
-              _buildSectionTitle("Données"),
-              _buildDangerTile(
-                icon: Icons.delete_outline_rounded,
-                title: "Effacer toutes les notes",
-                subtitle: "Cette action est irréversible",
-                color: Colors.red,
-                onTap: () => _showClearDataDialog(context, provider),
-              ),
-
-              const SizedBox(height: 30),
-
-              // Section À propos
-              _buildSectionTitle("À propos"),
-              const ListTile(
-                leading: Icon(Icons.info_outline_rounded, color: Colors.grey),
-                title: Text("Version", style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text("1.0.0"),
-              ),
-              const ListTile(
-                leading: Icon(Icons.code_rounded, color: Colors.grey),
-                title: Text("Développé par", style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: Text("Mou3adli Team © 2026"),
-              ),
-            ],
+          // Section Préférences
+          _buildSectionTitle("Préférences", sectionColor),
+          _buildToggleTile(
+            icon: Icons.dark_mode_outlined,
+            title: "Mode sombre",
+            subtitle: "Activer le thème sombre",
+            color: Colors.indigo,
+            cardColor: cardColor,
+            textColor: textColor,
+            subtitleColor: subtitleColor,
+            value: isDark,
+            onChanged: (val) {
+              context.read<AppProvider>().toggleDarkMode(val);
+            },
           ),
-        );
-      },
+          _buildToggleTile(
+            icon: Icons.notifications_none_rounded,
+            title: "Notifications",
+            subtitle: "Rappels, devoirs, examens",
+            color: Colors.deepPurple,
+            cardColor: cardColor,
+            textColor: textColor,
+            subtitleColor: subtitleColor,
+            value: _notifications,
+            onChanged: (val) {
+              setState(() => _notifications = val);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(val ? "🔔 Notifications activées" : "🔕 Notifications désactivées"),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+          _buildSettingTile(
+            icon: Icons.language_rounded,
+            title: "Langue",
+            subtitle: _languageName,
+            color: Colors.teal,
+            cardColor: cardColor,
+            textColor: textColor,
+            subtitleColor: subtitleColor,
+            onTap: () => _showLanguagePicker(context, cardColor, textColor),
+          ),
+
+          const SizedBox(height: 30),
+
+          // Section Aide
+          _buildSectionTitle("Aide et Support", sectionColor),
+          _buildSettingTile(
+            icon: Icons.help_outline_rounded,
+            title: "Aide et FAQ",
+            subtitle: "Questions fréquentes",
+            color: Colors.orange,
+            cardColor: cardColor,
+            textColor: textColor,
+            subtitleColor: subtitleColor,
+            onTap: () => _showFAQ(context, cardColor, textColor),
+          ),
+          _buildSettingTile(
+            icon: Icons.privacy_tip_outlined,
+            title: "Confidentialité",
+            subtitle: "Sécurité des données",
+            color: Colors.green,
+            cardColor: cardColor,
+            textColor: textColor,
+            subtitleColor: subtitleColor,
+            onTap: () => _showPrivacy(context, cardColor, textColor),
+          ),
+
+          const SizedBox(height: 30),
+
+          // Section Données
+          _buildSectionTitle("Données", sectionColor),
+          _buildDangerTile(
+            icon: Icons.delete_outline_rounded,
+            title: "Effacer toutes les notes",
+            subtitle: "Cette action est irréversible",
+            color: Colors.red,
+            cardColor: cardColor,
+            textColor: textColor,
+            subtitleColor: subtitleColor,
+            onTap: () => _showClearDataDialog(context),
+          ),
+
+          const SizedBox(height: 30),
+
+          // Section À propos
+          _buildSectionTitle("À propos", sectionColor),
+          ListTile(
+            leading: const Icon(Icons.info_outline_rounded, color: Colors.grey),
+            title: Text("Version", style: TextStyle(fontWeight: FontWeight.w600, color: textColor)),
+            subtitle: Text("1.0.0", style: TextStyle(color: subtitleColor)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.code_rounded, color: Colors.grey),
+            title: Text("Développé par", style: TextStyle(fontWeight: FontWeight.w600, color: textColor)),
+            subtitle: Text("Mou3adli Team © 2026", style: TextStyle(color: subtitleColor)),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, Color color) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16, top: 8),
       child: Text(
         title,
         style: TextStyle(
-          color: Colors.grey.shade700,
+          color: color,
           fontSize: 14,
           fontWeight: FontWeight.w700,
           letterSpacing: 1.0,
@@ -181,12 +197,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String title,
     required String subtitle,
     required Color color,
+    required Color cardColor,
+    required Color textColor,
+    required Color subtitleColor,
     required VoidCallback onTap,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -209,11 +228,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: textColor),
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(color: Colors.grey.shade600),
+          style: TextStyle(color: subtitleColor),
         ),
         trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
         onTap: onTap,
@@ -226,13 +245,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String title,
     required String subtitle,
     required Color color,
+    required Color cardColor,
+    required Color textColor,
+    required Color subtitleColor,
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -255,11 +277,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         title: Text(
           title,
-          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+          style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16, color: textColor),
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(color: Colors.grey.shade600),
+          style: TextStyle(color: subtitleColor),
         ),
         trailing: Switch(
           value: value,
@@ -275,12 +297,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String title,
     required String subtitle,
     required Color color,
+    required Color cardColor,
+    required Color textColor,
+    required Color subtitleColor,
     required VoidCallback onTap,
   }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -307,7 +332,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         subtitle: Text(
           subtitle,
-          style: TextStyle(color: Colors.grey.shade600),
+          style: TextStyle(color: subtitleColor),
         ),
         trailing: const Icon(Icons.chevron_right_rounded, color: Colors.grey),
         onTap: onTap,
@@ -315,7 +340,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showLanguagePicker(BuildContext context) {
+  void _showLanguagePicker(BuildContext context, Color cardColor, Color textColor) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -323,6 +348,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       builder: (_) => Container(
         padding: const EdgeInsets.all(24),
+        color: cardColor,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -335,14 +361,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               "Choisir la langue",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: textColor),
             ),
             const SizedBox(height: 20),
             ..._languages.map((lang) => ListTile(
               leading: Text(lang['flag'], style: const TextStyle(fontSize: 24)),
-              title: Text(lang['name'], style: const TextStyle(fontWeight: FontWeight.w600)),
+              title: Text(lang['name'], style: TextStyle(fontWeight: FontWeight.w600, color: textColor)),
               trailing: _language == lang['code']
                   ? const Icon(Icons.check_circle, color: kPrimary)
                   : null,
@@ -360,27 +386,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showFAQ(BuildContext context) {
+  void _showFAQ(BuildContext context, Color cardColor, Color textColor) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("FAQ", style: TextStyle(fontWeight: FontWeight.w800)),
-        content: const SingleChildScrollView(
+        backgroundColor: cardColor,
+        title: Text("FAQ", style: TextStyle(fontWeight: FontWeight.w800, color: textColor)),
+        content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("❓ Comment calculer ma moyenne ?", style: TextStyle(fontWeight: FontWeight.w700)),
-              SizedBox(height: 4),
-              Text("Va dans l'onglet Notes, choisis un trimestre, puis saisis tes notes par matière. La moyenne se calcule automatiquement."),
-              SizedBox(height: 16),
-              Text("❓ Puis-je changer de classe ?", style: TextStyle(fontWeight: FontWeight.w700)),
-              SizedBox(height: 4),
-              Text("Oui ! Va dans Profil > Modifier le profil, change ta classe et/ou section. Les matières et coefficients se mettront à jour."),
-              SizedBox(height: 16),
-              Text("❓ Mes données sont-elles sauvegardées ?", style: TextStyle(fontWeight: FontWeight.w700)),
-              SizedBox(height: 4),
-              Text("Oui, tout est stocké localement sur ton téléphone."),
+              Text("❓ Comment calculer ma moyenne ?", style: TextStyle(fontWeight: FontWeight.w700, color: textColor)),
+              const SizedBox(height: 4),
+              Text("Va dans l'onglet Notes, choisis un trimestre, puis saisis tes notes par matière. La moyenne se calcule automatiquement.", style: TextStyle(color: textColor)),
+              const SizedBox(height: 16),
+              Text("❓ Puis-je changer de classe ?", style: TextStyle(fontWeight: FontWeight.w700, color: textColor)),
+              const SizedBox(height: 4),
+              Text("Oui ! Va dans Profil > Modifier le profil, change ta classe et/ou section. Les matières et coefficients se mettront à jour.", style: TextStyle(color: textColor)),
+              const SizedBox(height: 16),
+              Text("❓ Mes données sont-elles sauvegardées ?", style: TextStyle(fontWeight: FontWeight.w700, color: textColor)),
+              const SizedBox(height: 4),
+              Text("Oui, tout est stocké localement sur ton téléphone.", style: TextStyle(color: textColor)),
             ],
           ),
         ),
@@ -394,23 +421,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showPrivacy(BuildContext context) {
+  void _showPrivacy(BuildContext context, Color cardColor, Color textColor) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text("Confidentialité", style: TextStyle(fontWeight: FontWeight.w800)),
-        content: const SingleChildScrollView(
+        backgroundColor: cardColor,
+        title: Text("Confidentialité", style: TextStyle(fontWeight: FontWeight.w800, color: textColor)),
+        content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("🔒 Sécurité", style: TextStyle(fontWeight: FontWeight.w700)),
-              SizedBox(height: 4),
-              Text("Toutes tes données sont stockées localement sur ton appareil. Aucune information n'est envoyée sur Internet."),
-              SizedBox(height: 16),
-              Text("🗑️ Suppression", style: TextStyle(fontWeight: FontWeight.w700)),
-              SizedBox(height: 4),
-              Text("Tu peux effacer tes données à tout moment depuis les paramètres."),
+              Text("🔒 Sécurité", style: TextStyle(fontWeight: FontWeight.w700, color: textColor)),
+              const SizedBox(height: 4),
+              Text("Toutes tes données sont stockées localement sur ton appareil. Aucune information n'est envoyée sur Internet.", style: TextStyle(color: textColor)),
+              const SizedBox(height: 16),
+              Text("🗑️ Suppression", style: TextStyle(fontWeight: FontWeight.w700, color: textColor)),
+              const SizedBox(height: 4),
+              Text("Tu peux effacer tes données à tout moment depuis les paramètres.", style: TextStyle(color: textColor)),
             ],
           ),
         ),
@@ -424,7 +452,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _showClearDataDialog(BuildContext context, AppProvider provider) {
+  void _showClearDataDialog(BuildContext context) {
+    final provider = context.read<AppProvider>();
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -441,7 +470,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
             onPressed: () {
               Navigator.pop(context);
-              // Réinitialiser les notes de tous les trimestres
               for (final term in provider.terms) {
                 for (final subject in term.subjects) {
                   for (final eval in subject.evaluations) {

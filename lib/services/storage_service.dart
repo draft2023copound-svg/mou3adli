@@ -18,12 +18,14 @@ class StorageService {
     _prefs = await SharedPreferences.getInstance();
   }
 
-  // ─── UTILISATEUR ───
+  // ─── CLÉS ───
   static const String _userKey = 'mou3adli_user';
   static const String _termsKey = 'mou3adli_terms';
   static const String _isLoggedInKey = 'mou3adli_is_logged_in';
   static const String _gameBestScoreKey = 'mou3adli_game_best_score';
+  static const String _darkModeKey = 'mou3adli_dark_mode';
 
+  // ─── UTILISATEUR ───
   Future<void> saveUser(User user) async {
     await _prefs?.setString(_userKey, jsonEncode(user.toJson()));
     await _prefs?.setBool(_isLoggedInKey, true);
@@ -72,10 +74,19 @@ class StorageService {
   int getGameBestScore() => _prefs?.getInt(_gameBestScoreKey) ?? 0;
 
   // ═══════════════════════════════════════════════════════════
+  // 🌙 MODE SOMBRE (NOUVEAU)
+  // ═══════════════════════════════════════════════════════════
+
+  Future<void> saveDarkMode(bool isDark) async {
+    await _prefs?.setBool(_darkModeKey, isDark);
+  }
+
+  bool getDarkMode() => _prefs?.getBool(_darkModeKey) ?? false;
+
+  // ═══════════════════════════════════════════════════════════
   // 📸 GESTION DES PHOTOS DE PROFIL
   // ═══════════════════════════════════════════════════════════
 
-  /// Sauvegarde une image localement et retourne le chemin permanent
   Future<String?> saveProfileImage(File imageFile) async {
     try {
       final appDir = await getApplicationDocumentsDirectory();
@@ -84,24 +95,21 @@ class StorageService {
         await profileDir.create(recursive: true);
       }
 
-      // Nom unique basé sur le timestamp
       final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}.jpg';
       final savedFile = File('${profileDir.path}/$fileName');
 
-      // Copie le fichier
       await imageFile.copy(savedFile.path);
-
-      // Supprime l'ancienne photo s'il y en a une
       await _cleanupOldPhotos(profileDir, fileName);
 
       return savedFile.path;
     } catch (e) {
-      debugPrint('Erreur sauvegarde photo: $e');
+      if (kDebugMode) {
+        print('Erreur sauvegarde photo: $e');
+      }
       return null;
     }
   }
 
-  /// Supprime la photo de profil actuelle
   Future<void> deleteProfileImage(String? photoPath) async {
     if (photoPath == null || photoPath.isEmpty) return;
     try {
@@ -110,11 +118,12 @@ class StorageService {
         await file.delete();
       }
     } catch (e) {
-      debugPrint('Erreur suppression photo: $e');
+      if (kDebugMode) {
+        print('Erreur suppression photo: $e');
+      }
     }
   }
 
-  /// Nettoie les anciennes photos pour ne garder que la dernière
   Future<void> _cleanupOldPhotos(Directory dir, String keepFileName) async {
     try {
       final files = await dir.list().toList();
@@ -124,7 +133,9 @@ class StorageService {
         }
       }
     } catch (e) {
-      debugPrint('Erreur nettoyage photos: $e');
+      if (kDebugMode) {
+        print('Erreur nettoyage photos: $e');
+      }
     }
   }
 }

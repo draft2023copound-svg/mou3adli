@@ -34,47 +34,133 @@ class Mou3adliApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Mou3adli',
-      theme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: AppColors.background,
-        fontFamily: AppTextStyles.fontFamily,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.royalBlue,
-          primary: AppColors.royalBlue,
-          secondary: AppColors.matteGold,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          titleTextStyle: TextStyle(
-            color: AppColors.textPrimary,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-          iconTheme: IconThemeData(color: AppColors.textPrimary),
-        ),
-      ),
-      initialRoute: '/',
-      routes: {
-        '/': (context) => Consumer<AppProvider>(
+    return Consumer<AppProvider>(
+      builder: (context, provider, _) {
+        final isDark = provider.isDarkMode;
+
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Mou3adli',
+          theme: _buildLightTheme(),
+          darkTheme: _buildDarkTheme(),
+          themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
+          initialRoute: '/',
+          routes: {
+            '/': (context) => Consumer<AppProvider>(
               builder: (context, provider, _) {
                 return provider.isLoggedIn
                     ? const HomeScreen()
                     : const LoginScreen();
               },
             ),
-        '/home': (context) => const HomeScreen(),
-        '/subjects': (context) => const SubjectListScreen(),
-        '/terms': (context) => const TermSelectionScreen(),
-        '/calendar': (context) => const CalendarMainScreen(),
-        '/games': (context) => const GamesHubScreen(),
-        '/memory': (context) => const MemoryScreen(),
-        '/quiz': (context) => const QuizScreen(),
+            '/home': (context) => const HomeScreen(),
+            '/subjects': (context) => const SubjectListScreen(),
+            '/terms': (context) => const TermSelectionScreen(),
+            '/calendar': (context) => const CalendarMainScreen(),
+            '/games': (context) => const GamesHubScreen(),
+            '/memory': (context) => const MemoryScreen(),
+            '/quiz': (context) => const QuizScreen(),
+          },
+        );
       },
+    );
+  }
+
+  ThemeData _buildLightTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: AppColors.background,
+      fontFamily: AppTextStyles.fontFamily,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.royalBlue,
+        brightness: Brightness.light,
+        primary: AppColors.royalBlue,
+        secondary: AppColors.matteGold,
+        surface: Colors.white,
+        background: AppColors.background,
+        onSurface: AppColors.textPrimary,
+        onBackground: AppColors.textPrimary,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: AppColors.textPrimary,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+        iconTheme: IconThemeData(color: AppColors.textPrimary),
+      ),
+      cardTheme: CardTheme(
+        color: Colors.white,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return AppColors.royalBlue;
+          }
+          return Colors.grey;
+        }),
+        trackColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return AppColors.royalBlue.withOpacity(0.5);
+          }
+          return Colors.grey.withOpacity(0.3);
+        }),
+      ),
+    );
+  }
+
+  ThemeData _buildDarkTheme() {
+    return ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: AppColors.darkBackground,
+      fontFamily: AppTextStyles.fontFamily,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.royalBlue,
+        brightness: Brightness.dark,
+        primary: AppColors.royalBlueLight,
+        secondary: AppColors.matteGold,
+        surface: AppColors.darkSurface,
+        background: AppColors.darkBackground,
+        onSurface: Colors.white,
+        onBackground: Colors.white,
+      ),
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          color: Colors.white,
+          fontSize: 18,
+          fontWeight: FontWeight.bold,
+        ),
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
+      cardTheme: CardTheme(
+        color: AppColors.darkSurface,
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return AppColors.royalBlueLight;
+          }
+          return Colors.grey;
+        }),
+        trackColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return AppColors.royalBlueLight.withOpacity(0.5);
+          }
+          return Colors.grey.withOpacity(0.3);
+        }),
+      ),
     );
   }
 }
