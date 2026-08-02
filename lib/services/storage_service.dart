@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/user_model.dart';
@@ -71,7 +72,7 @@ class StorageService {
   int getGameBestScore() => _prefs?.getInt(_gameBestScoreKey) ?? 0;
 
   // ═══════════════════════════════════════════════════════════
-  // 📸 GESTION DES PHOTOS DE PROFIL (NOUVEAU)
+  // 📸 GESTION DES PHOTOS DE PROFIL
   // ═══════════════════════════════════════════════════════════
 
   /// Sauvegarde une image localement et retourne le chemin permanent

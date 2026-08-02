@@ -35,7 +35,6 @@ dependencies:
   # ═══ UTILITIES ═══
   intl: ^0.20.2
   uuid: ^4.5.1
-  collection: ^1.19.1
 
   # ═══ IMAGE PICKER (NOUVEAU — Photo de profil) ═══
   image_picker: ^1.1.2
