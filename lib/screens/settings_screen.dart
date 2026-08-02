@@ -149,10 +149,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: Text("Version", style: TextStyle(fontWeight: FontWeight.w600)),
                 subtitle: Text("1.0.0"),
               ),
-              ListTile(
-                leading: const Icon(Icons.code_rounded, color: Colors.grey),
-                title: const Text("Développé par", style: TextStyle(fontWeight: FontWeight.w600)),
-                subtitle: const Text("Mou3adli Team © 2026"),
+              const ListTile(
+                leading: Icon(Icons.code_rounded, color: Colors.grey),
+                title: Text("Développé par", style: TextStyle(fontWeight: FontWeight.w600)),
+                subtitle: Text("Mou3adli Team © 2026"),
               ),
             ],
           ),
