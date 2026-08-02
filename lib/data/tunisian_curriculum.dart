@@ -539,7 +539,7 @@ class TunisianCurriculum {
         {'id': 'sciences', 'name': 'Sciences'},
         {'id': 'lettres', 'name': 'Lettres'},
         {'id': 'economie', 'name': 'Économie & Services'},
-        {'id': 'tech_info', 'name': 'Technologie de l'Information'},
+        {'id': 'tech_info', 'name': 'Technologie de l\'Informatique'},
         {'id': 'sport', 'name': 'Sport'},
       ];
     }
@@ -550,7 +550,7 @@ class TunisianCurriculum {
         {'id': 'sciences_exp', 'name': 'Sciences Expérimentales'},
         {'id': 'math', 'name': 'Mathématiques'},
         {'id': 'sciences_tech', 'name': 'Sciences Techniques'},
-        {'id': 'sciences_info', 'name': 'Sciences de l'Informatique'},
+        {'id': 'sciences_info', 'name': 'Sciences de l\'Informatique'},
         {'id': 'sport', 'name': 'Sport'},
       ];
     }
