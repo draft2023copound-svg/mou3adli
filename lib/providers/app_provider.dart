@@ -1,9 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../models/term_model.dart';
 import '../models/evaluation_model.dart';
 import '../models/subject_model.dart';
-import '../models/term_model.dart';
 import '../data/tunisian_curriculum.dart';
 import '../services/storage_service.dart';
 
@@ -160,6 +160,54 @@ class AppProvider extends ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // 📸 MISE À JOUR DE LA PHOTO DE PROFIL (NOUVEAU)
+  // ═══════════════════════════════════════════════════════════
+
+  /// Met à jour la photo de profil avec une image locale
+  Future<bool> updateProfilePhoto(File imageFile) async {
+    if (_user == null) return false;
+
+    try {
+      // Supprime l'ancienne photo si elle existe
+      if (_user!.photoUrl != null && _user!.photoUrl!.isNotEmpty) {
+        await _storage.deleteProfileImage(_user!.photoUrl);
+      }
+
+      // Sauvegarde la nouvelle image
+      final savedPath = await _storage.saveProfileImage(imageFile);
+      if (savedPath == null) return false;
+
+      // Met à jour le profil
+      _user!.photoUrl = savedPath;
+      await _storage.saveUser(_user!);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('Erreur updateProfilePhoto: $e');
+      return false;
+    }
+  }
+
+  /// Supprime la photo de profil (revient à l'initiale)
+  Future<bool> removeProfilePhoto() async {
+    if (_user == null) return false;
+
+    try {
+      if (_user!.photoUrl != null && _user!.photoUrl!.isNotEmpty) {
+        await _storage.deleteProfileImage(_user!.photoUrl);
+      }
+
+      _user!.photoUrl = null;
+      await _storage.saveUser(_user!);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('Erreur removeProfilePhoto: $e');
+      return false;
+    }
   }
 
   /// 📊 CHANGER DE TRIMESTRE ACTIF

@@ -45,5 +45,15 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- ═══════════════════════════════════════════════════════════ -->
+	<!-- 📸 PERMISSIONS POUR LA PHOTO DE PROFIL (iOS)                -->
+	<!-- ═══════════════════════════════════════════════════════════ -->
+	<key>NSCameraUsageDescription</key>
+	<string>Mou3adli a besoin d'accéder à ta caméra pour prendre une photo de profil.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Mou3adli a besoin d'accéder à ta galerie pour choisir une photo de profil.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Mou3adli a besoin d'accéder à ta galerie pour sauvegarder des photos.</string>
 </dict>
 </plist>

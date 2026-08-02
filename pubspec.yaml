@@ -1,27 +1,77 @@
 name: mou3adli
-description: "Mou3adli - Calcul de moyenne tunisienne premium"
+description: "Calcul de moyenne tunisienne avec jeux éducatifs"
+
 publish_to: 'none'
-version: 2.0.0+1
+
+version: 1.0.0+1
 
 environment:
-  sdk: ^3.5.3
+  sdk: ^3.6.0
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.8
-  percent_indicator: ^4.2.3
-  table_calendar: ^3.1.2
-  shared_preferences: ^2.3.4
-  intl: ^0.19.0
+
+  # ═══ STATE MANAGEMENT ═══
   provider: ^6.1.2
+
+  # ═══ UI & ANIMATIONS ═══
+  percent_indicator: ^4.2.4
+  fl_chart: ^0.70.0
+  confetti: ^0.8.0
+  shimmer: ^3.0.0
+  flutter_animate: ^4.5.2
+
+  # ═══ NAVIGATION & ROUTING ═══
+  go_router: ^14.8.1
+
+  # ═══ STORAGE & PERSISTENCE ═══
+  shared_preferences: ^2.3.5
+  path_provider: ^2.1.5
+
+  # ═══ CALENDAR ═══
+  table_calendar: ^3.2.0
+
+  # ═══ UTILITIES ═══
+  intl: ^0.20.2
+  uuid: ^4.5.1
+  collection: ^1.19.1
+
+  # ═══ IMAGE PICKER (NOUVEAU — Photo de profil) ═══
+  image_picker: ^1.1.2
+
+  # ═══ ICONS ═══
+  cupertino_icons: ^1.0.8
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
 
 flutter:
   uses-material-design: true
+
+  # ═══ ASSETS ═══
   assets:
     - assets/images/
+    - assets/icons/
+    - assets/fonts/
+
+  # ═══ FONTS ═══
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-ExtraBold.ttf
+          weight: 800
+    - family: NotoSansArabic
+      fonts:
+        - asset: assets/fonts/NotoSansArabic-Regular.ttf
+        - asset: assets/fonts/NotoSansArabic-Bold.ttf
+          weight: 700

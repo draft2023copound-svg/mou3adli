@@ -1,4 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import '../data/options_curriculum.dart';
@@ -18,6 +20,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   String? _selectedStream;
   String? _selectedOption;
   bool _isLoading = false;
+  bool _isUploadingPhoto = false;
 
   final List<String> _allClassLevels = [
     '7eme', '8eme', '9eme',
@@ -41,7 +44,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  Future _saveProfile() async {
+  Future<void> _saveProfile() async {
     if (_nameCtrl.text.trim().isEmpty || _schoolCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("❌ Veuillez remplir tous les champs")),
@@ -125,40 +128,123 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   String _displayStreamName(String stream) {
     switch (stream) {
-      case 'commun':
-        return 'Commun';
-      case 'pilote':
-        return 'Pilote';
-      case 'general':
-        return 'Tronc commun';
-      case 'sciences':
-        return 'Sciences';
-      case 'lettres':
-        return 'Lettres';
-      case 'economie':
-        return 'Économie & Gestion';
-      case 'tech_info':
-        return 'Technologie Info';
-      case 'math':
-        return 'Mathématiques';
-      case 'sciences_exp':
-        return 'Sciences Expérimentales';
-      case 'sciences_tech':
-        return 'Sciences Techniques';
-      case 'sciences_info':
-        return 'Sciences Informatiques';
-      case 'sport':
-        return 'Sport';
-      default:
-        return stream;
+      case 'commun': return 'Commun';
+      case 'pilote': return 'Pilote';
+      case 'general': return 'Tronc commun';
+      case 'sciences': return 'Sciences';
+      case 'lettres': return 'Lettres';
+      case 'economie': return 'Économie & Gestion';
+      case 'tech_info': return 'Technologie Info';
+      case 'math': return 'Mathématiques';
+      case 'sciences_exp': return 'Sciences Expérimentales';
+      case 'sciences_tech': return 'Sciences Techniques';
+      case 'sciences_info': return 'Sciences Informatiques';
+      case 'sport': return 'Sport';
+      default: return stream;
     }
   }
 
   // ═══════════════════════════════════════════════════════════
-  // PHOTO DE PROFIL
+  // 📸 PHOTO DE PROFIL — FONCTIONNEL À 100%
   // ═══════════════════════════════════════════════════════════
 
+  Future<void> _pickImage(ImageSource source) async {
+    Navigator.pop(context); // Ferme le bottom sheet
+
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: source,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 85,
+    );
+
+    if (picked == null) return;
+
+    setState(() => _isUploadingPhoto = true);
+
+    final provider = context.read<AppProvider>();
+    final success = await provider.updateProfilePhoto(File(picked.path));
+
+    setState(() => _isUploadingPhoto = false);
+
+    if (mounted) {
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Photo de profil mise à jour !'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('❌ Erreur lors de la sauvegarde de la photo'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _removePhoto() async {
+    Navigator.pop(context); // Ferme le bottom sheet
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.delete_outline, color: Colors.red),
+            SizedBox(width: 10),
+            Text("Supprimer la photo", style: TextStyle(fontWeight: FontWeight.w800)),
+          ],
+        ),
+        content: const Text("Es-tu sûr de vouloir supprimer ta photo de profil ?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text("Annuler", style: TextStyle(color: Colors.grey)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text("Supprimer"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    setState(() => _isUploadingPhoto = true);
+
+    final provider = context.read<AppProvider>();
+    final success = await provider.removeProfilePhoto();
+
+    setState(() => _isUploadingPhoto = false);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(success
+              ? '🗑️ Photo supprimée'
+              : '❌ Erreur lors de la suppression'),
+          backgroundColor: success ? Colors.orange : Colors.red,
+        ),
+      );
+    }
+  }
+
   void _showPhotoOptions(BuildContext context) {
+    final user = context.read<AppProvider>().user;
+    final hasPhoto = user?.photoUrl != null && user!.photoUrl!.isNotEmpty;
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -201,39 +287,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Option : Uploader une photo
+                // Galerie
                 _PhotoOptionTile(
-                  icon: Icons.photo_camera_back_outlined,
-                  label: 'Uploader une photo',
+                  icon: Icons.photo_library_outlined,
+                  label: 'Choisir depuis la galerie',
                   color: const Color(0xFF1C3F7A),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    // TODO: Implémenter le picker d'image (image_picker)
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('📷 Fonctionnalité upload à venir…'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  },
+                  onTap: () => _pickImage(ImageSource.gallery),
                 ),
                 const SizedBox(height: 10),
-                // Option : Supprimer la photo
+                // Caméra
                 _PhotoOptionTile(
-                  icon: Icons.delete_outline_rounded,
-                  label: 'Supprimer la photo',
-                  color: Colors.red,
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    // TODO: Supprimer photoUrl et revenir à l'initiale
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('🗑️ Suppression à implémenter'),
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                  },
+                  icon: Icons.camera_alt_outlined,
+                  label: 'Prendre une photo',
+                  color: const Color(0xFF3B82F6),
+                  onTap: () => _pickImage(ImageSource.camera),
                 ),
+                if (hasPhoto) ...[
+                  const SizedBox(height: 10),
+                  _PhotoOptionTile(
+                    icon: Icons.delete_outline_rounded,
+                    label: 'Supprimer la photo',
+                    color: Colors.red,
+                    onTap: _removePhoto,
+                  ),
+                ],
                 const SizedBox(height: 10),
                 // Annuler
                 SizedBox(
@@ -293,7 +370,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     child: CircleAvatar(
                       radius: 48,
                       backgroundColor: const Color(0xFF1C3F7A).withOpacity(0.08),
-                      backgroundImage: hasPhoto ? NetworkImage(photoUrl) : null,
+                      backgroundImage: hasPhoto ? FileImage(File(photoUrl)) : null,
                       child: !hasPhoto
                           ? Text(
                               displayName.isNotEmpty
@@ -313,7 +390,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     bottom: 2,
                     right: 2,
                     child: GestureDetector(
-                      onTap: () => _showPhotoOptions(context),
+                      onTap: _isUploadingPhoto
+                          ? null
+                          : () => _showPhotoOptions(context),
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
@@ -328,11 +407,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             ),
                           ],
                         ),
-                        child: const Icon(
-                          Icons.edit_rounded,
-                          color: Colors.white,
-                          size: 18,
-                        ),
+                        child: _isUploadingPhoto
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(
+                                Icons.edit_rounded,
+                                color: Colors.white,
+                                size: 18,
+                              ),
                       ),
                     ),
                   ),
