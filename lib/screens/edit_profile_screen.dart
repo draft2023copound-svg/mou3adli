@@ -251,9 +251,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           onChanged: (value) {
             setState(() {
               _selectedClassLevel = value;
-              if (value != null && !_shouldShowStream(value)) {
-                _selectedStream = null;
-              }
+              _selectedStream = null; // Toujours réinitialiser la section quand on change de classe
             });
           },
         ),
@@ -262,26 +260,23 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Widget _buildStreamDropdown() {
-    const streams = [
-      'classique',
-      'pilote',
-      'sciences',
-      'lettres',
-      'economie',
-      'tech_info',
-      'math',
-      'sciences_exp',
-      'sciences_tech',
-      'sciences_info',
-      'sport',
-    ];
+    final streams = _getAvailableStreams();
+    if (streams.isEmpty) return const SizedBox.shrink();
+
+    final bool isCollege = _selectedClassLevel == '7eme' ||
+        _selectedClassLevel == '8eme' ||
+        _selectedClassLevel == '9eme';
+    final String label = isCollege ? "Type d'établissement" : "Section";
+    final String hint = isCollege
+        ? "Choisissez votre type d'établissement"
+        : "Sélectionnez votre section";
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "section",
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87),
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87),
         ),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
@@ -295,7 +290,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-            hintText: "Sélectionnez votre section",
+            hintText: hint,
           ),
           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
           items: streams.map((stream) {
@@ -314,10 +309,42 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  /// La section n'existe qu'à partir de la 2ème année secondaire.
-  /// 1ère année = programme commun, pas de section.
+  /// Retourne les sections disponibles selon le niveau sélectionné
+  List<String> _getAvailableStreams() {
+    if (_selectedClassLevel == null) return [];
+
+    // Collège : type d'établissement
+    if (_selectedClassLevel == '7eme' ||
+        _selectedClassLevel == '8eme' ||
+        _selectedClassLevel == '9eme') {
+      return ['commun', 'pilote'];
+    }
+
+    // Lycée 1ère
+    if (_selectedClassLevel == '1ere') {
+      return ['general', 'sport'];
+    }
+
+    // Lycée 2ème
+    if (_selectedClassLevel == '2eme') {
+      return ['sciences', 'lettres', 'economie', 'tech_info', 'sport'];
+    }
+
+    // Lycée 3ème et Bac (4ème)
+    if (_selectedClassLevel == '3eme' || _selectedClassLevel == '4eme') {
+      return ['sciences_exp', 'math', 'economie', 'sciences_info', 'sciences_tech', 'lettres', 'sport'];
+    }
+
+    return [];
+  }
+
+  /// La section/type est requis pour tous les niveaux sauf si déjà géré ailleurs
   bool _shouldShowStream(String classLevel) {
-    return classLevel == '2eme' ||
+    return classLevel == '7eme' ||
+        classLevel == '8eme' ||
+        classLevel == '9eme' ||
+        classLevel == '1ere' ||
+        classLevel == '2eme' ||
         classLevel == '3eme' ||
         classLevel == '4eme';
   }
@@ -345,10 +372,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   String _displayStreamName(String stream) {
     switch (stream) {
-      case 'classique':
-        return 'Classique';
+      // Collège
+      case 'commun':
+        return 'Commun';
       case 'pilote':
         return 'Pilote';
+      // Lycée 1ère
+      case 'general':
+        return 'Tronc commun';
+      // Lycée 2ème, 3ème, Bac
       case 'sciences':
         return 'Sciences';
       case 'lettres':
@@ -360,11 +392,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       case 'math':
         return 'Mathématiques';
       case 'sciences_exp':
-        return 'Sciences Exp.';
+        return 'Sciences Expérimentales';
       case 'sciences_tech':
         return 'Sciences Techniques';
       case 'sciences_info':
-        return 'Sciences Info';
+        return 'Sciences Informatiques';
       case 'sport':
         return 'Sport';
       default:
@@ -390,10 +422,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    // La section n'est obligatoire qu'à partir de la 2ème année
-    if (_shouldShowStream(_selectedClassLevel!) && _selectedStream == null) {
+    if (_selectedStream == null) {
+      final bool isCollege = _selectedClassLevel == '7eme' ||
+          _selectedClassLevel == '8eme' ||
+          _selectedClassLevel == '9eme';
+      final String msg = isCollege
+          ? "❌ Veuillez choisir un type d'établissement"
+          : "❌ Veuillez sélectionner une section";
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Veuillez sélectionner une section")),
+        SnackBar(content: Text(msg)),
       );
       return;
     }

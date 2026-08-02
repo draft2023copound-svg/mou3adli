@@ -24,7 +24,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
   String _selectedCycle = 'college';
   int _selectedClassIndex = 2;
   String? _selectedStream;
-  String _selectedType = 'classique';
+  String _selectedType = 'commun';
   bool _isLoading = false;
   String? _error;
 
@@ -59,7 +59,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
 
   String get _currentClassLevel => _currentClassLevels[_selectedClassIndex];
 
-  bool get _needsStream => _selectedCycle == 'lycee' && _currentClassLevel != '1ere';
+  bool get _needsStream => true; // Tous les niveaux ont une section/type
 
   List<Map<String, String>> get _availableStreams =>
       TunisianCurriculum.getStreams(_currentClassLevel);
@@ -72,7 +72,10 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
       return;
     }
     if (_needsStream && _selectedStream == null) {
-      setState(() => _error = 'Veuillez choisir une section');
+      final bool isCollegeErr = _selectedCycle == 'college';
+      setState(() => _error = isCollegeErr
+          ? "Veuillez choisir un type d'établissement"
+          : "Veuillez choisir une section");
       return;
     }
 
@@ -88,7 +91,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
       schoolName: _schoolCtrl.text.trim(),
       cycle: _selectedCycle,
       classLevel: _currentClassLevel,
-      stream: _selectedCycle == 'college' ? _selectedType : _selectedStream,
+      stream: _selectedStream,
     );
 
     setState(() => _isLoading = false);
@@ -275,12 +278,14 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
     final streams = _availableStreams;
     if (streams.isEmpty) return const SizedBox.shrink();
 
+    final bool isCollege = _selectedCycle == 'college';
+    final String label = isCollege ? "Type d'établissement" : "Section";
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('section'),
+        _buildSectionTitle(label),
         const SizedBox(height: 4),
-        // CORRECTION ICI : SUPPRESSION DU .toList() DANS LE SPREAD
         ...streams.map((s) {
           final isSelected = _selectedStream == s['id'];
           return GestureDetector(
@@ -391,10 +396,10 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
               const SizedBox(height: 8),
               _buildSectionTitle('Type d\'établissement'),
               _buildToggleRow(
-                ['Classique', 'Pilote'],
+                ['Commun', 'Pilote'],
                 _selectedType,
                 (v) => setState(() => _selectedType = v),
-                values: ['classique', 'pilote'],
+                values: ['commun', 'pilote'],
               ),
             ],
 
