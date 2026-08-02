@@ -41,7 +41,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  Future<void> _saveProfile() async {
+  Future _saveProfile() async {
     if (_nameCtrl.text.trim().isEmpty || _schoolCtrl.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("❌ Veuillez remplir tous les champs")),
@@ -154,6 +154,215 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // PHOTO DE PROFIL
+  // ═══════════════════════════════════════════════════════════
+
+  void _showPhotoOptions(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Indicateur de drag
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Photo de profil',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.black87,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Personnalise ton avatar',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+                const SizedBox(height: 24),
+                // Option : Uploader une photo
+                _PhotoOptionTile(
+                  icon: Icons.photo_camera_back_outlined,
+                  label: 'Uploader une photo',
+                  color: const Color(0xFF1C3F7A),
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    // TODO: Implémenter le picker d'image (image_picker)
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('📷 Fonctionnalité upload à venir…'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
+                // Option : Supprimer la photo
+                _PhotoOptionTile(
+                  icon: Icons.delete_outline_rounded,
+                  label: 'Supprimer la photo',
+                  color: Colors.red,
+                  onTap: () {
+                    Navigator.pop(ctx);
+                    // TODO: Supprimer photoUrl et revenir à l'initiale
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('🗑️ Suppression à implémenter'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 10),
+                // Annuler
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: Text(
+                      'Annuler',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProfilePhotoSection() {
+    return Consumer<AppProvider>(
+      builder: (context, provider, _) {
+        final user = provider.user;
+        final displayName = user?.fullName ?? 'Élève';
+        final photoUrl = user?.photoUrl;
+        final hasPhoto = photoUrl != null && photoUrl.isNotEmpty;
+
+        return Center(
+          child: Column(
+            children: [
+              const SizedBox(height: 8),
+              Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  // Avatar principal
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0xFF1C3F7A).withOpacity(0.15),
+                        width: 3,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 48,
+                      backgroundColor: const Color(0xFF1C3F7A).withOpacity(0.08),
+                      backgroundImage: hasPhoto ? NetworkImage(photoUrl) : null,
+                      child: !hasPhoto
+                          ? Text(
+                              displayName.isNotEmpty
+                                  ? displayName[0].toUpperCase()
+                                  : 'M',
+                              style: const TextStyle(
+                                fontSize: 36,
+                                fontWeight: FontWeight.w900,
+                                color: Color(0xFF1C3F7A),
+                              ),
+                            )
+                          : null,
+                    ),
+                  ),
+                  // Bouton stylo
+                  Positioned(
+                    bottom: 2,
+                    right: 2,
+                    child: GestureDetector(
+                      onTap: () => _showPhotoOptions(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1C3F7A),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 3),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF1C3F7A).withOpacity(0.3),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.edit_rounded,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                displayName,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Appuie sur le stylo pour changer ta photo',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade500,
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -172,8 +381,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           children: [
-            // ... (reste identique au fichier original)
-            // Nom, École, Classe, Section, Option
+            // ═══ PHOTO DE PROFIL ═══
+            _buildProfilePhotoSection(),
+            const SizedBox(height: 16),
+
+            // ═══ CHAMPS DU FORMULAIRE ═══
             _buildTextField('Nom complet', Icons.person_outline, _nameCtrl),
             _buildTextField('École', Icons.school_outlined, _schoolCtrl),
             const SizedBox(height: 20),
@@ -348,6 +560,73 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           },
         ),
       ],
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// WIDGET PRIVÉ : Option du bottom sheet photo
+// ═══════════════════════════════════════════════════════════
+
+class _PhotoOptionTile extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _PhotoOptionTile({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.06),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: color.withOpacity(0.15)),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.12),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: color, size: 22),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: color,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: color.withOpacity(0.5),
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
