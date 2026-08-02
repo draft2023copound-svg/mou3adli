@@ -27,13 +27,14 @@ class ProfileScreen extends StatelessWidget {
         final displayName = user?.fullName ?? 'Élève';
         final displayClass = user?.displayClass ?? '';
         final displayStream = user?.displayStream ?? '';
+        final displayOption = user?.displayOption;
         final classLevel = user?.classLevel ?? '';
 
         final hasStream = classLevel == '2eme' ||
             classLevel == '3eme' ||
             classLevel == '4eme';
         final classLabel = (hasStream && displayStream.isNotEmpty)
-            ? '$displayClass \u2022 $displayStream'
+            ? '$displayClass \u2022 $displayStream${displayOption != null ? ' \u2022 $displayOption' : ''}'
             : displayClass;
         final schoolName = user?.schoolName ?? '';
 

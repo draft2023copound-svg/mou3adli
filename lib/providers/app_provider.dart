@@ -44,6 +44,7 @@ class AppProvider extends ChangeNotifier {
         _user!.cycle,
         _user!.classLevel,
         _user!.stream,
+        optionId: _user!.optionId,
       );
       await _storage.saveTerms(_terms);
     }
@@ -59,6 +60,7 @@ class AppProvider extends ChangeNotifier {
     required String cycle,
     required String classLevel,
     String? stream,
+    String? optionId,
   }) async {
     _user = User(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -68,10 +70,16 @@ class AppProvider extends ChangeNotifier {
       cycle: cycle,
       classLevel: classLevel,
       stream: stream,
+      optionId: optionId,
       createdAt: DateTime.now(),
     );
 
-    _terms = TunisianCurriculum.generateTerms(cycle, classLevel, stream);
+    _terms = TunisianCurriculum.generateTerms(
+      cycle,
+      classLevel,
+      stream,
+      optionId: optionId,
+    );
 
     await _storage.saveUser(_user!);
     await _storage.saveTerms(_terms);
@@ -88,6 +96,7 @@ class AppProvider extends ChangeNotifier {
         _user!.cycle,
         _user!.classLevel,
         _user!.stream,
+        optionId: _user!.optionId,
       );
       await _storage.saveTerms(_terms);
       notifyListeners();
@@ -106,14 +115,13 @@ class AppProvider extends ChangeNotifier {
   }
 
   /// 📝 METTRE À JOUR LE PROFIL
-  /// Si classLevel ou stream changent, les trimestres sont régénérés
-  /// avec les nouvelles matières et coefficients.
   Future<void> updateProfile({
     String? fullName,
     String? schoolName,
     String? photoUrl,
     String? classLevel,
     String? stream,
+    String? optionId,
   }) async {
     if (_user == null) return;
 
@@ -131,6 +139,10 @@ class AppProvider extends ChangeNotifier {
       _user!.stream = stream;
       shouldRegenerateTerms = true;
     }
+    if (optionId != null && optionId != _user!.optionId) {
+      _user!.optionId = optionId;
+      shouldRegenerateTerms = true;
+    }
 
     await _storage.saveUser(_user!);
 
@@ -139,6 +151,7 @@ class AppProvider extends ChangeNotifier {
         _user!.cycle,
         _user!.classLevel,
         _user!.stream,
+        optionId: _user!.optionId,
       );
       await _storage.saveTerms(_terms);
     }
@@ -164,11 +177,11 @@ class AppProvider extends ChangeNotifier {
     if (evalIndex == -1) return;
 
     final oldSubject = _terms[termIndex].subjects[subjectIndex];
-    final newEvals = List.of(oldSubject.evaluations);
+    final newEvals = List<Evaluation>.of(oldSubject.evaluations);
     newEvals[evalIndex] = newEvals[evalIndex].copyWith(score: score);
 
     final newSubject = oldSubject.copyWith(evaluations: newEvals);
-    final newSubjects = List.of(_terms[termIndex].subjects);
+    final newSubjects = List<Subject>.of(_terms[termIndex].subjects);
     newSubjects[subjectIndex] = newSubject;
 
     final newTerm = Term(

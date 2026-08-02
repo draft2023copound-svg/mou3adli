@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
-
-const Color kPrimary = Color(0xff4F8CFF);
-const Color kSecondary = Color(0xff6C63FF);
-const Color kBackground = Color(0xffF8FAFC);
+import '../data/tunisian_curriculum.dart';
+import '../data/options_curriculum.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -14,331 +12,91 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final _nameController = TextEditingController();
-  final _schoolController = TextEditingController();
-  final _emailController = TextEditingController();
+  final _nameCtrl = TextEditingController();
+  final _schoolCtrl = TextEditingController();
 
   String? _selectedClassLevel;
   String? _selectedStream;
-  bool _isSaving = false;
+  String? _selectedOption;
+  bool _isLoading = false;
+
+  final List<String> _allClassLevels = [
+    '7eme', '8eme', '9eme',
+    '1ere', '2eme', '3eme', '4eme',
+  ];
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<AppProvider>(context, listen: false);
-      final user = provider.user;
-      if (user != null) {
-        setState(() {
-          _nameController.text = user.fullName;
-          _schoolController.text = user.schoolName;
-          _emailController.text = user.email;
-          _selectedClassLevel = user.classLevel;
-          _selectedStream = user.stream;
-        });
-      }
-    });
+    _loadUser();
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _schoolController.dispose();
-    _emailController.dispose();
-    super.dispose();
+  void _loadUser() {
+    final user = context.read<AppProvider>().user;
+    if (user != null) {
+      _nameCtrl.text = user.fullName;
+      _schoolCtrl.text = user.schoolName;
+      _selectedClassLevel = user.classLevel;
+      _selectedStream = user.stream;
+      _selectedOption = user.optionId;
+    }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Consumer<AppProvider>(
-      builder: (context, provider, _) {
-        final user = provider.user;
-        final photoUrl = user?.photoUrl;
-
-        return Scaffold(
-          backgroundColor: kBackground,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: true,
-            title: const Text(
-              "Modifier le profil",
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.black87),
-            ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black87),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Avatar
-                Center(
-                  child: Hero(
-                    tag: "profile",
-                    child: Container(
-                      padding: const EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(.15),
-                            blurRadius: 25,
-                          ),
-                        ],
-                      ),
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.white,
-                        backgroundImage: photoUrl != null && photoUrl.isNotEmpty
-                            ? NetworkImage(photoUrl)
-                            : null,
-                        child: photoUrl == null || photoUrl.isEmpty
-                            ? Text(
-                                (user?.fullName ?? 'M')[0].toUpperCase(),
-                                style: const TextStyle(
-                                  fontSize: 40,
-                                  fontWeight: FontWeight.w900,
-                                  color: kPrimary,
-                                ),
-                              )
-                            : null,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("📷 Changement de photo à venir")),
-                      );
-                    },
-                    icon: const Icon(Icons.camera_alt, size: 18),
-                    label: const Text("Changer la photo"),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Champs
-                _buildTextField(_nameController, "Nom complet", "Entrez votre nom"),
-                const SizedBox(height: 16),
-                _buildTextField(_emailController, "Email", "votre@email.com", keyboardType: TextInputType.emailAddress),
-                const SizedBox(height: 16),
-                _buildClassDropdown(),
-                const SizedBox(height: 16),
-                if (_selectedClassLevel != null && _shouldShowStream(_selectedClassLevel!))
-                  _buildStreamDropdown(),
-                if (_selectedClassLevel != null && _shouldShowStream(_selectedClassLevel!))
-                  const SizedBox(height: 16),
-                _buildTextField(_schoolController, "Établissement", "Nom de votre école/lycée"),
-
-                const SizedBox(height: 32),
-
-                // Bouton Enregistrer
-                SizedBox(
-                  width: double.infinity,
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: _isSaving ? null : () => _saveProfile(provider),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: kPrimary,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      elevation: 4,
-                    ),
-                    child: _isSaving
-                        ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2.5,
-                            ),
-                          )
-                        : const Text(
-                            "Enregistrer les modifications",
-                            style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
-                          ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildTextField(
-    TextEditingController controller,
-    String label,
-    String hint, {
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87),
-        ),
-        const SizedBox(height: 8),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-            hintText: hint,
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildClassDropdown() {
-    const classes = [
-      '7eme',
-      '8eme',
-      '9eme',
-      '1ere',
-      '2eme',
-      '3eme',
-      '4eme',
-    ];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Classe",
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87),
-        ),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          value: _selectedClassLevel,
-          isExpanded: true,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-            hintText: "Sélectionnez votre classe",
-          ),
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
-          items: classes.map((cls) {
-            return DropdownMenuItem(
-              value: cls,
-              child: Text(_displayClassName(cls)),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setState(() {
-              _selectedClassLevel = value;
-              _selectedStream = null; // Toujours réinitialiser la section quand on change de classe
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStreamDropdown() {
-    final streams = _getAvailableStreams();
-    if (streams.isEmpty) return const SizedBox.shrink();
-
-    final bool isCollege = _selectedClassLevel == '7eme' ||
-        _selectedClassLevel == '8eme' ||
-        _selectedClassLevel == '9eme';
-    final String label = isCollege ? "Type d'établissement" : "Section";
-    final String hint = isCollege
-        ? "Choisissez votre type d'établissement"
-        : "Sélectionnez votre section";
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87),
-        ),
-        const SizedBox(height: 8),
-        DropdownButtonFormField<String>(
-          value: _selectedStream,
-          isExpanded: true,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-            hintText: hint,
-          ),
-          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
-          items: streams.map((stream) {
-            return DropdownMenuItem(
-              value: stream,
-              child: Text(_displayStreamName(stream)),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setState(() {
-              _selectedStream = value;
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  /// Retourne les sections disponibles selon le niveau sélectionné
-  List<String> _getAvailableStreams() {
-    if (_selectedClassLevel == null) return [];
-
-    // Collège : type d'établissement
-    if (_selectedClassLevel == '7eme' ||
-        _selectedClassLevel == '8eme' ||
-        _selectedClassLevel == '9eme') {
-      return ['commun', 'pilote'];
+  Future<void> _saveProfile() async {
+    if (_nameCtrl.text.trim().isEmpty || _schoolCtrl.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Veuillez remplir tous les champs")),
+      );
+      return;
     }
 
-    // Lycée 1ère
-    if (_selectedClassLevel == '1ere') {
-      return ['general', 'sport'];
+    if (_selectedClassLevel == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Veuillez sélectionner une classe")),
+      );
+      return;
     }
 
-    // Lycée 2ème
-    if (_selectedClassLevel == '2eme') {
-      return ['sciences', 'lettres', 'economie', 'tech_info', 'sport'];
+    if (_selectedStream == null) {
+      final bool isCollege = _selectedClassLevel == '7eme' ||
+          _selectedClassLevel == '8eme' ||
+          _selectedClassLevel == '9eme';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(isCollege
+            ? "❌ Veuillez choisir un type d'établissement"
+            : "❌ Veuillez sélectionner une section")),
+      );
+      return;
     }
 
-    // Lycée 3ème et Bac (4ème)
-    if (_selectedClassLevel == '3eme' || _selectedClassLevel == '4eme') {
-      return ['sciences_exp', 'math', 'economie', 'sciences_info', 'sciences_tech', 'lettres', 'sport'];
+    if (_shouldShowOption() && _selectedOption == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Veuillez choisir une option")),
+      );
+      return;
     }
 
-    return [];
+    setState(() => _isLoading = true);
+
+    final provider = context.read<AppProvider>();
+    await provider.updateProfile(
+      fullName: _nameCtrl.text.trim(),
+      schoolName: _schoolCtrl.text.trim(),
+      classLevel: _selectedClassLevel,
+      stream: _selectedStream,
+      optionId: _selectedOption,
+    );
+
+    setState(() => _isLoading = false);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("✅ Profil mis à jour !")),
+      );
+      Navigator.pop(context);
+    }
   }
 
-  /// La section/type est requis pour tous les niveaux sauf si déjà géré ailleurs
   bool _shouldShowStream(String classLevel) {
     return classLevel == '7eme' ||
         classLevel == '8eme' ||
@@ -349,38 +107,31 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         classLevel == '4eme';
   }
 
-  String _displayClassName(String cls) {
-    switch (cls) {
-      case '7eme':
-        return '7ème Année de Base';
-      case '8eme':
-        return '8ème Année de Base';
-      case '9eme':
-        return '9ème Année de Base';
-      case '1ere':
-        return '1ère Année Secondaire';
-      case '2eme':
-        return '2ème Année Secondaire';
-      case '3eme':
-        return '3ème Année Secondaire';
-      case '4eme':
-        return 'Baccalauréat';
-      default:
-        return cls;
-    }
+  bool _shouldShowOption() {
+    return OptionCurriculum.hasOptions(_selectedClassLevel ?? '', _selectedStream);
+  }
+
+  String _displayClassName(String level) {
+    final map = {
+      '7eme': '7ème Année de Base',
+      '8eme': '8ème Année de Base',
+      '9eme': '9ème Année de Base',
+      '1ere': '1ère Année Secondaire',
+      '2eme': '2ème Année Secondaire',
+      '3eme': '3ème Année Secondaire',
+      '4eme': 'Baccalauréat (4ème)',
+    };
+    return map[level] ?? level;
   }
 
   String _displayStreamName(String stream) {
     switch (stream) {
-      // Collège
       case 'commun':
         return 'Commun';
       case 'pilote':
         return 'Pilote';
-      // Lycée 1ère
       case 'general':
         return 'Tronc commun';
-      // Lycée 2ème, 3ème, Bac
       case 'sciences':
         return 'Sciences';
       case 'lettres':
@@ -404,63 +155,200 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
   }
 
-  Future<void> _saveProfile(AppProvider provider) async {
-    final name = _nameController.text.trim();
-    final school = _schoolController.text.trim();
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF6F8FC),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        centerTitle: true,
+        title: const Text(
+          'Modifier le profil',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.black87),
+        ),
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+          children: [
+            // ... (reste identique au fichier original)
+            // Nom, École, Classe, Section, Option
+            _buildTextField('Nom complet', Icons.person_outline, _nameCtrl),
+            _buildTextField('École', Icons.school_outlined, _schoolCtrl),
+            const SizedBox(height: 20),
+            _buildClassDropdown(),
+            if (_shouldShowStream(_selectedClassLevel ?? '')) ...[
+              const SizedBox(height: 20),
+              _buildStreamDropdown(),
+            ],
+            if (_shouldShowOption()) ...[
+              const SizedBox(height: 20),
+              _buildOptionDropdown(),
+            ],
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: _isLoading ? null : _saveProfile,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1C3F7A),
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(56),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: _isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text('Enregistrer', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-    if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Le nom complet est requis")),
-      );
-      return;
+  Widget _buildTextField(String hint, IconData icon, TextEditingController ctrl) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: TextField(
+        controller: ctrl,
+        decoration: InputDecoration(
+          hintText: hint,
+          prefixIcon: Icon(icon, color: const Color(0xFF1C3F7A)),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildClassDropdown() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Classe', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87)),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: _selectedClassLevel,
+          isExpanded: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            hintText: "Sélectionnez votre classe",
+          ),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+          items: _allClassLevels.map((level) {
+            return DropdownMenuItem(value: level, child: Text(_displayClassName(level)));
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedClassLevel = value;
+              _selectedStream = null;
+              _selectedOption = null;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStreamDropdown() {
+    final streams = _getAvailableStreams();
+    if (streams.isEmpty) return const SizedBox.shrink();
+
+    final bool isCollege = _selectedClassLevel == '7eme' ||
+        _selectedClassLevel == '8eme' ||
+        _selectedClassLevel == '9eme';
+    final String label = isCollege ? "Type d'établissement" : "Section";
+    final String hint = isCollege
+        ? "Choisissez votre type d'établissement"
+        : "Sélectionnez votre section";
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87)),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: _selectedStream,
+          isExpanded: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            hintText: hint,
+          ),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+          items: streams.map((stream) {
+            return DropdownMenuItem(value: stream, child: Text(_displayStreamName(stream)));
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedStream = value;
+              _selectedOption = null;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  List<String> _getAvailableStreams() {
+    if (_selectedClassLevel == null) return [];
+    if (_selectedClassLevel == '7eme' || _selectedClassLevel == '8eme' || _selectedClassLevel == '9eme') {
+      return ['commun', 'pilote'];
     }
-
-    if (_selectedClassLevel == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Veuillez sélectionner une classe")),
-      );
-      return;
+    if (_selectedClassLevel == '1ere') {
+      return ['general', 'sport'];
     }
-
-    if (_selectedStream == null) {
-      final bool isCollege = _selectedClassLevel == '7eme' ||
-          _selectedClassLevel == '8eme' ||
-          _selectedClassLevel == '9eme';
-      final String msg = isCollege
-          ? "❌ Veuillez choisir un type d'établissement"
-          : "❌ Veuillez sélectionner une section";
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(msg)),
-      );
-      return;
+    if (_selectedClassLevel == '2eme') {
+      return ['sciences', 'lettres', 'economie', 'tech_info', 'sport'];
     }
-
-    setState(() => _isSaving = true);
-
-    try {
-      await provider.updateProfile(
-        fullName: name,
-        schoolName: school,
-        classLevel: _selectedClassLevel,
-        stream: _selectedStream,
-      );
-
-      if (mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Profil mis à jour ! Matières et coefficients régénérés.")),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("❌ Erreur : $e")),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isSaving = false);
-      }
+    if (_selectedClassLevel == '3eme' || _selectedClassLevel == '4eme') {
+      return ['sciences_exp', 'math', 'economie', 'sciences_info', 'sciences_tech', 'lettres', 'sport'];
     }
+    return [];
+  }
+
+  Widget _buildOptionDropdown() {
+    final options = OptionCurriculum.getAllOptions();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text("Option", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87)),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: _selectedOption,
+          isExpanded: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            hintText: "Choisissez votre option",
+          ),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+          items: options.map((opt) {
+            return DropdownMenuItem(
+              value: opt['id'] as String,
+              child: Text(opt['nameFr'] as String),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedOption = value;
+            });
+          },
+        ),
+      ],
+    );
   }
 }

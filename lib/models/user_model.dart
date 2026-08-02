@@ -6,7 +6,8 @@ class User {
   String schoolName;
   String cycle; // "college" | "lycee"
   String classLevel; // "7eme", "8eme", "9eme", "1ere", "2eme", "3eme", "4eme"
-  String? stream; // "classique", "pilote", "sciences", "lettres", etc.
+  String? stream; // "commun", "pilote", "sciences", "lettres", etc.
+  String? optionId; // "allemand", "espagnol", "italien", "musique", "arts_plastiques"
   DateTime createdAt;
 
   User({
@@ -18,6 +19,7 @@ class User {
     required this.cycle,
     required this.classLevel,
     this.stream,
+    this.optionId,
     required this.createdAt,
   });
 
@@ -34,8 +36,9 @@ class User {
   String get displayStream {
     if (stream == null) return '';
     final map = {
-      'classique': 'Classique',
+      'commun': 'Commun',
       'pilote': 'Pilote',
+      'general': 'Tronc commun',
       'sciences': 'Sciences',
       'lettres': 'Lettres',
       'economie': 'Économie & Gestion',
@@ -49,27 +52,41 @@ class User {
     return map[stream] ?? stream!;
   }
 
+  String? get displayOption {
+    if (optionId == null) return null;
+    final map = {
+      'allemand': 'Allemand',
+      'espagnol': 'Espagnol',
+      'italien': 'Italien',
+      'musique': 'Musique',
+      'arts_plastiques': 'Arts Plastiques',
+    };
+    return map[optionId] ?? optionId;
+  }
+
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'fullName': fullName,
-        'email': email,
-        'photoUrl': photoUrl,
-        'schoolName': schoolName,
-        'cycle': cycle,
-        'classLevel': classLevel,
-        'stream': stream,
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'id': id,
+    'fullName': fullName,
+    'email': email,
+    'photoUrl': photoUrl,
+    'schoolName': schoolName,
+    'cycle': cycle,
+    'classLevel': classLevel,
+    'stream': stream,
+    'optionId': optionId,
+    'createdAt': createdAt.toIso8601String(),
+  };
 
   factory User.fromJson(Map<String, dynamic> json) => User(
-        id: json['id'],
-        fullName: json['fullName'],
-        email: json['email'],
-        photoUrl: json['photoUrl'],
-        schoolName: json['schoolName'],
-        cycle: json['cycle'],
-        classLevel: json['classLevel'],
-        stream: json['stream'],
-        createdAt: DateTime.parse(json['createdAt']),
-      );
+    id: json['id'],
+    fullName: json['fullName'],
+    email: json['email'],
+    photoUrl: json['photoUrl'],
+    schoolName: json['schoolName'],
+    cycle: json['cycle'],
+    classLevel: json['classLevel'],
+    stream: json['stream'],
+    optionId: json['optionId'],
+    createdAt: DateTime.parse(json['createdAt']),
+  );
 }

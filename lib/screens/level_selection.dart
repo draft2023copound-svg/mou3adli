@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import '../data/tunisian_curriculum.dart';
+import '../data/options_curriculum.dart';
 import '../widgets/custom_widgets.dart';
 import 'home_screen.dart';
 
@@ -10,7 +11,7 @@ class LevelSelectionScreen extends StatefulWidget {
   const LevelSelectionScreen({super.key, this.isRegistering = false});
 
   @override
-  State<LevelSelectionScreen> createState() => _LevelSelectionScreenState();
+  State createState() => _LevelSelectionScreenState();
 }
 
 class _LevelSelectionScreenState extends State<LevelSelectionScreen>
@@ -24,14 +25,14 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
   String _selectedCycle = 'college';
   int _selectedClassIndex = 2;
   String? _selectedStream;
-  String _selectedType = 'commun';
+  String? _selectedOption;
   bool _isLoading = false;
   String? _error;
 
-  final List<String> _collegeClasses = ['7ème Année', '8ème Année', '9ème Année'];
-  final List<String> _lyceeClasses = ['1ère Année', '2ème Année', '3ème Année', '4ème Année'];
-  final List<String> _collegeLevels = ['7eme', '8eme', '9eme'];
-  final List<String> _lyceeLevels = ['1ere', '2eme', '3eme', '4eme'];
+  final List _collegeClasses = ['7ème Année', '8ème Année', '9ème Année'];
+  final List _lyceeClasses = ['1ère Année', '2ème Année', '3ème Année', '4ème Année'];
+  final List _collegeLevels = ['7eme', '8eme', '9eme'];
+  final List _lyceeLevels = ['1ere', '2eme', '3eme', '4eme'];
 
   @override
   void initState() {
@@ -51,31 +52,33 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
     super.dispose();
   }
 
-  List<String> get _currentClassNames =>
+  List get _currentClassNames =>
       _selectedCycle == 'college' ? _collegeClasses : _lyceeClasses;
 
-  List<String> get _currentClassLevels =>
+  List get _currentClassLevels =>
       _selectedCycle == 'college' ? _collegeLevels : _lyceeLevels;
 
   String get _currentClassLevel => _currentClassLevels[_selectedClassIndex];
 
-  bool get _needsStream => true; // Tous les niveaux ont une section/type
-
   List<Map<String, String>> get _availableStreams =>
       TunisianCurriculum.getStreams(_currentClassLevel);
 
-  Future<void> _handleSubmit() async {
+  Future _handleSubmit() async {
     if (_nameCtrl.text.trim().isEmpty ||
         _emailCtrl.text.trim().isEmpty ||
         _schoolCtrl.text.trim().isEmpty) {
       setState(() => _error = 'Veuillez remplir tous les champs');
       return;
     }
-    if (_needsStream && _selectedStream == null) {
-      final bool isCollegeErr = _selectedCycle == 'college';
-      setState(() => _error = isCollegeErr
+    if (_selectedStream == null) {
+      final bool isCollege = _selectedCycle == 'college';
+      setState(() => _error = isCollege
           ? "Veuillez choisir un type d'établissement"
           : "Veuillez choisir une section");
+      return;
+    }
+    if (_shouldShowOption() && _selectedOption == null) {
+      setState(() => _error = 'Veuillez choisir une option');
       return;
     }
 
@@ -92,6 +95,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
       cycle: _selectedCycle,
       classLevel: _currentClassLevel,
       stream: _selectedStream,
+      optionId: _selectedOption,
     );
 
     setState(() => _isLoading = false);
@@ -103,6 +107,10 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
         (route) => false,
       );
     }
+  }
+
+  bool _shouldShowOption() {
+    return OptionCurriculum.hasOptions(_currentClassLevel, _selectedStream);
   }
 
   Widget _buildTextField(String hint, IconData icon, TextEditingController ctrl,
@@ -155,9 +163,8 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
             child: GestureDetector(
               onTap: () => setState(() {
                 onSelect(values != null ? values[i] : options[i]);
-                if (_selectedCycle == 'lycee') {
-                  _selectedStream = null;
-                }
+                _selectedStream = null;
+                _selectedOption = null;
               }),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 250),
@@ -201,7 +208,11 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
   Widget _buildClassCard(int index, String name) {
     final isSelected = _selectedClassIndex == index;
     return GestureDetector(
-      onTap: () => setState(() => _selectedClassIndex = index),
+      onTap: () => setState(() {
+        _selectedClassIndex = index;
+        _selectedStream = null;
+        _selectedOption = null;
+      }),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         curve: Curves.easeOut,
@@ -289,7 +300,10 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
         ...streams.map((s) {
           final isSelected = _selectedStream == s['id'];
           return GestureDetector(
-            onTap: () => setState(() => _selectedStream = s['id']),
+            onTap: () => setState(() {
+              _selectedStream = s['id'];
+              _selectedOption = null;
+            }),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 250),
               margin: const EdgeInsets.only(bottom: 10),
@@ -345,6 +359,73 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
     );
   }
 
+  Widget _buildOptionSelector() {
+    final options = OptionCurriculum.getAllOptions();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildSectionTitle('Option'),
+        const SizedBox(height: 4),
+        ...options.map((opt) {
+          final isSelected = _selectedOption == opt['id'];
+          return GestureDetector(
+            onTap: () => setState(() => _selectedOption = opt['id'] as String),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              margin: const EdgeInsets.only(bottom: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              decoration: BoxDecoration(
+                color: isSelected ? kRoyalBlue.withOpacity(.06) : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isSelected ? kRoyalBlue : Colors.grey.shade200,
+                  width: isSelected ? 2 : 1,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(.03),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 22,
+                    height: 22,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: isSelected ? kRoyalBlue : Colors.grey.shade400,
+                        width: 2,
+                      ),
+                      color: isSelected ? kRoyalBlue : Colors.transparent,
+                    ),
+                    child: isSelected
+                        ? const Icon(Icons.check, size: 14, color: Colors.white)
+                        : null,
+                  ),
+                  const SizedBox(width: 14),
+                  Text(
+                    opt['nameFr'] as String,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      color: isSelected ? kRoyalBlue : Colors.black87,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -383,6 +464,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
                 _selectedCycle = v;
                 _selectedClassIndex = 0;
                 _selectedStream = null;
+                _selectedOption = null;
               }),
               values: ['college', 'lycee'],
             ),
@@ -392,20 +474,12 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
             _buildSectionTitle('Classe'),
             ...List.generate(_currentClassNames.length, (i) => _buildClassCard(i, _currentClassNames[i])),
 
-            if (_selectedCycle == 'college') ...[
-              const SizedBox(height: 8),
-              _buildSectionTitle('Type d\'établissement'),
-              _buildToggleRow(
-                ['Commun', 'Pilote'],
-                _selectedType,
-                (v) => setState(() => _selectedType = v),
-                values: ['commun', 'pilote'],
-              ),
-            ],
+            const SizedBox(height: 16),
+            _buildStreamSelector(),
 
-            if (_needsStream) ...[
+            if (_shouldShowOption()) ...[
               const SizedBox(height: 16),
-              _buildStreamSelector(),
+              _buildOptionSelector(),
             ],
 
             const SizedBox(height: 24),

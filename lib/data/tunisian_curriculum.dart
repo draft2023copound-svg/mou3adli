@@ -2,6 +2,7 @@
 // Ce fichier ne contient que des données pures, pas de widgets
 
 import '../models/evaluation_model.dart';
+import 'options_curriculum.dart';
 import '../models/subject_model.dart';
 import '../models/term_model.dart';
 
@@ -124,7 +125,7 @@ class TunisianCurriculum {
     'arabe': 4, 'francais': 3, 'anglais': 3,
     'histoire': 1.5, 'geo': 1.5, 'islamique': 1,
     'civique': 1, 'philosophie': 1, 'informatique': 1,
-    'educ_physique': 1, 'langues': 1, 'arts': 1,
+    'educ_physique': 1, 'option': 1,
   };
 
   static const Map<String, double> _lycee3Economie = {
@@ -132,7 +133,7 @@ class TunisianCurriculum {
     'histoire': 1, 'geo': 2, 'islamique': 1,
     'civique': 1, 'philosophie': 2, 'economie': 3,
     'gestion': 3, 'math': 2.5, 'informatique': 1,
-    'educ_physique': 1, 'langues': 1, 'arts': 1,
+    'educ_physique': 1, 'option': 1,
   };
 
   static const Map<String, double> _lycee3SciencesExp = {
@@ -140,7 +141,7 @@ class TunisianCurriculum {
     'histoire': 1, 'geo': 1, 'islamique': 1,
     'philosophie': 1, 'math': 3, 'physique': 4,
     'svt': 4, 'informatique': 1, 'educ_physique': 1,
-    'langues': 1, 'arts': 1,
+    'option': 1,
   };
 
   static const Map<String, double> _lycee3Math = {
@@ -148,7 +149,7 @@ class TunisianCurriculum {
     'histoire': 1, 'geo': 1, 'islamique': 1,
     'philosophie': 1, 'math': 4, 'physique': 4,
     'svt': 1.5, 'informatique': 1, 'educ_physique': 1,
-    'langues': 1, 'arts': 1,
+    'option': 1,
   };
 
   static const Map<String, double> _lycee3SciencesTech = {
@@ -156,7 +157,7 @@ class TunisianCurriculum {
     'histoire': 1, 'geo': 1,
     'philosophie': 1, 'math': 3, 'physique': 4,
     'techno': 4, 'informatique': 1, 'educ_physique': 1,
-    'langues': 1, 'arts': 1,
+    'option': 1,
   };
 
   static const Map<String, double> _lycee3SciencesInfo = {
@@ -164,7 +165,7 @@ class TunisianCurriculum {
     'histoire': 1,
     'philosophie': 1, 'math': 3, 'physique': 3,
     'algo_prog': 3, 'tic': 1.5, 'systemes_reseaux': 1.5,
-    'educ_physique': 1, 'langues': 1, 'arts': 1,
+    'educ_physique': 1, 'option': 1,
   };
 
   static const Map<String, double> _lycee3Sport = {
@@ -183,7 +184,7 @@ class TunisianCurriculum {
     'arabe': 4, 'francais': 3, 'anglais': 3,
     'histoire': 1.5, 'geo': 1.5, 'islamique': 1,
     'civique': 1, 'philosophie': 4, 'informatique': 1,
-    'educ_physique': 1, 'langues': 1, 'arts': 1,
+    'educ_physique': 1, 'option': 1,
   };
 
   static const Map<String, double> _lycee4Economie = {
@@ -191,35 +192,35 @@ class TunisianCurriculum {
     'histoire': 1, 'geo': 2,
     'philosophie': 2, 'economie': 4,
     'gestion': 4, 'math': 2.5, 'informatique': 1,
-    'educ_physique': 1, 'langues': 1, 'arts': 1,
+    'educ_physique': 1, 'option': 1,
   };
 
   static const Map<String, double> _lycee4SciencesExp = {
     'arabe': 1, 'francais': 1, 'anglais': 1,
     'philosophie': 1, 'math': 3, 'physique': 4,
     'svt': 4, 'informatique': 1, 'educ_physique': 1,
-    'langues': 1, 'arts': 1,
+    'option': 1,
   };
 
   static const Map<String, double> _lycee4Math = {
     'arabe': 1, 'francais': 1, 'anglais': 1,
     'philosophie': 1, 'math': 4, 'physique': 4,
     'svt': 1, 'informatique': 1, 'educ_physique': 1,
-    'langues': 1, 'arts': 1,
+    'option': 1,
   };
 
   static const Map<String, double> _lycee4SciencesTech = {
     'arabe': 1, 'francais': 1, 'anglais': 1,
     'philosophie': 1, 'math': 3, 'physique': 4,
     'techno': 4, 'informatique': 1, 'educ_physique': 1,
-    'langues': 1, 'arts': 1,
+    'option': 1,
   };
 
   static const Map<String, double> _lycee4SciencesInfo = {
     'arabe': 1, 'francais': 1, 'anglais': 1,
     'philosophie': 1, 'math': 3, 'physique': 3,
     'algo_prog': 3, 'tic': 1.5, 'bases_donnees': 1.5,
-    'educ_physique': 1, 'langues': 1, 'arts': 1,
+    'educ_physique': 1, 'option': 1,
   };
 
   static const Map<String, double> _lycee4Sport = {
@@ -345,8 +346,7 @@ class TunisianCurriculum {
     'tic': 'devices',
     'bases_donnees': 'storage',
     'specialite': 'fitness_center',
-    'langues': 'translate',
-    'arts': 'palette',
+    'option': 'interests',
   };
 
   // ───────────────────────────────────────────────
@@ -405,13 +405,12 @@ class TunisianCurriculum {
   static List<Evaluation> _getEvaluations(String subjectId) {
     return switch (subjectId) {
       'arabe' => _evalsArabe(),
-      'francais' || 'anglais' || 'langues' => _evalsLangue(),
+      'francais' || 'anglais' => _evalsLangue(),
       'math' => _evalsMath(),
       'physique' || 'svt' || 'techno' || 'tic' || 'bases_donnees' => _evalsScienceTech(),
       'informatique' => _evalsInfo(),
       'educ_physique' => _evalsEducPhys(),
       'musique' => _evalsMusique(),
-      'theatre' || 'arts' => _evalsArts(),
       'philosophie' => _evalsPhilosophie(),
       'economie' || 'gestion' => _evalsEconomie(),
       'algo_prog' || 'systemes_reseaux' => _evalsAlgo(),
@@ -422,7 +421,14 @@ class TunisianCurriculum {
 
   static String _getIcon(String subjectId) => _iconMap[subjectId] ?? 'school';
 
-  static String _getNameFr(String subjectId) {
+  static String _getNameFr(String subjectId, {String? optionId}) {
+    if (subjectId == 'option' && optionId != null) {
+      final optionNames = {
+        'allemand': 'Allemand', 'espagnol': 'Espagnol', 'italien': 'Italien',
+        'musique': 'Musique', 'arts_plastiques': 'Arts Plastiques',
+      };
+      return optionNames[optionId] ?? optionId;
+    }
     final map = {
       'arabe': 'Arabe', 'francais': 'Français', 'anglais': 'Anglais',
       'math': 'Mathématiques', 'physique': 'Sciences Physiques',
@@ -435,12 +441,19 @@ class TunisianCurriculum {
       'systemes_reseaux': 'Systèmes & Réseaux', 'tic': 'Tech-Inf-comm (TIC)',
       'bases_donnees': 'Bases de données',
       'specialite': 'Spécialité Sportive',
-      'langues': 'Langues', 'arts': 'Arts',
+      'option': 'Option',
     };
     return map[subjectId] ?? subjectId;
   }
 
-  static String _getNameAr(String subjectId) {
+  static String _getNameAr(String subjectId, {String? optionId}) {
+    if (subjectId == 'option' && optionId != null) {
+      final optionNames = {
+        'allemand': 'ألمانية', 'espagnol': 'إسبانية', 'italien': 'إيطالية',
+        'musique': 'موسيقى', 'arts_plastiques': 'فنون تشكيلية',
+      };
+      return optionNames[optionId] ?? optionId;
+    }
     final map = {
       'arabe': 'عربية', 'francais': 'فرنسية', 'anglais': 'إنجليزية',
       'math': 'رياضيات', 'physique': 'فيزياء',
@@ -453,16 +466,27 @@ class TunisianCurriculum {
       'systemes_reseaux': 'أنظمة و شبكات', 'tic': 'تقنيات الإعلام و الاتصال',
       'bases_donnees': 'قواعد بيانات',
       'specialite': 'اختصاص رياضي',
-      'langues': 'لغات', 'arts': 'فنون',
+      'option': 'اختياري',
     };
     return map[subjectId] ?? subjectId;
   }
 
   /// 🎯 GÉNÈRE LES 3 TRIMESTRES pour un élève donné
-  static List<Term> generateTerms(String cycle, String classLevel, String? stream) {
+  static List<Term> generateTerms(String cycle, String classLevel, String? stream, {String? optionId}) {
     final coeffs = _getSubjectCoeffs(cycle, classLevel, stream);
     final subjects = coeffs.entries.map((e) {
       final id = e.key;
+      // Si c'est le placeholder 'option', remplacer par la vraie option choisie
+      if (id == 'option' && optionId != null) {
+        return Subject(
+          id: optionId,
+          nameFr: _getNameFr(id, optionId: optionId),
+          nameAr: _getNameAr(id, optionId: optionId),
+          coefficient: e.value,
+          evaluations: OptionCurriculum.getOptionEvaluations(),
+          iconName: 'interests',
+        );
+      }
       return Subject(
         id: id,
         nameFr: _getNameFr(id),
@@ -515,7 +539,7 @@ class TunisianCurriculum {
         {'id': 'sciences', 'name': 'Sciences'},
         {'id': 'lettres', 'name': 'Lettres'},
         {'id': 'economie', 'name': 'Économie & Services'},
-        {'id': 'tech_info', 'name': 'Technologie de l\'Information'},
+        {'id': 'tech_info', 'name': 'Technologie de l'Information'},
         {'id': 'sport', 'name': 'Sport'},
       ];
     }
@@ -526,7 +550,7 @@ class TunisianCurriculum {
         {'id': 'sciences_exp', 'name': 'Sciences Expérimentales'},
         {'id': 'math', 'name': 'Mathématiques'},
         {'id': 'sciences_tech', 'name': 'Sciences Techniques'},
-        {'id': 'sciences_info', 'name': 'Sciences de l\'Informatique'},
+        {'id': 'sciences_info', 'name': 'Sciences de l'Informatique'},
         {'id': 'sport', 'name': 'Sport'},
       ];
     }
