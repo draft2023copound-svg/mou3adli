@@ -376,7 +376,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SizedBox(height: 16),
               Text("❓ Puis-je changer de classe ?", style: TextStyle(fontWeight: FontWeight.w700)),
               SizedBox(height: 4),
-              Text("Oui ! Va dans Profil > Modifier le profil, change ta classe et/ou filière. Les matières et coefficients se mettront à jour."),
+              Text("Oui ! Va dans Profil > Modifier le profil, change ta classe et/ou section. Les matières et coefficients se mettront à jour."),
               SizedBox(height: 16),
               Text("❓ Mes données sont-elles sauvegardées ?", style: TextStyle(fontWeight: FontWeight.w700)),
               SizedBox(height: 4),

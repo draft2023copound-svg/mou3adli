@@ -72,7 +72,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
       return;
     }
     if (_needsStream && _selectedStream == null) {
-      setState(() => _error = 'Veuillez choisir une filière');
+      setState(() => _error = 'Veuillez choisir une section');
       return;
     }
 
@@ -278,7 +278,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Filière'),
+        _buildSectionTitle('section'),
         const SizedBox(height: 4),
         // CORRECTION ICI : SUPPRESSION DU .toList() DANS LE SPREAD
         ...streams.map((s) {

@@ -280,7 +280,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Filière",
+          "section",
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87),
         ),
         const SizedBox(height: 8),
@@ -295,7 +295,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               borderSide: BorderSide.none,
             ),
             contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-            hintText: "Sélectionnez votre filière",
+            hintText: "Sélectionnez votre section",
           ),
           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
           items: streams.map((stream) {
@@ -314,8 +314,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  /// La filière n'existe qu'à partir de la 2ème année secondaire.
-  /// 1ère année = programme commun, pas de filière.
+  /// La section n'existe qu'à partir de la 2ème année secondaire.
+  /// 1ère année = programme commun, pas de section.
   bool _shouldShowStream(String classLevel) {
     return classLevel == '2eme' ||
         classLevel == '3eme' ||
@@ -390,10 +390,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       return;
     }
 
-    // La filière n'est obligatoire qu'à partir de la 2ème année
+    // La section n'est obligatoire qu'à partir de la 2ème année
     if (_shouldShowStream(_selectedClassLevel!) && _selectedStream == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Veuillez sélectionner une filière")),
+        const SnackBar(content: Text("❌ Veuillez sélectionner une section")),
       );
       return;
     }

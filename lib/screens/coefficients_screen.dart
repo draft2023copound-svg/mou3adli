@@ -34,7 +34,7 @@ class CoefficientsScreen extends StatelessWidget {
         final displayStream = user?.displayStream ?? '';
         final classLevel = user?.classLevel ?? '';
 
-        // Pas de filière pour la 1ère année (tronc commun)
+        // Pas de section pour la 1ère année (tronc commun)
         final hasStream = classLevel == '2eme' ||
             classLevel == '3eme' ||
             classLevel == '4eme';

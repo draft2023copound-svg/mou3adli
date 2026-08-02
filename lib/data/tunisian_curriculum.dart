@@ -502,7 +502,7 @@ class TunisianCurriculum {
     ];
   }
 
-  /// 📋 Renvoie la liste des filières disponibles pour une année du lycée
+  /// 📋 Renvoie la liste des sections disponibles pour une année du lycée
   static List<Map<String, String>> getStreams(String classLevel) {
     if (classLevel == '1ere') {
       return [
