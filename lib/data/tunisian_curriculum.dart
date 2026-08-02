@@ -25,7 +25,7 @@ class TunisianCurriculum {
 
   static const Map<String, double> _college7Pilote = {
     'arabe': 4, 'francais': 4, 'anglais': 2, 'math': 3,
-    'physique': 1, 'svt': 1, 'histoire': 1, 'geo': 1,
+    'physique': 1.5, 'svt': 1.5, 'histoire': 1, 'geo': 1,
     'techno': 1, 'islamique': 1, 'civique': 1,
     'informatique': 1.5, 'educ_physique': 1,
   };
@@ -39,7 +39,7 @@ class TunisianCurriculum {
 
   static const Map<String, double> _college8Pilote = {
     'arabe': 4, 'francais': 4, 'anglais': 2, 'math': 3,
-    'physique': 1, 'svt': 1, 'histoire': 1, 'geo': 1,
+    'physique': 1.5, 'svt': 1.5, 'histoire': 1, 'geo': 1,
     'techno': 1, 'islamique': 1, 'civique': 1,
     'informatique': 1.5, 'educ_physique': 1,
   };
@@ -53,13 +53,13 @@ class TunisianCurriculum {
 
   static const Map<String, double> _college9Pilote = {
     'arabe': 4, 'francais': 4, 'anglais': 2, 'math': 3,
-    'physique': 1, 'svt': 1, 'histoire': 1, 'geo': 1,
+    'physique': 1.5, 'svt': 1.5, 'histoire': 1, 'geo': 1,
     'techno': 1, 'islamique': 1, 'civique': 1,
     'informatique': 1.5, 'educ_physique': 1,
   };
 
   // ───────────────────────────────────────────────
-  // COEFFICIENTS MATIÈRES — LYCÉE 1ÈRE (Tronc commun)
+  // COEFFICIENTS MATIÈRES — LYCÉE 1ÈRE
   // ───────────────────────────────────────────────
 
   static const Map<String, double> _lycee1ere = {
@@ -70,15 +70,23 @@ class TunisianCurriculum {
     'educ_physique': 1,
   };
 
+  static const Map<String, double> _lycee1ereSport = {
+    'arabe': 2, 'francais': 2, 'anglais': 2,
+    'histoire': 1, 'geo': 1, 'islamique': 1,
+    'civique': 1, 'informatique': 1, 'math': 2,
+    'physique': 2, 'svt': 2, 'educ_physique': 2,
+    'specialite': 3,
+  };
+
   // ───────────────────────────────────────────────
-  // COEFFICIENTS MATIÈRES — LYCÉE 2ÈME (Par filière)
+  // COEFFICIENTS MATIÈRES — LYCÉE 2ÈME
   // ───────────────────────────────────────────────
 
   static const Map<String, double> _lycee2Sciences = {
     'arabe': 2, 'francais': 2, 'anglais': 2,
     'histoire': 1, 'geo': 1, 'islamique': 1, 'civique': 1,
-    'math': 4, 'physique': 4, 'svt': 2, 'techno': 2,
-    'educ_physique': 1,
+    'informatique': 1.5, 'math': 4, 'physique': 4,
+    'svt': 2, 'techno': 2, 'educ_physique': 1,
   };
 
   static const Map<String, double> _lycee2Lettres = {
@@ -90,108 +98,135 @@ class TunisianCurriculum {
   static const Map<String, double> _lycee2Economie = {
     'arabe': 2, 'francais': 2, 'anglais': 2,
     'histoire': 1.5, 'geo': 1.5, 'islamique': 1, 'civique': 1,
-    'economie': 3, 'gestion': 3, 'math': 2.5,
-    'informatique': 1, 'educ_physique': 1,
+    'informatique': 1, 'math': 2.5, 'economie': 3,
+    'gestion': 3, 'educ_physique': 1,
   };
 
   static const Map<String, double> _lycee2TechInfo = {
     'arabe': 2, 'francais': 2, 'anglais': 2,
-    'math': 3, 'physique': 3, 'informatique': 4,
-    'techno': 4, 'histoire': 1, 'geo': 1,
-    'islamique': 1, 'civique': 1, 'educ_physique': 1,
+    'histoire': 1, 'geo': 1, 'islamique': 1, 'civique': 1,
+    'informatique': 3, 'math': 4, 'physique': 3,
+    'techno': 2, 'educ_physique': 1,
+  };
+
+  static const Map<String, double> _lycee2Sport = {
+    'arabe': 2, 'francais': 2, 'anglais': 2,
+    'histoire': 1, 'geo': 1, 'islamique': 1, 'civique': 1,
+    'informatique': 1, 'math': 2, 'physique': 2,
+    'svt': 2, 'educ_physique': 2, 'specialite': 3,
   };
 
   // ───────────────────────────────────────────────
-  // COEFFICIENTS MATIÈRES — LYCÉE 3ÈME (Par filière)
+  // COEFFICIENTS MATIÈRES — LYCÉE 3ÈME (CORRIGÉ)
   // ───────────────────────────────────────────────
-
-  static const Map<String, double> _lycee3SciencesExp = {
-    'arabe': 2, 'francais': 2, 'anglais': 2, 'philosophie': 2,
-    'histoire': 1, 'geo': 1, 'islamique': 1,
-    'math': 4, 'physique': 4, 'svt': 2,
-    'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
-  };
-
-  static const Map<String, double> _lycee3Math = {
-    'arabe': 2, 'francais': 2, 'anglais': 2, 'philosophie': 2,
-    'histoire': 1, 'geo': 1, 'islamique': 1,
-    'math': 5, 'physique': 4, 'svt': 1,
-    'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
-  };
 
   static const Map<String, double> _lycee3Lettres = {
-    'arabe': 4, 'francais': 4, 'anglais': 3, 'philosophie': 3,
+    'arabe': 4, 'francais': 3, 'anglais': 3,
     'histoire': 1.5, 'geo': 1.5, 'islamique': 1,
-    'math': 1, 'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
+    'civique': 1, 'philosophie': 1, 'informatique': 1,
+    'educ_physique': 1, 'langues': 1, 'arts': 1,
   };
 
   static const Map<String, double> _lycee3Economie = {
-    'arabe': 3, 'francais': 3, 'anglais': 3, 'philosophie': 3,
-    'histoire': 1.5, 'geo': 1.5, 'islamique': 1,
-    'economie': 3, 'gestion': 3, 'math': 2.5,
-    'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
+    'arabe': 2, 'francais': 2, 'anglais': 2,
+    'histoire': 1, 'geo': 2, 'islamique': 1,
+    'civique': 1, 'philosophie': 2, 'economie': 3,
+    'gestion': 3, 'math': 2.5, 'informatique': 1,
+    'educ_physique': 1, 'langues': 1, 'arts': 1,
+  };
+
+  static const Map<String, double> _lycee3SciencesExp = {
+    'arabe': 2, 'francais': 2, 'anglais': 2,
+    'histoire': 1, 'geo': 1, 'islamique': 1,
+    'philosophie': 1, 'math': 3, 'physique': 4,
+    'svt': 4, 'informatique': 1, 'educ_physique': 1,
+    'langues': 1, 'arts': 1,
+  };
+
+  static const Map<String, double> _lycee3Math = {
+    'arabe': 2, 'francais': 2, 'anglais': 2,
+    'histoire': 1, 'geo': 1, 'islamique': 1,
+    'philosophie': 1, 'math': 4, 'physique': 4,
+    'svt': 1.5, 'informatique': 1, 'educ_physique': 1,
+    'langues': 1, 'arts': 1,
   };
 
   static const Map<String, double> _lycee3SciencesTech = {
-    'arabe': 2, 'francais': 2, 'anglais': 2, 'philosophie': 2,
-    'math': 4, 'physique': 4, 'techno': 5,
-    'informatique': 2, 'optionnelle': 1, 'educ_physique': 1,
+    'arabe': 1, 'francais': 2, 'anglais': 2,
+    'histoire': 1, 'geo': 1,
+    'philosophie': 1, 'math': 3, 'physique': 4,
+    'techno': 4, 'informatique': 1, 'educ_physique': 1,
+    'langues': 1, 'arts': 1,
   };
 
   static const Map<String, double> _lycee3SciencesInfo = {
-    'arabe': 2, 'francais': 2, 'anglais': 2, 'philosophie': 2,
-    'math': 4, 'physique': 3, 'algorithmique': 5,
-    'systemes_reseaux': 4, 'tic': 4,
-    'optionnelle': 1, 'educ_physique': 1,
+    'arabe': 1, 'francais': 2, 'anglais': 2,
+    'histoire': 1,
+    'philosophie': 1, 'math': 3, 'physique': 3,
+    'algo_prog': 3, 'tic': 1.5, 'systemes_reseaux': 1.5,
+    'educ_physique': 1, 'langues': 1, 'arts': 1,
   };
 
-  // ───────────────────────────────────────────────
-  // COEFFICIENTS MATIÈRES — LYCÉE 4ÈME BAC (Par filière)
-  // ───────────────────────────────────────────────
-
-  static const Map<String, double> _lycee4SciencesExp = {
-    'arabe': 3, 'francais': 3, 'anglais': 3, 'philosophie': 3,
-    'math': 4, 'physique': 4, 'svt': 4,
-    'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
-  };
-
-  static const Map<String, double> _lycee4Math = {
-    'arabe': 3, 'francais': 3, 'anglais': 3, 'philosophie': 3,
+  static const Map<String, double> _lycee3Sport = {
+    'arabe': 1.5, 'francais': 1.5, 'anglais': 1.5,
     'histoire': 1, 'geo': 1, 'islamique': 1,
-    'math': 5, 'physique': 5, 'svt': 1.5,
-    'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
+    'civique': 1, 'philosophie': 1, 'informatique': 1,
+    'math': 2, 'physique': 2, 'svt': 3, // ✅ CORRIGÉ ICI (3 au lieu de 2)
+    'educ_physique': 2, 'specialite': 3,
   };
+
+  // ───────────────────────────────────────────────
+  // COEFFICIENTS MATIÈRES — LYCÉE 4ÈME (BAC) (CORRIGÉ)
+  // ───────────────────────────────────────────────
 
   static const Map<String, double> _lycee4Lettres = {
-    'arabe': 4, 'francais': 4, 'anglais': 3, 'philosophie': 3,
-    'islamique': 1, 'histoire': 1.5, 'geo': 1.5,
-    'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
+    'arabe': 4, 'francais': 3, 'anglais': 3,
+    'histoire': 1.5, 'geo': 1.5, 'islamique': 1,
+    'civique': 1, 'philosophie': 4, 'informatique': 1,
+    'educ_physique': 1, 'langues': 1, 'arts': 1,
   };
 
   static const Map<String, double> _lycee4Economie = {
-    'arabe': 3, 'francais': 3, 'anglais': 3, 'philosophie': 3,
-    'histoire': 1.5, 'geo': 1.5,
-    'economie': 4, 'gestion': 4, 'math': 2.5,
-    'informatique': 1, 'optionnelle': 1, 'educ_physique': 1,
+    'arabe': 1, 'francais': 1, 'anglais': 1,
+    'histoire': 1, 'geo': 2,
+    'philosophie': 2, 'economie': 4,
+    'gestion': 4, 'math': 2.5, 'informatique': 1,
+    'educ_physique': 1, 'langues': 1, 'arts': 1,
+  };
+
+  static const Map<String, double> _lycee4SciencesExp = {
+    'arabe': 1, 'francais': 1, 'anglais': 1,
+    'philosophie': 1, 'math': 3, 'physique': 4,
+    'svt': 4, 'informatique': 1, 'educ_physique': 1,
+    'langues': 1, 'arts': 1,
+  };
+
+  static const Map<String, double> _lycee4Math = {
+    'arabe': 1, 'francais': 1, 'anglais': 1,
+    'philosophie': 1, 'math': 4, 'physique': 4,
+    'svt': 1, 'informatique': 1, 'educ_physique': 1,
+    'langues': 1, 'arts': 1,
   };
 
   static const Map<String, double> _lycee4SciencesTech = {
-    'arabe': 2, 'francais': 2, 'anglais': 2, 'philosophie': 2,
-    'math': 4, 'physique': 4, 'techno': 5,
-    'informatique': 2, 'optionnelle': 1, 'educ_physique': 1,
+    'arabe': 1, 'francais': 1, 'anglais': 1,
+    'philosophie': 1, 'math': 3, 'physique': 4,
+    'techno': 4, 'informatique': 1, 'educ_physique': 1,
+    'langues': 1, 'arts': 1,
   };
 
   static const Map<String, double> _lycee4SciencesInfo = {
-    'arabe': 3, 'francais': 3, 'anglais': 3, 'philosophie': 3,
-    'math': 4, 'physique': 3, 'algorithmique': 5,
-    'systemes_reseaux': 4, 'tic': 4,
-    'optionnelle': 1, 'educ_physique': 1,
+    'arabe': 1, 'francais': 1, 'anglais': 1,
+    'philosophie': 1, 'math': 3, 'physique': 3,
+    'algo_prog': 3, 'tic': 1.5, 'bases_donnees': 1.5,
+    'educ_physique': 1, 'langues': 1, 'arts': 1,
   };
 
   static const Map<String, double> _lycee4Sport = {
-    'arabe': 3, 'francais': 3, 'anglais': 3, 'philosophie': 3,
-    'math': 3, 'physique': 3, 'biologie': 3,
-    'informatique': 1, 'educ_physique': 4, 'specialite': 4,
+    'arabe': 1, 'francais': 1.5, 'anglais': 1.5,
+    'histoire': 1, 'geo': 1, 'philosophie': 1.5,
+    'informatique': 1, 'math': 1, 'physique': 1,
+    'svt': 3, 'educ_physique': 2, 'specialite': 3,
   };
 
   // ───────────────────────────────────────────────
@@ -219,15 +254,11 @@ class TunisianCurriculum {
     Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
   ];
 
-  static List<Evaluation> _evalsPhysique() => [
+  // ✅ PHYSIQUE, SVT, TECHNO, TIC, BASES DE DONNÉES (Contrôle + TP + Synthèse)
+  static List<Evaluation> _evalsScienceTech() => [
     Evaluation(id: 'dc1', nameFr: 'Contrôle continu n°1', nameAr: 'فرض المراقبة عدد 1', weight: 1),
+    Evaluation(id: 'tp', nameFr: 'Travaux Pratiques (TP)', nameAr: 'أعمال تطبيقية', weight: 1),
     Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
-  ];
-
-  static List<Evaluation> _evalsSVT() => [
-    Evaluation(id: 'dc1', nameFr: 'Contrôle continu n°1', nameAr: 'فرض المراقبة عدد 1', weight: 1),
-    Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
-    Evaluation(id: 'tp', nameFr: 'TP / Pratique', nameAr: 'الأشغال التطبيقية', weight: 1),
   ];
 
   static List<Evaluation> _evalsStandard3() => [
@@ -269,10 +300,23 @@ class TunisianCurriculum {
     Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
   ];
 
+  // ✅ ALGORITHMIQUE (Contrôle + TP + Synthèse)
   static List<Evaluation> _evalsAlgo() => [
     Evaluation(id: 'dc1', nameFr: 'Contrôle continu n°1', nameAr: 'فرض المراقبة عدد 1', weight: 1),
-    Evaluation(id: 'dc2', nameFr: 'Contrôle continu n°2', nameAr: 'فرض المراقبة عدد 2', weight: 1),
-    Evaluation(id: 'tp', nameFr: 'TP / Pratique', nameAr: 'الأشغال التطبيقية', weight: 2),
+    Evaluation(id: 'tp', nameFr: 'TP / Pratique', nameAr: 'الأشغال التطبيقية', weight: 1),
+    Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
+  ];
+
+  // ✅ SPÉCIALITÉ SPORT (Contrôle + Pratique + Synthèse)
+  static List<Evaluation> _evalsSpecialite() => [
+    Evaluation(id: 'dc1', nameFr: 'Contrôle continu n°1', nameAr: 'فرض المراقبة عدد 1', weight: 1),
+    Evaluation(id: 'tp', nameFr: 'Pratique sportive', nameAr: 'تطبيقات رياضية', weight: 1),
+    Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
+  ];
+
+  static List<Evaluation> _evalsLanguesArts() => [
+    Evaluation(id: 'dc', nameFr: 'Contrôle continu', nameAr: 'فرض المراقبة', weight: 1),
+    Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
   ];
 
   // ───────────────────────────────────────────────
@@ -296,12 +340,13 @@ class TunisianCurriculum {
     'philosophie': 'psychology',
     'economie': 'trending_up',
     'gestion': 'business',
-    'algorithmique': 'code',
+    'algo_prog': 'code',
     'systemes_reseaux': 'router',
     'tic': 'devices',
-    'optionnelle': 'school',
+    'bases_donnees': 'storage',
     'specialite': 'fitness_center',
-    'biologie': 'biotech',
+    'langues': 'translate',
+    'arts': 'palette',
   };
 
   // ───────────────────────────────────────────────
@@ -315,33 +360,38 @@ class TunisianCurriculum {
       if (classLevel == '8eme') return isPilote ? _college8Pilote : _college8Classique;
       if (classLevel == '9eme') return isPilote ? _college9Pilote : _college9Classique;
     } else {
-      if (classLevel == '1ere') return _lycee1ere;
+      // Lycée
+      if (classLevel == '1ere') {
+        return stream == 'sport' ? _lycee1ereSport : _lycee1ere;
+      }
       if (classLevel == '2eme') {
         return switch (stream) {
           'sciences' => _lycee2Sciences,
           'lettres' => _lycee2Lettres,
           'economie' => _lycee2Economie,
           'tech_info' => _lycee2TechInfo,
+          'sport' => _lycee2Sport,
           _ => _lycee2Sciences,
         };
       }
       if (classLevel == '3eme') {
         return switch (stream) {
-          'sciences_exp' => _lycee3SciencesExp,
-          'math' => _lycee3Math,
           'lettres' => _lycee3Lettres,
           'economie' => _lycee3Economie,
+          'sciences_exp' => _lycee3SciencesExp,
+          'math' => _lycee3Math,
           'sciences_tech' => _lycee3SciencesTech,
           'sciences_info' => _lycee3SciencesInfo,
+          'sport' => _lycee3Sport,
           _ => _lycee3SciencesExp,
         };
       }
       if (classLevel == '4eme') {
         return switch (stream) {
-          'sciences_exp' => _lycee4SciencesExp,
-          'math' => _lycee4Math,
           'lettres' => _lycee4Lettres,
           'economie' => _lycee4Economie,
+          'sciences_exp' => _lycee4SciencesExp,
+          'math' => _lycee4Math,
           'sciences_tech' => _lycee4SciencesTech,
           'sciences_info' => _lycee4SciencesInfo,
           'sport' => _lycee4Sport,
@@ -355,17 +405,17 @@ class TunisianCurriculum {
   static List<Evaluation> _getEvaluations(String subjectId) {
     return switch (subjectId) {
       'arabe' => _evalsArabe(),
-      'francais' || 'anglais' => _evalsLangue(),
+      'francais' || 'anglais' || 'langues' => _evalsLangue(),
       'math' => _evalsMath(),
-      'physique' || 'biologie' => _evalsPhysique(),
-      'svt' => _evalsSVT(),
-      'informatique' || 'techno' => _evalsInfo(),
-      'educ_physique' || 'specialite' => _evalsEducPhys(),
+      'physique' || 'svt' || 'techno' || 'tic' || 'bases_donnees' => _evalsScienceTech(),
+      'informatique' => _evalsInfo(),
+      'educ_physique' => _evalsEducPhys(),
       'musique' => _evalsMusique(),
       'theatre' || 'arts' => _evalsArts(),
       'philosophie' => _evalsPhilosophie(),
       'economie' || 'gestion' => _evalsEconomie(),
-      'algorithmique' || 'systemes_reseaux' || 'tic' => _evalsAlgo(),
+      'algo_prog' || 'systemes_reseaux' => _evalsAlgo(),
+      'specialite' => _evalsSpecialite(),
       _ => _evalsStandard3(),
     };
   }
@@ -376,16 +426,16 @@ class TunisianCurriculum {
     final map = {
       'arabe': 'Arabe', 'francais': 'Français', 'anglais': 'Anglais',
       'math': 'Mathématiques', 'physique': 'Sciences Physiques',
-      'svt': 'Sciences Naturelles', 'histoire': 'Histoire',
+      'svt': 'Sciences de la Vie et Terre', 'histoire': 'Histoire',
       'geo': 'Géographie', 'techno': 'Technologie',
       'islamique': 'Éducation Islamique', 'civique': 'Éducation Civique',
       'informatique': 'Informatique', 'educ_physique': 'Éducation Physique',
       'philosophie': 'Philosophie', 'economie': 'Économie',
-      'gestion': 'Gestion', 'algorithmique': 'Algorithmique',
-      'systemes_reseaux': 'Systèmes & Réseaux', 'tic': 'TIC',
-      'optionnelle': 'Matière optionnelle', 'specialite': 'Spécialité',
-      'biologie': 'Biologie', 'theatre': 'Théâtre', 'musique': 'Musique',
-      'arts': 'Arts Plastiques',
+      'gestion': 'Gestion', 'algo_prog': 'Algorithmique & Programmation',
+      'systemes_reseaux': 'Systèmes & Réseaux', 'tic': 'Tech-Inf-comm (TIC)',
+      'bases_donnees': 'Bases de données',
+      'specialite': 'Spécialité Sportive',
+      'langues': 'Langues', 'arts': 'Arts',
     };
     return map[subjectId] ?? subjectId;
   }
@@ -399,11 +449,11 @@ class TunisianCurriculum {
       'islamique': 'تربية إسلامية', 'civique': 'تربية مدنية',
       'informatique': 'إعلامية', 'educ_physique': 'تربية بدنية',
       'philosophie': 'فلسفة', 'economie': 'اقتصاد',
-      'gestion': 'تصرف', 'algorithmique': 'خوارزميات',
-      'systemes_reseaux': 'أنظمة وشبكات', 'tic': 'تقنيات الإعلام والاتصال',
-      'optionnelle': 'اختيارية', 'specialite': 'تخصص',
-      'biologie': 'أحياء', 'theatre': 'مسرح', 'musique': 'موسيقى',
-      'arts': 'فنون تشكيلية',
+      'gestion': 'تصرف', 'algo_prog': 'خوارزميات و برمجة',
+      'systemes_reseaux': 'أنظمة و شبكات', 'tic': 'تقنيات الإعلام و الاتصال',
+      'bases_donnees': 'قواعد بيانات',
+      'specialite': 'اختصاص رياضي',
+      'langues': 'لغات', 'arts': 'فنون',
     };
     return map[subjectId] ?? subjectId;
   }
@@ -454,23 +504,30 @@ class TunisianCurriculum {
 
   /// 📋 Renvoie la liste des filières disponibles pour une année du lycée
   static List<Map<String, String>> getStreams(String classLevel) {
+    if (classLevel == '1ere') {
+      return [
+        {'id': 'general', 'name': 'Tronc commun'},
+        {'id': 'sport', 'name': 'Sport'},
+      ];
+    }
     if (classLevel == '2eme') {
       return [
         {'id': 'sciences', 'name': 'Sciences'},
         {'id': 'lettres', 'name': 'Lettres'},
         {'id': 'economie', 'name': 'Économie & Services'},
-        {'id': 'tech_info', 'name': 'Technologie Info'},
+        {'id': 'tech_info', 'name': 'Technologie de l\'Information'},
+        {'id': 'sport', 'name': 'Sport'},
       ];
     }
     if (classLevel == '3eme' || classLevel == '4eme') {
       return [
-        {'id': 'sciences_exp', 'name': 'Sciences Expérimentales'},
-        {'id': 'math', 'name': 'Mathématiques'},
         {'id': 'lettres', 'name': 'Lettres'},
         {'id': 'economie', 'name': 'Économie & Gestion'},
+        {'id': 'sciences_exp', 'name': 'Sciences Expérimentales'},
+        {'id': 'math', 'name': 'Mathématiques'},
         {'id': 'sciences_tech', 'name': 'Sciences Techniques'},
-        {'id': 'sciences_info', 'name': 'Sciences de l\'Info'},
-        if (classLevel == '4eme') {'id': 'sport', 'name': 'Sport'},
+        {'id': 'sciences_info', 'name': 'Sciences de l\'Informatique'},
+        {'id': 'sport', 'name': 'Sport'},
       ];
     }
     return [];
