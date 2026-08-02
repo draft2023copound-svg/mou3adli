@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
@@ -6,8 +7,8 @@ import 'term_selection_screen.dart';
 import 'edit_profile_screen.dart';
 import 'settings_screen.dart';
 
-const Color kPrimary = Color(0xff4F8CFF);
-const Color kSecondary = Color(0xff6C63FF);
+const Color kPrimary = Color(0xFF1C3F7A);
+const Color kSecondary = Color(0xFF2A5FA8);
 const Color kBackground = Color(0xffF8FAFC);
 const Color kRoyalBlue = Color(0xFF1C3F7A);
 const Color kMatteGold = Color(0xFFC5A059);
@@ -131,6 +132,8 @@ class ProfileScreen extends StatelessWidget {
 
   // ─── HEADER ───
   Widget _buildHeader(BuildContext context, String displayName, String classLabel, String schoolName, String? photoUrl) {
+    final hasPhoto = photoUrl != null && photoUrl.isNotEmpty;
+
     return Container(
       margin: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -139,8 +142,8 @@ class ProfileScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xff4F8CFF),
-            Color(0xff6D5DF6),
+            Color(0xFF1C3F7A),
+            Color(0xFF2A5FA8),
           ],
         ),
         boxShadow: [
@@ -235,10 +238,10 @@ class ProfileScreen extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 50,
                       backgroundColor: Colors.white,
-                      backgroundImage: photoUrl != null && photoUrl.isNotEmpty
-                          ? NetworkImage(photoUrl)
+                      backgroundImage: hasPhoto
+                          ? FileImage(File(photoUrl))
                           : null,
-                      child: photoUrl == null || photoUrl.isEmpty
+                      child: !hasPhoto
                           ? Text(
                               displayName.isNotEmpty ? displayName[0].toUpperCase() : 'M',
                               style: const TextStyle(
@@ -587,7 +590,7 @@ class ProfileScreen extends StatelessWidget {
           _statItem(
             context: context,
             title: "Objectifs",
-            value: provider.currentGeneralAverage >= 16 ? "✓" : "${(16 - provider.currentGeneralAverage).toStringAsFixed(1)}",
+            value: provider.currentGeneralAverage >= 16 ? "✓" : (16 - provider.currentGeneralAverage).toStringAsFixed(1),
             subtitle: provider.currentGeneralAverage >= 16 ? "Atteint" : "pts restants",
             icon: Icons.flag_rounded,
             color: Colors.teal,
