@@ -349,6 +349,8 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                           EventType.exam => Colors.red,
                           EventType.homework => Colors.orange,
                           EventType.reminder => Colors.blue,
+                          EventType.holiday => Colors.green,
+                          EventType.religious => Colors.purple,
                           EventType.other => kRoyalBlue,
                         };
                       });

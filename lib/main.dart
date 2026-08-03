@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/app_provider.dart';
 import 'providers/games_provider.dart';
+import 'services/notification_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/subject_list_screen.dart';
@@ -9,6 +10,11 @@ import 'screens/term_selection_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ✅ INITIALISER LES NOTIFICATIONS
+  final notificationService = NotificationService();
+  await notificationService.initialize();
+
   final appProvider = AppProvider();
   final gamesProvider = GamesProvider();
   await appProvider.initialize();

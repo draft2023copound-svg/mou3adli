@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../models/calendar_event.dart';
+import '../../services/notification_service.dart';
+import '../../data/tunisian_holidays.dart';
 
 class CalendarController extends ChangeNotifier {
   List<CalendarEvent> _events = [];
   DateTime _selectedDate = DateTime.now();
+  bool _holidaysLoaded = false;
 
-  // Getters
   List<CalendarEvent> get events => List.unmodifiable(_events);
   DateTime get selectedDate => _selectedDate;
 
@@ -23,7 +25,42 @@ class CalendarController extends ChangeNotifier {
       final List<dynamic> jsonList = jsonDecode(data);
       _events = jsonList.map((e) => CalendarEvent.fromJson(e)).toList();
     }
+
+    // ✅ Charger les événements prédéfinis tunisiens (une seule fois)
+    await _loadPredefinedHolidays();
+
     notifyListeners();
+  }
+
+  // ✅ CHARGER LES ÉVÉNEMENTS PRÉDÉFINIS TUNISIENS
+  Future<void> _loadPredefinedHolidays() async {
+    if (_holidaysLoaded) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    final bool alreadyLoaded = prefs.getBool('holidays_loaded_2026_2027') ?? false;
+
+    if (!alreadyLoaded) {
+      final holidays = TunisianHolidays.getAllEvents();
+
+      // Ajouter uniquement les événements qui n'existent pas déjà
+      for (final holiday in holidays) {
+        final exists = _events.any((e) => e.id == holiday.id);
+        if (!exists) {
+          _events.add(holiday);
+        }
+      }
+
+      // Programmer les notifications
+      final notificationService = NotificationService();
+      await notificationService.initialize();
+      await TunisianHolidays.scheduleAllNotifications(notificationService);
+
+      // Marquer comme chargé
+      await prefs.setBool('holidays_loaded_2026_2027', true);
+      await _saveEvents();
+    }
+
+    _holidaysLoaded = true;
   }
 
   // --- SAUVEGARDE ---
@@ -40,22 +77,44 @@ class CalendarController extends ChangeNotifier {
   }
 
   // --- AJOUT D'ÉVÉNEMENT ---
-  void addEvent(CalendarEvent event) {
-    // On normalise la date de l'événement pour qu'elle soit au bon format
+  Future<void> addEvent(CalendarEvent event) async {
     final normalizedEvent = event.copyWith(
       date: DateTime(event.date.year, event.date.month, event.date.day),
     );
     _events.add(normalizedEvent);
-    // Trier les événements par date (du plus récent au plus ancien)
     _events.sort((a, b) => a.date.compareTo(b.date));
-    _saveEvents();
+
+    // ✅ Programmer les notifications pour l'événement utilisateur
+    if (!normalizedEvent.isPredefined) {
+      final notificationService = NotificationService();
+      await notificationService.initialize();
+      await notificationService.scheduleEventReminders(
+        eventId: normalizedEvent.id,
+        eventTitle: normalizedEvent.title,
+        eventDate: normalizedEvent.date,
+      );
+    }
+
+    await _saveEvents();
     notifyListeners();
   }
 
   // --- SUPPRESSION D'ÉVÉNEMENT ---
-  void removeEvent(String id) {
+  Future<void> removeEvent(String id) async {
+    final event = _events.firstWhere((e) => e.id == id);
+
+    // ✅ Annuler les notifications associées
+    if (!event.isPredefined) {
+      final notificationService = NotificationService();
+      final baseId = event.id.hashCode.abs();
+      await notificationService.cancelNotification(baseId + 1);
+      await notificationService.cancelNotification(baseId + 2);
+      await notificationService.cancelNotification(baseId + 3);
+      await notificationService.cancelNotification(baseId + 4);
+    }
+
     _events.removeWhere((e) => e.id == id);
-    _saveEvents();
+    await _saveEvents();
     notifyListeners();
   }
 
@@ -63,14 +122,14 @@ class CalendarController extends ChangeNotifier {
   List<CalendarEvent> getEventsForDay(DateTime day) {
     final normalized = DateTime(day.year, day.month, day.day);
     return _events
-        .where((e) => 
+        .where((e) =>
             e.date.year == normalized.year &&
             e.date.month == normalized.month &&
             e.date.day == normalized.day)
         .toList();
   }
 
-  // --- RÉCUPÉRER LES ÉVÉNEMENTS D'UN MOIS (Pour les marqueurs) ---
+  // --- RÉCUPÉRER LES ÉVÉNEMENTS D'UN MOIS ---
   Map<DateTime, List<CalendarEvent>> getEventsGroupedByDay() {
     final Map<DateTime, List<CalendarEvent>> grouped = {};
     for (final event in _events) {
@@ -83,10 +142,19 @@ class CalendarController extends ChangeNotifier {
     return grouped;
   }
 
-  // --- RÉINITIALISER LES ÉVÉNEMENTS (Pour le debug) ---
-  void clearAllEvents() {
+  // --- RÉINITIALISER ---
+  Future<void> clearAllEvents() async {
+    // Annuler toutes les notifications
+    final notificationService = NotificationService();
+    await notificationService.cancelAllNotifications();
+
     _events.clear();
-    _saveEvents();
+
+    // Réinitialiser le flag des vacances
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('holidays_loaded_2026_2027', false);
+
+    await _saveEvents();
     notifyListeners();
   }
 }

@@ -48,6 +48,15 @@
 
 	<!-- ═══════════════════════════════════════════════════════════ -->
 	<!-- 📸 PERMISSIONS POUR LA PHOTO DE PROFIL (iOS)                -->
+
+	<!-- ═══════════════════════════════════════════════════════════ -->
+	<!-- 🔔 BACKGROUND MODES POUR LES NOTIFICATIONS                 -->
+	<!-- ═══════════════════════════════════════════════════════════ -->
+	<key>UIBackgroundModes</key>
+	<array>
+	    <string>fetch</string>
+	    <string>remote-notification</string>
+	</array>
 	<!-- ═══════════════════════════════════════════════════════════ -->
 	<key>NSCameraUsageDescription</key>
 	<string>Mou3adli a besoin d'accéder à ta caméra pour prendre une photo de profil.</string>
