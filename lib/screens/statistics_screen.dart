@@ -326,7 +326,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       ),
     );
   }
-
   String _getMention(double avg) {
     if (avg >= 18) return "Excellent 🏆";
     if (avg >= 16) return "Très Bien ⭐";
