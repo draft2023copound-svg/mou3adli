@@ -18,7 +18,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+  final int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final textPrimary = isDark ? Colors.white : const Color(0xFF1E293B);
     final textSecondary = isDark ? Colors.grey.shade400 : const Color(0xFF64748B);
     final textMuted = isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8);
-    final cardShadow = isDark 
-      ? Colors.black.withOpacity(0.3)
-      : Colors.black.withOpacity(0.04);
+    final cardShadow = isDark
+        ? Colors.black.withOpacity(0.3)
+        : Colors.black.withOpacity(0.04);
 
     final user = provider.user;
     final term = provider.currentTerm;
@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Matières
               _buildSubjectsSection(term, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
               const SizedBox(height: 24),
-              // Navigation rapide
+              // Navigation rapide — CORRIGÉE ✅
               _buildQuickNav(surfaceColor, textPrimary, textSecondary, cardShadow),
               const SizedBox(height: 30),
             ],
@@ -144,8 +144,10 @@ class _HomeScreenState extends State<HomeScreen> {
           } else if (index == 1) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const SubjectListScreen()));
           } else if (index == 2) {
+            // Calendar — CORRIGÉ ✅
             Navigator.push(context, MaterialPageRoute(builder: (_) => const CalendarMainScreen()));
           } else if (index == 3) {
+            // Games — CORRIGÉ ✅
             Navigator.push(context, MaterialPageRoute(builder: (_) => const GamesHubScreen()));
           } else if (index == 4) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
@@ -371,7 +373,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSubjectsSection(dynamic term, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
     if (term == null) return const SizedBox.shrink();
 
-    // CORRECTION : cast explicite en List<Subject>
+    // CORRECTION ✅ : cast explicite avec type générique
     final List<Subject> allSubjects = term.subjects.cast<Subject>();
     final topSubjects = allSubjects
         .where((s) => s.average > 0)
@@ -552,11 +554,26 @@ class _HomeScreenState extends State<HomeScreen> {
     return icons[subjectId] ?? Icons.school;
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // NAVIGATION RAPIDE — CORRIGÉE ✅
+  // ═══════════════════════════════════════════════════════════
   Widget _buildQuickNav(Color surfaceColor, Color textPrimary, Color textSecondary, Color cardShadow) {
     final items = [
-      {'icon': Icons.calendar_month, 'label': 'Calendrier'},
-      {'icon': Icons.videogame_asset, 'label': 'Jeux'},
-      {'icon': Icons.settings, 'label': 'Paramètres'},
+      {
+        'icon': Icons.calendar_month,
+        'label': 'Calendrier',
+        'screen': const CalendarMainScreen(), // ✅
+      },
+      {
+        'icon': Icons.videogame_asset,
+        'label': 'Jeux',
+        'screen': const GamesHubScreen(), // ✅
+      },
+      {
+        'icon': Icons.settings,
+        'label': 'Paramètres',
+        'screen': const SettingsScreen(), // ✅
+      },
     ];
 
     return Padding(
@@ -577,12 +594,10 @@ class _HomeScreenState extends State<HomeScreen> {
             children: items.map((item) => Expanded(
               child: GestureDetector(
                 onTap: () {
-                  if (item['label'] == 'Paramètres') {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
-                    );
-                  }
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => item['screen'] as Widget),
+                  );
                 },
                 child: Container(
                   margin: const EdgeInsets.symmetric(horizontal: 6),

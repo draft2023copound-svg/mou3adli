@@ -6,11 +6,13 @@ import '../models/subject_model.dart';
 class GradeEntryScreen extends StatefulWidget {
   final String termId;
   final String subjectId;
+  final String subjectName;
 
   const GradeEntryScreen({
     super.key,
     required this.termId,
     required this.subjectId,
+    required this.subjectName,
   });
 
   @override
@@ -19,6 +21,7 @@ class GradeEntryScreen extends StatefulWidget {
 
 class _GradeEntryScreenState extends State<GradeEntryScreen> {
   final Map<String, TextEditingController> _controllers = {};
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -29,17 +32,29 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
   void _loadGrades() {
     final provider = context.read<AppProvider>();
     final term = provider.terms.firstWhere((t) => t.id == widget.termId);
-    // CORRECTION : cast explicite
+
+    // CORRECTION ✅ : cast explicite avec type générique
     final List<Subject> subjects = term.subjects.cast<Subject>();
     final subject = subjects.firstWhere((s) => s.id == widget.subjectId);
 
     for (final eval in subject.evaluations) {
       _controllers[eval.id] = TextEditingController(
-        text: eval.score?.toString() ?? '',
+        text: eval.score != null ? eval.score.toString() : '',
       );
     }
+
+    setState(() => _isLoading = false);
   }
 
+  @override
+  void dispose() {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  // CORRECTION ✅ : Validation des notes entre 0 et 20
   Future<void> _saveGrades() async {
     final provider = context.read<AppProvider>();
     bool hasError = false;
@@ -48,10 +63,10 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
       final text = entry.value.text.trim();
       final score = text.isEmpty ? null : double.tryParse(text);
 
-      // Validation : note entre 0 et 20
+      // Validation : note doit être entre 0 et 20
       if (score != null && (score < 0 || score > 20)) {
         hasError = true;
-        continue;
+        continue; // On saute cette note invalide
       }
 
       await provider.updateGrade(
@@ -66,7 +81,7 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
       if (hasError) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("⚠️ Notes invalides détectées (doivent être entre 0 et 20)"),
+            content: Text("⚠️ Certaines notes étaient invalides (doivent être entre 0 et 20)"),
             backgroundColor: Colors.orange,
           ),
         );
@@ -83,190 +98,154 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<AppProvider>();
     final isDark = provider.isDarkMode;
+
     final bgColor = isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF5F7FB);
     final surfaceColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
     final textPrimary = isDark ? Colors.white : const Color(0xFF1E293B);
     final textSecondary = isDark ? Colors.grey.shade400 : const Color(0xFF64748B);
     final textMuted = isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8);
-    final cardShadow = isDark 
-      ? Colors.black.withOpacity(0.3)
-      : Colors.black.withOpacity(0.04);
 
     final term = provider.terms.firstWhere((t) => t.id == widget.termId);
-    // CORRECTION : cast explicite
+    // CORRECTION ✅ : cast explicite avec type générique
     final List<Subject> subjects = term.subjects.cast<Subject>();
     final subject = subjects.firstWhere((s) => s.id == widget.subjectId);
-    final avg = subject.average;
 
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: bgColor,
         elevation: 0,
-        centerTitle: true,
         title: Text(
-          subject.nameFr,
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary),
+          widget.subjectName,
+          style: TextStyle(
+            fontWeight: FontWeight.w800,
+            color: textPrimary,
+          ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: textPrimary),
+          icon: Icon(Icons.arrow_back_ios, color: textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          // Moyenne actuelle
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: surfaceColor,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: cardShadow,
-                  blurRadius: 18,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Text(
-                  avg > 0 ? avg.toStringAsFixed(2) : '--',
-                  style: TextStyle(
-                    fontSize: 48,
-                    fontWeight: FontWeight.w900,
-                    color: avg >= 10 ? Colors.green : textPrimary,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  ...subject.evaluations.map((eval) => _buildGradeField(eval, isDark, surfaceColor, textPrimary, textSecondary, textMuted)),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _saveGrades,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1C3F7A),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        "Sauvegarder",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "Moyenne actuelle",
-                  style: TextStyle(color: textSecondary),
-                ),
-              ],
+                ],
+              ),
             ),
+    );
+  }
+
+  Widget _buildGradeField(dynamic eval, bool isDark, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted) {
+    final controller = _controllers[eval.id];
+    if (controller == null) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
-          const SizedBox(height: 24),
-          // Liste des évaluations
-          Text(
-            "Saisir les notes",
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1C3F7A).withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.edit_note,
+                  color: Color(0xFF1C3F7A),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      eval.name,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                        color: textPrimary,
+                      ),
+                    ),
+                    Text(
+                      "Coefficient: ${eval.coefficient}",
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: controller,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
             style: TextStyle(
               fontSize: 18,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w900,
               color: textPrimary,
             ),
-          ),
-          const SizedBox(height: 16),
-          ...subject.evaluations.map((eval) {
-            final controller = _controllers[eval.id];
-            if (controller == null) return const SizedBox.shrink();
-
-            return Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                color: surfaceColor,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: cardShadow,
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+            decoration: InputDecoration(
+              hintText: "Note sur 20",
+              hintStyle: TextStyle(color: textMuted),
+              filled: true,
+              fillColor: isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF5F7FB),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1C3F7A).withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.edit_note,
-                          color: Color(0xFF1C3F7A),
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              eval.nameFr,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                color: textPrimary,
-                              ),
-                            ),
-                            Text(
-                              "Coefficient: ${eval.weight.toStringAsFixed(1)}",
-                              style: TextStyle(color: textSecondary, fontSize: 13),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: controller,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                      color: textPrimary,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: "Note /20",
-                      hintStyle: TextStyle(color: textMuted),
-                      filled: true,
-                      fillColor: isDark ? const Color(0xFF242424) : const Color(0xFFF8FAFC),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                      suffixText: "/20",
-                      suffixStyle: TextStyle(color: textMuted),
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            onPressed: _saveGrades,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1C3F7A),
-              foregroundColor: Colors.white,
-              minimumSize: const Size.fromHeight(56),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            ),
-            child: const Text(
-              "Enregistrer",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
           ),
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    for (final controller in _controllers.values) {
-      controller.dispose();
-    }
-    super.dispose();
   }
 }

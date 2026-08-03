@@ -149,6 +149,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   // ═══════════════════════════════════════════════════════════
 
   Future<void> _pickImage(ImageSource source) async {
+    if (!mounted) return;
     Navigator.pop(context);
 
     final picker = ImagePicker();
@@ -161,6 +162,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (picked == null) return;
 
+    if (!mounted) return;
     setState(() => _isUploadingPhoto = true);
 
     final provider = context.read<AppProvider>();
@@ -188,6 +190,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _removePhoto() async {
+    if (!mounted) return;
     Navigator.pop(context);
 
     final confirm = await showDialog<bool>(
@@ -222,11 +225,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     if (confirm != true) return;
 
+    if (!mounted) return;
     setState(() => _isUploadingPhoto = true);
 
     final provider = context.read<AppProvider>();
     final success = await provider.removeProfilePhoto();
 
+    if (!mounted) return;
     setState(() => _isUploadingPhoto = false);
 
     if (mounted) {
