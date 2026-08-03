@@ -1,109 +1,140 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
+
 import '../providers/app_provider.dart';
 import '../models/subject_model.dart';
-import '../models/term_model.dart';
 
-class StatisticsScreen extends StatelessWidget {
+class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
+
+  @override
+  State<StatisticsScreen> createState() => _StatisticsScreenState();
+}
+
+class _StatisticsScreenState extends State<StatisticsScreen>
+    with TickerProviderStateMixin {
+
+  late AnimationController heroController;
+  late Animation<double> heroAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    heroController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    );
+
+    heroAnimation = CurvedAnimation(
+      parent: heroController,
+      curve: Curves.easeOutExpo,
+    );
+
+    heroController.forward();
+  }
+
+  @override
+  void dispose() {
+    heroController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Consumer<AppProvider>(
-      builder: (context, provider, _) {
-        final isDark = provider.isDarkMode;
-        final bgColor = isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF5F7FB);
-        final surfaceColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
-        final textPrimary = isDark ? Colors.white : const Color(0xFF1E293B);
-        final textSecondary = isDark ? Colors.grey.shade400 : const Color(0xFF64748B);
-        final textMuted = isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8);
-        final cardShadow = isDark
-            ? Colors.black.withOpacity(0.3)
-            : Colors.black.withOpacity(0.04);
-
+      builder: (context, provider, child) {
         final term = provider.currentTerm;
-        final avg = provider.currentGeneralAverage;
-        final annualAvg = provider.annualAverage;
 
         if (term == null) {
-          return Scaffold(
-            backgroundColor: bgColor,
+          return const Scaffold(
             body: Center(
-              child: Text("Aucune donnée disponible", style: TextStyle(color: textSecondary)),
+              child: Text("Aucune donnée"),
             ),
           );
         }
 
-        final List<Subject> subjects = term.subjects.cast<Subject>();
-    
-        final hasGrades = subjects.any((s) => s.average > 0);
+        final avg = provider.currentGeneralAverage;
+        final annual = provider.annualAverage;
+        final subjects = term.subjects.cast<Subject>();
+        final isDark = provider.isDarkMode;
+
+        final background =
+            isDark ? const Color(0xff09090B) : const Color(0xffF4F7FC);
+        final text =
+            isDark ? Colors.white : const Color(0xff1E293B);
 
         return Scaffold(
-          backgroundColor: bgColor,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            centerTitle: true,
-            title: Text(
-              'Statistiques',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary),
+          backgroundColor: background,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  isDark
+                      ? const Color(0xff111827)
+                      : const Color(0xffEAF3FF),
+                  background,
+                ],
+              ),
             ),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded, color: textPrimary),
-              onPressed: () => Navigator.pop(context),
-            ),
-          ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                // ═══════════════════════════════════════════════════
-                // 1. MOYENNE GÉNÉRALE — Jauge circulaire
-                // ═══════════════════════════════════════════════════
-                _buildAverageGauge(avg, annualAvg, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
-                const SizedBox(height: 20),
-
-                // ═══════════════════════════════════════════════════
-                // 2. INFOS RAPIDES — 4 cartes
-                // ═══════════════════════════════════════════════════
-                _buildQuickStats(term, subjects, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
-                const SizedBox(height: 20),
-
-                if (hasGrades) ...[
-                  // ═══════════════════════════════════════════════════
-                  // 3. GRAPHIQUE EN BARRES — Moyennes par matière
-                  // ═══════════════════════════════════════════════════
-                  _buildBarChart(subjects, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
-                  const SizedBox(height: 20),
-
-                  // ═══════════════════════════════════════════════════
-                  // 4. TOP 3 + MATIÈRES À AMÉLIORER
-                  // ═══════════════════════════════════════════════════
-                  _buildTopAndWeak(subjects, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
-                  const SizedBox(height: 20),
-
-                  // ═══════════════════════════════════════════════════
-                  // 5. DISTRIBUTION DES MENTIONS — Pie Chart
-                  // ═══════════════════════════════════════════════════
-                  _buildMentionsDistribution(subjects, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
-                  const SizedBox(height: 20),
-
-                  // ═══════════════════════════════════════════════════
-                  // 6. TAUX DE COMPLÉTION
-                  // ═══════════════════════════════════════════════════
-                  _buildCompletionRate(subjects, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
-                  const SizedBox(height: 20),
-
-                  // ═══════════════════════════════════════════════════
-                  // 7. COEFFICIENTS PONDÉRÉS
-                  // ═══════════════════════════════════════════════════
-                  _buildCoefficientsChart(subjects, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
-                ] else
-                  _buildEmptyState(surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
-
-                const SizedBox(height: 30),
-              ],
+            child: SafeArea(
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        children: [
+                          _buildTopBar(text),
+                          const SizedBox(height: 25),
+                          FadeTransition(
+                            opacity: heroAnimation,
+                            child: ScaleTransition(
+                              scale: Tween<double>(
+                                begin: .85,
+                                end: 1,
+                              ).animate(heroAnimation),
+                              child: _buildHeroCard(
+                                avg,
+                                annual,
+                                text,
+                                isDark,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 25),
+                          _buildQuickStats(
+                            subjects,
+                            text,
+                            isDark,
+                          ),
+                          const SizedBox(height: 25),
+                          _buildPerformanceCard(
+                            avg,
+                            annual,
+                          ),
+                          const SizedBox(height: 25),
+                          _buildPerformanceChart(subjects),
+                          const SizedBox(height: 25),
+                          _buildRadarChart(subjects),
+                          const SizedBox(height: 25),
+                          _buildPodium(subjects),
+                          const SizedBox(height: 25),
+                          _buildInsights(subjects),
+                          const SizedBox(height: 25),
+                          _buildAIAdvice(avg),
+                          const SizedBox(height: 30),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
@@ -112,63 +143,185 @@ class StatisticsScreen extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // 1. JAUJE CIRCULAIRE DE LA MOYENNE
+  // TOP BAR
   // ═══════════════════════════════════════════════════════════
-  Widget _buildAverageGauge(double avg, double annualAvg, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
-    final percentage = avg > 0 ? avg / 20 : 0.0;
-    final color = avg >= 16 ? Colors.green : avg >= 14 ? const Color(0xFFC5A059) : avg >= 12 ? Colors.orange : avg >= 10 ? Colors.blue : Colors.red;
+  Widget _buildTopBar(Color text) {
+    return Row(
+      children: [
+        InkWell(
+          borderRadius: BorderRadius.circular(15),
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(.12),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Icon(
+              Icons.arrow_back_ios_new,
+              color: text,
+              size: 18,
+            ),
+          ),
+        ),
+        const Spacer(),
+        Text(
+          "Statistiques",
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            color: text,
+            fontSize: 24,
+          ),
+        ),
+        const Spacer(),
+        const SizedBox(
+          width: 46,
+          height: 46,
+        ),
+      ],
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // HERO PREMIUM
+  // ═══════════════════════════════════════════════════════════
+  Widget _buildHeroCard(
+    double avg,
+    double annual,
+    Color text,
+    bool dark,
+  ) {
+    Color gradeColor;
+    if (avg >= 16) {
+      gradeColor = Colors.green;
+    } else if (avg >= 14) {
+      gradeColor = Colors.orange;
+    } else if (avg >= 10) {
+      gradeColor = Colors.blue;
+    } else {
+      gradeColor = Colors.red;
+    }
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: surfaceColor,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [BoxShadow(color: cardShadow, blurRadius: 30, offset: const Offset(0, 15))],
+        borderRadius: BorderRadius.circular(35),
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xff2563EB),
+            Color(0xff1D4ED8),
+            Color(0xff1E3A8A),
+          ],
+        ),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 40,
+            color: Colors.blue.withOpacity(.30),
+            offset: const Offset(0, 25),
+          )
+        ],
       ),
       child: Column(
         children: [
-          Text("Moyenne Générale", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-          const SizedBox(height: 20),
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                width: 200,
-                height: 200,
-                child: CircularProgressIndicator(
-                  value: percentage,
-                  strokeWidth: 18,
-                  backgroundColor: Colors.grey.shade200,
-                  valueColor: AlwaysStoppedAnimation(color),
-                ),
-              ),
-              Column(
-                children: [
-                  Text(avg > 0 ? avg.toStringAsFixed(2) : '--', style: TextStyle(fontSize: 48, fontWeight: FontWeight.w900, color: textPrimary)),
-                  Text("/20", style: TextStyle(fontSize: 18, color: textMuted)),
-                  if (avg > 0)
-                    Container(
-                      margin: const EdgeInsets.only(top: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                      decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(20)),
-                      child: Text(_getMention(avg), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: color)),
-                    ),
-                ],
-              ),
-            ],
+          const Text(
+            "Moyenne Générale",
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 17,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-          if (annualAvg > 0)
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+          const SizedBox(height: 30),
+          TweenAnimationBuilder(
+            tween: Tween(
+              begin: 0.0,
+              end: avg,
+            ),
+            duration: const Duration(seconds: 2),
+            builder: (_, value, __) {
+              return Stack(
+                alignment: Alignment.center,
                 children: [
-                  Icon(Icons.trending_up, color: const Color(0xFF1C3F7A), size: 18),
-                  const SizedBox(width: 8),
-                  Text("Moyenne annuelle: ${annualAvg.toStringAsFixed(2)}", style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Color(0xFF1C3F7A))),
+                  SizedBox(
+                    width: 210,
+                    height: 210,
+                    child: CircularProgressIndicator(
+                      value: value / 20,
+                      strokeWidth: 16,
+                      color: Colors.white,
+                      backgroundColor: Colors.white24,
+                    ),
+                  ),
+                  Container(
+                    width: 130,
+                    height: 130,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withOpacity(.08),
+                    ),
+                  ),
+                  Column(
+                    children: [
+                      Text(
+                        value.toStringAsFixed(2),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                          fontSize: 48,
+                        ),
+                      ),
+                      const Text(
+                        "/20",
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 18,
+                        ),
+                      )
+                    ],
+                  )
                 ],
+              );
+            },
+          ),
+          const SizedBox(height: 30),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 8,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: Text(
+              _getMention(avg),
+              style: TextStyle(
+                color: gradeColor,
+                fontWeight: FontWeight.bold,
               ),
             ),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _heroInfo(
+                Icons.trending_up,
+                annual > 0 ? (avg - annual).toStringAsFixed(2) : "--",
+              ),
+              _heroInfo(
+                Icons.workspace_premium,
+                annual.toStringAsFixed(2),
+              ),
+              _heroInfo(
+                Icons.emoji_events,
+                _getTopPercent(avg),
+              ),
+            ],
+          )
         ],
       ),
     );
@@ -183,134 +336,399 @@ class StatisticsScreen extends StatelessWidget {
     return "Insuffisant";
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // 2. INFOS RAPIDES — 4 cartes
-  // ═══════════════════════════════════════════════════════════
-  Widget _buildQuickStats(Term term, List<Subject> subjects, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
-    final totalSubjects = subjects.length;
-    final completed = subjects.where((s) => s.average > 0).length;
-    final totalCoeff = subjects.fold(0.0, (sum, s) => sum + s.coefficient);
-    final maxCoeff = subjects.isNotEmpty ? subjects.map((s) => s.coefficient).reduce((a, b) => a > b ? a : b) : 1;
+  String _getTopPercent(double avg) {
+    if (avg >= 18) return "Top 5%";
+    if (avg >= 16) return "Top 15%";
+    if (avg >= 14) return "Top 30%";
+    if (avg >= 12) return "Top 50%";
+    if (avg >= 10) return "Top 70%";
+    return "Top 90%";
+  }
 
-    final stats = [
-      {'icon': Icons.menu_book, 'value': '$totalSubjects', 'label': 'Matières', 'color': Colors.blue},
-      {'icon': Icons.check_circle, 'value': '$completed', 'label': 'Notées', 'color': Colors.green},
-      {'icon': Icons.functions, 'value': totalCoeff.toStringAsFixed(1), 'label': 'Total Coef.', 'color': const Color(0xFF1C3F7A)},
-      {'icon': Icons.star, 'value': maxCoeff.toStringAsFixed(1), 'label': 'Max Coef.', 'color': const Color(0xFFC5A059)},
-    ];
-
-    return Row(
-      children: stats.map((s) => Expanded(
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: cardShadow, blurRadius: 12, offset: const Offset(0, 6))]),
-          child: Column(
-            children: [
-              Icon(s['icon'] as IconData, color: s['color'] as Color, size: 22),
-              const SizedBox(height: 8),
-              Text(s['value'] as String, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: textPrimary)),
-              const SizedBox(height: 4),
-              Text(s['label'] as String, textAlign: TextAlign.center, style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600)),
-            ],
+  Widget _heroInfo(IconData icon, String value) {
+    return Column(
+      children: [
+        Icon(icon, color: Colors.white70, size: 22),
+        const SizedBox(height: 6),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w700,
+            fontSize: 15,
           ),
         ),
-      )).toList(),
+      ],
     );
   }
 
   // ═══════════════════════════════════════════════════════════
-  // 3. GRAPHIQUE EN BARRES — Moyennes par matière
+  // QUICK STATS — Cartes style Apple / Revolut / Notion
   // ═══════════════════════════════════════════════════════════
-  Widget _buildBarChart(List<Subject> subjects, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
-    final gradedSubjects = subjects.where((s) => s.average > 0).toList();
-    if (gradedSubjects.isEmpty) return const SizedBox.shrink();
+  Widget _buildQuickStats(
+    List<Subject> subjects,
+    Color text,
+    bool dark,
+  ) {
+    final completed = subjects.where((e) => e.average > 0).length;
+    final progress =
+        subjects.isEmpty ? 0 : completed / subjects.length;
+    final best = subjects.isEmpty
+        ? 0.0
+        : subjects
+            .map((e) => e.average)
+            .reduce(max);
+    final coef = subjects.isEmpty
+        ? 0
+        : subjects
+            .map((e) => e.coefficient)
+            .reduce(max);
 
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      mainAxisSpacing: 16,
+      crossAxisSpacing: 16,
+      childAspectRatio: 1.45,
+      children: [
+        _premiumCard(
+          icon: Icons.menu_book_rounded,
+          title: "Matières",
+          value: subjects.length.toString(),
+          subtitle: "Modules",
+          color: const Color(0xff2563EB),
+        ),
+        _premiumCard(
+          icon: Icons.auto_graph,
+          title: "Progression",
+          value: "${(progress * 100).round()}%",
+          subtitle: "$completed complétées",
+          color: Colors.green,
+        ),
+        _premiumCard(
+          icon: Icons.workspace_premium,
+          title: "Meilleure",
+          value: best.toStringAsFixed(2),
+          subtitle: "/20",
+          color: Colors.orange,
+        ),
+        _premiumCard(
+          icon: Icons.star,
+          title: "Coef Max",
+          value: coef.toString(),
+          subtitle: "Importance",
+          color: Colors.purple,
+        ),
+      ],
+    );
+  }
 
+  Widget _premiumCard({
+    required IconData icon,
+    required String title,
+    required String value,
+    required String subtitle,
+    required Color color,
+  }) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: cardShadow, blurRadius: 18, offset: const Offset(0, 8))]),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 25,
+            offset: const Offset(0, 15),
+            color: color.withOpacity(.10),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Moyennes par matière", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-          const SizedBox(height: 4),
-          Text("Classement des matières notées", style: TextStyle(fontSize: 13, color: textMuted)),
-          const SizedBox(height: 16),
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: color.withOpacity(.12),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Icon(
+              icon,
+              color: color,
+              size: 28,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: const TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 30,
+            ),
+          ),
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: Colors.grey.shade800,
+              fontSize: 15,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            subtitle,
+            style: TextStyle(
+              color: Colors.grey.shade500,
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // PERFORMANCE CARD
+  // ═══════════════════════════════════════════════════════════
+  Widget _buildPerformanceCard(
+    double avg,
+    double annual,
+  ) {
+    final diff = avg - annual;
+
+    return Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(30),
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xff0F172A),
+            Color(0xff1E293B),
+          ],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "Performance",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 25),
+          Row(
+            children: [
+              Expanded(
+                child: _metric(
+                  "Evolution",
+                  diff >= 0
+                      ? "+${diff.toStringAsFixed(2)}"
+                      : diff.toStringAsFixed(2),
+                  diff >= 0 ? Colors.green : Colors.red,
+                ),
+              ),
+              Expanded(
+                child: _metric(
+                  "Objectif",
+                  "18.00",
+                  Colors.orange,
+                ),
+              ),
+              Expanded(
+                child: _metric(
+                  "Rang",
+                  _getTopPercent(avg),
+                  Colors.blue,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _metric(
+    String title,
+    String value,
+    Color color,
+  ) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 24,
+            color: color,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white70,
+          ),
+        )
+      ],
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // PERFORMANCE CHART — LineChart
+  // ═══════════════════════════════════════════════════════════
+  Widget _buildPerformanceChart(
+    List<Subject> subjects,
+  ) {
+    final graded = subjects.where((e) => e.average > 0).toList();
+
+    if (graded.isEmpty) return const SizedBox();
+
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 35,
+            offset: const Offset(0, 18),
+            color: Colors.black.withOpacity(.05),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              Icon(
+                Icons.show_chart_rounded,
+                color: Color(0xff2563EB),
+              ),
+              SizedBox(width: 10),
+              Text(
+                "Évolution des matières",
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 20,
+                ),
+              )
+            ],
+          ),
+          const SizedBox(height: 5),
+          const Text(
+            "Tes performances par matière",
+            style: TextStyle(
+              color: Colors.grey,
+            ),
+          ),
+          const SizedBox(height: 35),
           SizedBox(
-            height: 200,
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
+            height: 280,
+            child: LineChart(
+              LineChartData(
+                minY: 0,
                 maxY: 20,
-                barTouchData: BarTouchData(
-                  touchTooltipData: BarTouchTooltipData(
-                    tooltipPadding: const EdgeInsets.all(8),
-                    tooltipMargin: 8,
-                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                      final subject = gradedSubjects[groupIndex];
-                      return BarTooltipItem(
-                        '${subject.nameFr}\n${subject.average.toStringAsFixed(2)}/20',
-                        TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
-                      );
-                    },
-                  ),
+                borderData: FlBorderData(show: false),
+                gridData: FlGridData(
+                  drawVerticalLine: false,
+                  horizontalInterval: 5,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: Colors.grey.shade200,
+                      strokeWidth: 1,
+                    );
+                  },
                 ),
                 titlesData: FlTitlesData(
-                  show: true,
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        if (value.toInt() >= 0 && value.toInt() < gradedSubjects.length) {
-                          final name = gradedSubjects[value.toInt()].nameFr;
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              name.length > 6 ? '${name.substring(0, 6)}..' : name,
-                              style: TextStyle(fontSize: 10, color: textMuted, fontWeight: FontWeight.w600),
-                            ),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                      reservedSize: 40,
-                    ),
-                  ),
+                  rightTitles:
+                      const AxisTitles(
+                          sideTitles:
+                          SideTitles(showTitles: false)
+                      ),
+                  topTitles:
+                      const AxisTitles(
+                          sideTitles:
+                          SideTitles(showTitles: false)
+                      ),
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 30,
                       interval: 5,
-                      getTitlesWidget: (value, meta) => Text('${value.toInt()}', style: TextStyle(fontSize: 10, color: textMuted)),
+                      reservedSize: 35,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toInt().toString(),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 11,
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        if (value.toInt() >= graded.length) {
+                          return const SizedBox();
+                        }
+                        final name =
+                            graded[value.toInt()].nameFr;
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 10),
+                          child: Text(
+                            name.length > 5
+                                ? "${name.substring(0, 5)}."
+                                : name,
+                            style: const TextStyle(
+                              fontSize: 11,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
-                gridData: FlGridData(show: true, horizontalInterval: 5, drawVerticalLine: false, getDrawingHorizontalLine: (value) => FlLine(color: textMuted.withOpacity(0.1), strokeWidth: 1)),
-                borderData: FlBorderData(show: false),
-                barGroups: gradedSubjects.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final subject = entry.value;
-                  final color = subject.average >= 16 ? Colors.green : subject.average >= 12 ? const Color(0xFFC5A059) : subject.average >= 10 ? Colors.orange : Colors.red;
-                  return BarChartGroupData(
-                    x: index,
-                    barRods: [
-                      BarChartRodData(
-                        toY: subject.average,
-                        color: color,
-                        width: 22,
-                        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                        backDrawRodData: BackgroundBarChartRodData(
-                          show: true,
-                          toY: 20,
-                          color: textMuted.withOpacity(0.05),
-                        ),
+                lineBarsData: [
+                  LineChartBarData(
+                    isCurved: true,
+                    curveSmoothness: .35,
+                    color: const Color(0xff2563EB),
+                    barWidth: 5,
+                    dotData: FlDotData(
+                      show: true,
+                    ),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          const Color(0xff2563EB)
+                              .withOpacity(.35),
+                          Colors.transparent,
+                        ],
                       ),
-                    ],
-                  );
-                }).toList(),
+                    ),
+                    spots:
+                    graded.asMap().entries.map((e) {
+                      return FlSpot(
+                        e.key.toDouble(),
+                        e.value.average,
+                      );
+                    }).toList(),
+                  ),
+                ],
               ),
             ),
           ),
@@ -320,93 +738,217 @@ class StatisticsScreen extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // 4. TOP 3 + MATIÈRES À AMÉLIORER
+  // RADAR CHART
   // ═══════════════════════════════════════════════════════════
-  Widget _buildTopAndWeak(List<Subject> subjects, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
-    final graded = subjects.where((s) => s.average > 0).toList()..sort((a, b) => b.average.compareTo(a.average));
-    final top3 = graded.take(3).toList();
-    final weak = graded.where((s) => s.average < 12).toList()..sort((a, b) => a.average.compareTo(b.average));
-    final weak3 = weak.take(3).toList();
+  Widget _buildRadarChart(List<Subject> subjects) {
+    final graded = subjects.where((e) => e.average > 0).toList();
 
-    return Row(
-      children: [
-        // TOP 3
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: cardShadow, blurRadius: 12, offset: const Offset(0, 6))]),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.emoji_events, color: const Color(0xFFC5A059), size: 20),
-                    const SizedBox(width: 8),
-                    Text("Top 3", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textPrimary)),
-                  ],
+    if (graded.length < 3) {
+      return const SizedBox();
+    }
+
+    final display = graded.take(6).toList();
+
+    return Container(
+      margin: const EdgeInsets.only(top: 20),
+      padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+            color: Colors.black.withOpacity(.05),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(
+                Icons.radar,
+                color: Color(0xff2563EB),
+              ),
+              SizedBox(width: 10),
+              Text(
+                "Radar des compétences",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
                 ),
-                const SizedBox(height: 12),
-                ...top3.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final subject = entry.value;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(color: const Color(0xFFC5A059).withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
-                          child: Center(child: Text('${index + 1}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFFC5A059)))),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(subject.nameFr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary), overflow: TextOverflow.ellipsis)),
-                        Text(subject.average.toStringAsFixed(2), style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.green)),
-                      ],
-                    ),
+              )
+            ],
+          ),
+          const SizedBox(height: 25),
+          SizedBox(
+            height: 280,
+            child: RadarChart(
+              RadarChartData(
+                radarShape: RadarShape.polygon,
+                tickCount: 4,
+                ticksTextStyle: const TextStyle(
+                  color: Colors.grey,
+                  fontSize: 10,
+                ),
+                titleTextStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+                radarBorderData: const BorderSide(
+                  color: Colors.transparent,
+                ),
+                gridBorderData: BorderSide(
+                  color: Colors.grey.shade300,
+                ),
+                dataSets: [
+                  RadarDataSet(
+                    fillColor:
+                        const Color(0xff2563EB)
+                            .withOpacity(.25),
+                    borderColor:
+                        const Color(0xff2563EB),
+                    entryRadius: 4,
+                    borderWidth: 3,
+                    dataEntries:
+                        display.map((e) {
+                      return RadarEntry(
+                        value: e.average,
+                      );
+                    }).toList(),
+                  )
+                ],
+                getTitle: (index, angle) {
+                  return RadarChartTitle(
+                    text:
+                        display[index].nameFr.length > 8
+                            ? display[index]
+                                .nameFr
+                                .substring(0, 8)
+                            : display[index].nameFr,
                   );
-                }),
-              ],
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // PODIUM
+  // ═══════════════════════════════════════════════════════════
+  Widget _buildPodium(List<Subject> subjects) {
+    final graded = subjects.where((e) => e.average > 0).toList();
+    graded.sort((a, b) => b.average.compareTo(a.average));
+
+    if (graded.length < 3) {
+      return const SizedBox();
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+            color: Colors.black.withOpacity(.05),
+          )
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            "🏆 Podium",
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 30),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: _podiumItem(
+                  graded[1],
+                  2,
+                  130,
+                  Colors.grey,
+                ),
+              ),
+              Expanded(
+                child: _podiumItem(
+                  graded[0],
+                  1,
+                  180,
+                  const Color(0xffD4AF37),
+                ),
+              ),
+              Expanded(
+                child: _podiumItem(
+                  graded[2],
+                  3,
+                  100,
+                  const Color(0xffCD7F32),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _podiumItem(
+    Subject subject,
+    int rank,
+    double height,
+    Color color,
+  ) {
+    return Column(
+      children: [
+        CircleAvatar(
+          radius: 28,
+          backgroundColor: color,
+          child: Text(
+            rank.toString(),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
-        const SizedBox(width: 12),
-        // À AMÉLIORER
-        Expanded(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(20), boxShadow: [BoxShadow(color: cardShadow, blurRadius: 12, offset: const Offset(0, 6))]),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.trending_up, color: Colors.red, size: 20),
-                    const SizedBox(width: 8),
-                    Text("À améliorer", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: textPrimary)),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                if (weak3.isEmpty)
-                  Text("Toutes les matières sont au dessus de 12 ! 🎉", style: TextStyle(fontSize: 12, color: textMuted))
-                else
-                  ...weak3.map((subject) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 24,
-                          height: 24,
-                          decoration: BoxDecoration(color: Colors.red.withOpacity(0.15), borderRadius: BorderRadius.circular(8)),
-                          child: const Center(child: Icon(Icons.warning_amber_rounded, size: 12, color: Colors.red)),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(subject.nameFr, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: textPrimary), overflow: TextOverflow.ellipsis)),
-                        Text(subject.average.toStringAsFixed(2), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.red)),
-                      ],
-                    ),
-                  )),
-              ],
+        const SizedBox(height: 10),
+        Text(
+          subject.nameFr,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          subject.average.toStringAsFixed(2),
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          height: height,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(20),
             ),
           ),
         ),
@@ -415,187 +957,177 @@ class StatisticsScreen extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // 5. DISTRIBUTION DES MENTIONS — Pie Chart
+  // INSIGHTS — Meilleure + À améliorer
   // ═══════════════════════════════════════════════════════════
-  Widget _buildMentionsDistribution(List<Subject> subjects, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
-    final graded = subjects.where((s) => s.average > 0).toList();
-    if (graded.isEmpty) return const SizedBox.shrink();
+  Widget _buildInsights(List<Subject> subjects) {
+    final graded = subjects.where((e) => e.average > 0).toList();
 
-    final excellent = graded.where((s) => s.average >= 18).length;
-    final tresBien = graded.where((s) => s.average >= 16 && s.average < 18).length;
-    final bien = graded.where((s) => s.average >= 14 && s.average < 16).length;
-    final assezBien = graded.where((s) => s.average >= 12 && s.average < 14).length;
-    final passable = graded.where((s) => s.average >= 10 && s.average < 12).length;
-    final insuffisant = graded.where((s) => s.average < 10).length;
+    if (graded.isEmpty) return const SizedBox();
 
-    final sections = [
-      {'label': 'Excellent', 'value': excellent, 'color': Colors.green.shade700},
-      {'label': 'Très Bien', 'value': tresBien, 'color': Colors.green},
-      {'label': 'Bien', 'value': bien, 'color': const Color(0xFFC5A059)},
-      {'label': 'Assez Bien', 'value': assezBien, 'color': Colors.orange},
-      {'label': 'Passable', 'value': passable, 'color': Colors.blue},
-      {'label': 'Insuffisant', 'value': insuffisant, 'color': Colors.red},
-    ].where((s) => (s['value'] as int) > 0).toList();
+    graded.sort((a, b) => b.average.compareTo(a.average));
 
-    final total = graded.length;
+    final best = graded.first;
+    final weak = graded.last;
 
     return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: cardShadow, blurRadius: 18, offset: const Offset(0, 8))]),
+      padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            blurRadius: 30,
+            offset: const Offset(0, 15),
+            color: Colors.black.withOpacity(.05),
+          )
+        ],
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Distribution des mentions", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-          const SizedBox(height: 4),
-          Text("Répartition des matières par mention", style: TextStyle(fontSize: 13, color: textMuted)),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              SizedBox(
-                width: 140,
-                height: 140,
-                child: PieChart(
-                  PieChartData(
-                    sectionsSpace: 2,
-                    centerSpaceRadius: 30,
-                    sections: sections.map((s) {
-                      final value = s['value'] as int;
-                      final percentage = (value / total) * 100;
-                      return PieChartSectionData(
-                        color: s['color'] as Color,
-                        value: value.toDouble(),
-                        title: '${percentage.toStringAsFixed(0)}%',
-                        radius: 40,
-                        titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  children: sections.map((s) => Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Row(
-                      children: [
-                        Container(width: 12, height: 12, decoration: BoxDecoration(color: s['color'] as Color, borderRadius: BorderRadius.circular(4))),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(s['label'] as String, style: TextStyle(fontSize: 12, color: textSecondary, fontWeight: FontWeight.w600))),
-                        Text('${s['value']}', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: textPrimary)),
-                      ],
-                    ),
-                  )).toList(),
-                ),
-              ),
-            ],
+          _buildInsightTile(
+            Icons.emoji_events,
+            Colors.orange,
+            "Meilleure matière",
+            best.nameFr,
+            best.average,
+          ),
+          const Divider(),
+          _buildInsightTile(
+            Icons.trending_down,
+            Colors.red,
+            "À améliorer",
+            weak.nameFr,
+            weak.average,
           ),
         ],
       ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // 6. TAUX DE COMPLÉTION
-  // ═══════════════════════════════════════════════════════════
-  Widget _buildCompletionRate(List<Subject> subjects, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
-    final totalEvals = subjects.fold(0, (sum, s) => sum + s.evaluations.length);
-    final filledEvals = subjects.fold(0, (sum, s) => sum + s.filledCount);
-    final progress = totalEvals > 0 ? filledEvals / totalEvals : 0.0;
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: cardShadow, blurRadius: 18, offset: const Offset(0, 8))]),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildInsightTile(
+    IconData icon,
+    Color color,
+    String title,
+    String subject,
+    double avg,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
         children: [
-          Text("Taux de complétion", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-          const SizedBox(height: 4),
-          Text("$filledEvals / $totalEvals évaluations remplies", style: TextStyle(fontSize: 13, color: textMuted)),
-          const SizedBox(height: 16),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 20,
-              backgroundColor: textMuted.withOpacity(0.1),
-              valueColor: AlwaysStoppedAnimation(progress >= 0.8 ? Colors.green : progress >= 0.5 ? const Color(0xFFC5A059) : Colors.orange),
+          Container(
+            width: 55,
+            height: 55,
+            decoration: BoxDecoration(
+              color: color.withOpacity(.15),
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Icon(
+              icon,
+              color: color,
             ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("${(progress * 100).toStringAsFixed(0)}%", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: textPrimary)),
-              Text(progress >= 0.8 ? "Excellent ! 🎉" : progress >= 0.5 ? "Continue ! 💪" : "À compléter ⚠️", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: progress >= 0.8 ? Colors.green : progress >= 0.5 ? const Color(0xFFC5A059) : Colors.orange)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // 7. COEFFICIENTS PONDÉRÉS — Horizontal bar chart
-  // ═══════════════════════════════════════════════════════════
-  Widget _buildCoefficientsChart(List<Subject> subjects, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
-    final sorted = List<Subject>.of(subjects)..sort((a, b) => b.coefficient.compareTo(a.coefficient));
-    final maxCoeff = sorted.first.coefficient.toDouble();
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: cardShadow, blurRadius: 18, offset: const Offset(0, 8))]),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Coefficients des matières", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary)),
-          const SizedBox(height: 4),
-          Text("Importance de chaque matière dans la moyenne", style: TextStyle(fontSize: 13, color: textMuted)),
-          const SizedBox(height: 16),
-          ...sorted.take(6).map((subject) {
-            final progress = subject.coefficient / maxCoeff;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children: [
-                  SizedBox(width: 100, child: Text(subject.nameFr, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: textPrimary), overflow: TextOverflow.ellipsis)),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        minHeight: 10,
-                        backgroundColor: textMuted.withOpacity(0.1),
-                        valueColor: AlwaysStoppedAnimation(subject.coefficient >= 4 ? const Color(0xFFC5A059) : subject.coefficient >= 3 ? const Color(0xFF1C3F7A) : Colors.blue.shade300),
-                      ),
-                    ),
+          const SizedBox(width: 18),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(width: 8),
-                  Text('${subject.coefficient}', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: textPrimary)),
-                ],
-              ),
-            );
-          }),
+                ),
+                Text(
+                  subject,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            avg.toStringAsFixed(2),
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.w900,
+              color: color,
+            ),
+          )
         ],
       ),
     );
   }
 
   // ═══════════════════════════════════════════════════════════
-  // ÉTAT VIDE
+  // AI ADVICE — Conseil intelligent
   // ═══════════════════════════════════════════════════════════
-  Widget _buildEmptyState(Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
+  Widget _buildAIAdvice(
+    double avg,
+  ) {
+    String advice;
+    if (avg >= 16) {
+      advice = "Continue sur cette lancée. Tu fais partie des meilleurs élèves.";
+    } else if (avg >= 14) {
+      advice = "Un point supplémentaire dans une matière principale pourrait te faire atteindre Très Bien.";
+    } else if (avg >= 12) {
+      advice = "Concentre-toi sur les matières à fort coefficient pour progresser rapidement.";
+    } else {
+      advice = "Priorise les matières en dessous de 10 afin d'augmenter rapidement ta moyenne.";
+    }
+
     return Container(
-      padding: const EdgeInsets.all(40),
-      decoration: BoxDecoration(color: surfaceColor, borderRadius: BorderRadius.circular(24), boxShadow: [BoxShadow(color: cardShadow, blurRadius: 18, offset: const Offset(0, 8))]),
-      child: Column(
+      padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [
+            Color(0xff2563EB),
+            Color(0xff1D4ED8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
         children: [
-          Icon(Icons.bar_chart, size: 64, color: textMuted),
-          const SizedBox(height: 16),
-          Text("Aucune statistique", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: textSecondary)),
-          const SizedBox(height: 8),
-          Text("Saisis tes notes dans l'onglet Calculatrice pour voir tes statistiques !", textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: textMuted)),
+          Container(
+            width: 65,
+            height: 65,
+            decoration: BoxDecoration(
+              color: Colors.white24,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(
+              Icons.auto_awesome,
+              color: Colors.white,
+              size: 34,
+            ),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Conseil Intelligent",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  advice,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
+          )
         ],
       ),
     );
