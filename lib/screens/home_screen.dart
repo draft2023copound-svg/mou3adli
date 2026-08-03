@@ -9,6 +9,7 @@ import '../game/screens/games_hub_screen.dart';
 import 'profile_screen.dart';
 import 'subject_list_screen.dart';
 import 'settings_screen.dart';
+import 'grade_entry_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final int _currentIndex = 0;
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -50,35 +51,14 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               const SizedBox(height: 16),
-              // Header
+              // ═══════════════════════════════════════════════════════════
+              // HEADER CENTRÉ : Photo + Bonjour alignés au centre ✅
+              // ═══════════════════════════════════════════════════════════
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: Row(
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Bonjour,',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: textMuted,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            displayName,
-                            style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w800,
-                              color: textPrimary,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    // Photo à gauche
                     GestureDetector(
                       onTap: () {
                         Navigator.push(
@@ -115,6 +95,33 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
+                    const SizedBox(width: 14),
+                    // Texte centré verticalement avec la photo
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Bonjour,',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: textMuted,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            displayName,
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              color: textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -122,13 +129,13 @@ class _HomeScreenState extends State<HomeScreen> {
               // Moyenne circulaire
               _buildAverageCard(avg, annualAvg, surfaceColor, textPrimary, textSecondary, textMuted),
               const SizedBox(height: 24),
-              // Stats rapides
+              // Stats rapides — TEXTES CENTRÉS
               _buildQuickStats(provider, surfaceColor, textPrimary, textSecondary, cardShadow),
               const SizedBox(height: 24),
               // Matières
               _buildSubjectsSection(term, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
               const SizedBox(height: 24),
-              // Navigation rapide — CORRIGÉE ✅
+              // Navigation rapide
               _buildQuickNav(surfaceColor, textPrimary, textSecondary, cardShadow),
               const SizedBox(height: 30),
             ],
@@ -142,17 +149,50 @@ class _HomeScreenState extends State<HomeScreen> {
           if (index == 0) {
             // Home - déjà là
           } else if (index == 1) {
+            // Matières
             Navigator.push(context, MaterialPageRoute(builder: (_) => const SubjectListScreen()));
           } else if (index == 2) {
-            // Calendar — CORRIGÉ ✅
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const CalendarMainScreen()));
+            // ═══════════════════════════════════════════════════
+            // FAB CALCULATRICE 🧮 → GradeEntryScreen ✅
+            // ═══════════════════════════════════════════════════
+            _openGradeEntry(context, provider);
           } else if (index == 3) {
-            // Games — CORRIGÉ ✅
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const GamesHubScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const CalendarMainScreen()));
           } else if (index == 4) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
           }
         },
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // FAB CALCULATRICE → Ouvre GradeEntryScreen ✅
+  // ═══════════════════════════════════════════════════════════
+  void _openGradeEntry(BuildContext context, AppProvider provider) {
+    final term = provider.currentTerm;
+    if (term == null || term.subjects.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("❌ Aucune matière disponible. Sélectionne d'abord ton niveau."),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // CORRECTION ✅ : cast explicite
+    final List<Subject> subjects = term.subjects.cast<Subject>();
+    final firstSubject = subjects.first;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => GradeEntryScreen(
+          termId: term.id,
+          subjectId: firstSubject.id,
+          subjectName: firstSubject.nameFr,
+        ),
       ),
     );
   }
@@ -329,7 +369,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
             padding: const EdgeInsets.all(10),
@@ -342,6 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 14),
           Text(
             value,
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w900,
@@ -351,6 +392,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 4),
           Text(
             title,
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
@@ -360,6 +402,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const SizedBox(height: 2),
           Text(
             subtitle,
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12,
               color: textSecondary,
@@ -373,7 +416,6 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSubjectsSection(dynamic term, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
     if (term == null) return const SizedBox.shrink();
 
-    // CORRECTION ✅ : cast explicite avec type générique
     final List<Subject> allSubjects = term.subjects.cast<Subject>();
     final topSubjects = allSubjects
         .where((s) => s.average > 0)
@@ -554,25 +596,22 @@ class _HomeScreenState extends State<HomeScreen> {
     return icons[subjectId] ?? Icons.school;
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // NAVIGATION RAPIDE — CORRIGÉE ✅
-  // ═══════════════════════════════════════════════════════════
   Widget _buildQuickNav(Color surfaceColor, Color textPrimary, Color textSecondary, Color cardShadow) {
     final items = [
       {
         'icon': Icons.calendar_month,
         'label': 'Calendrier',
-        'screen': const CalendarMainScreen(), // ✅
+        'screen': const CalendarMainScreen(),
       },
       {
         'icon': Icons.videogame_asset,
         'label': 'Jeux',
-        'screen': const GamesHubScreen(), // ✅
+        'screen': const GamesHubScreen(),
       },
       {
         'icon': Icons.settings,
         'label': 'Paramètres',
-        'screen': const SettingsScreen(), // ✅
+        'screen': const SettingsScreen(),
       },
     ];
 
