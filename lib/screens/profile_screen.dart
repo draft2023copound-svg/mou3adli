@@ -63,7 +63,7 @@ class ProfileScreen extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    _buildHeader(context, displayName, classLabel, schoolName, user?.photoUrl, isDark),
+                    _buildHeader(context, displayName, classLabel, schoolName, user?.photoUrl, avg, isDark),
                     const SizedBox(height: 30),
                     _buildPerformanceCard(context, avg, annualAvg, term, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
                     const SizedBox(height: 25),
@@ -140,7 +140,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // ─── HEADER ───
-  Widget _buildHeader(BuildContext context, String displayName, String classLabel, String schoolName, String? photoUrl, bool isDark) {
+  Widget _buildHeader(BuildContext context, String displayName, String classLabel, String schoolName, String? photoUrl, double avg, bool isDark) {
     final hasPhoto = photoUrl != null && photoUrl.isNotEmpty;
 
     return Container(
@@ -292,7 +292,7 @@ class ProfileScreen extends StatelessWidget {
                       const Icon(Icons.workspace_premium, color: Colors.amber, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        _getMentionLabelFromAvg(0),
+                        _getMentionLabelFromAvg(avg),
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

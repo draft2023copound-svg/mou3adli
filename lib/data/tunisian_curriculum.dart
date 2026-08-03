@@ -393,21 +393,28 @@ class TunisianCurriculum {
   }
 
   static List<Evaluation> _getEvaluations(String subjectId) {
-    return switch (subjectId) {
-      'arabe' => _evalsArabe(),
-      'francais' || 'anglais' => _evalsLangue(),
-      'math' => _evalsMath(),
-      'physique' || 'svt' || 'techno' || 'tic' || 'bases_donnees' => _evalsScienceTech(),
-      'informatique' => _evalsInfo(),
-      'educ_physique' => _evalsEducPhys(),
-      'musique' => _evalsMusique(),
-      'philosophie' => _evalsPhilosophie(),
-      'economie' || 'gestion' => _evalsEconomie(),
-      'algo_prog' || 'systemes_reseaux' => _evalsAlgo(),
-      'specialite' => _evalsSpecialite(),
-      _ => _evalsStandard3(),
-    };
-  }
+  return switch (subjectId) {
+    'arabe' => _evalsArabe(),
+    'francais' => _evalsLangue(),
+    'anglais' => _evalsLangue(),
+    'math' => _evalsMath(),
+    'physique' => _evalsScienceTech(),
+    'svt' => _evalsScienceTech(),
+    'techno' => _evalsScienceTech(),
+    'tic' => _evalsScienceTech(),
+    'bases_donnees' => _evalsScienceTech(),
+    'informatique' => _evalsInfo(),
+    'educ_physique' => _evalsEducPhys(),
+    'musique' => _evalsMusique(),
+    'philosophie' => _evalsPhilosophie(),
+    'economie' => _evalsEconomie(),
+    'gestion' => _evalsEconomie(),
+    'algo_prog' => _evalsAlgo(),
+    'systemes_reseaux' => _evalsAlgo(),
+    'specialite' => _evalsSpecialite(),
+    _ => _evalsStandard3(),
+  };
+ }
 
   static String _getIcon(String subjectId) => _iconMap[subjectId] ?? 'school';
 

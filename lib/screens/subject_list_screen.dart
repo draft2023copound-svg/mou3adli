@@ -23,7 +23,6 @@ class SubjectListScreen extends StatelessWidget {
     final term = provider.currentTerm;
     // CORRECTION : cast explicite
     final List<Subject> subjects = term?.subjects.cast<Subject>() ?? [];
-
     return Scaffold(
       backgroundColor: bgColor,
       appBar: AppBar(

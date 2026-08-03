@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import '../models/subject_model.dart';
 import '../navigation/custom_bottom_nav.dart';
+import '../calendar_new/calendar_main_screen.dart';
+import '../game/screens/games_hub_screen.dart';
 import 'profile_screen.dart';
 import 'subject_list_screen.dart';
 import 'settings_screen.dart';
@@ -142,9 +144,9 @@ class _HomeScreenState extends State<HomeScreen> {
           } else if (index == 1) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const SubjectListScreen()));
           } else if (index == 2) {
-            // Calendar
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const CalendarMainScreen()));
           } else if (index == 3) {
-            // Games
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const GamesHubScreen()));
           } else if (index == 4) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
           }

@@ -42,10 +42,17 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
 
   Future<void> _saveGrades() async {
     final provider = context.read<AppProvider>();
+    bool hasError = false;
 
     for (final entry in _controllers.entries) {
       final text = entry.value.text.trim();
       final score = text.isEmpty ? null : double.tryParse(text);
+
+      // Validation : note entre 0 et 20
+      if (score != null && (score < 0 || score > 20)) {
+        hasError = true;
+        continue;
+      }
 
       await provider.updateGrade(
         widget.termId,
@@ -56,9 +63,18 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
     }
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Notes sauvegardées !")),
-      );
+      if (hasError) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("⚠️ Notes invalides détectées (doivent être entre 0 et 20)"),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("✅ Notes sauvegardées !")),
+        );
+      }
       Navigator.pop(context);
     }
   }
