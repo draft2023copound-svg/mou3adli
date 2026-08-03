@@ -149,7 +149,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   // ═══════════════════════════════════════════════════════════
 
   Future<void> _pickImage(ImageSource source) async {
-    Navigator.pop(context); // Ferme le bottom sheet
+    Navigator.pop(context);
 
     final picker = ImagePicker();
     final picked = await picker.pickImage(
@@ -188,7 +188,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   Future<void> _removePhoto() async {
-    Navigator.pop(context); // Ferme le bottom sheet
+    Navigator.pop(context);
 
     final confirm = await showDialog<bool>(
       context: context,
@@ -250,7 +250,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: context.read<AppProvider>().isDarkMode ? const Color(0xFF1A1A1A) : Colors.white,
       builder: (ctx) {
         return SafeArea(
           child: Padding(
@@ -258,7 +258,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Indicateur de drag
                 Center(
                   child: Container(
                     width: 40,
@@ -287,7 +286,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Galerie
                 _PhotoOptionTile(
                   icon: Icons.photo_library_outlined,
                   label: 'Choisir depuis la galerie',
@@ -295,7 +293,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   onTap: () => _pickImage(ImageSource.gallery),
                 ),
                 const SizedBox(height: 10),
-                // Caméra
                 _PhotoOptionTile(
                   icon: Icons.camera_alt_outlined,
                   label: 'Prendre une photo',
@@ -312,7 +309,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                 ],
                 const SizedBox(height: 10),
-                // Annuler
                 SizedBox(
                   width: double.infinity,
                   child: TextButton(
@@ -357,7 +353,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
-                  // Avatar principal
                   Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
@@ -385,7 +380,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           : null,
                     ),
                   ),
-                  // Bouton stylo
                   Positioned(
                     bottom: 2,
                     right: 2,
@@ -453,38 +447,41 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<AppProvider>().isDarkMode;
+    final bgColor = isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF6F8FC);
+    final surfaceColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+    final textPrimary = isDark ? Colors.white : Colors.black87;
+    final textSecondary = isDark ? Colors.grey.shade400 : Colors.grey.shade600;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FC),
+      backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         centerTitle: true,
-        title: const Text(
+        title: Text(
           'Modifier le profil',
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.black87),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary),
         ),
       ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
           children: [
-            // ═══ PHOTO DE PROFIL ═══
             _buildProfilePhotoSection(),
             const SizedBox(height: 16),
-
-            // ═══ CHAMPS DU FORMULAIRE ═══
-            _buildTextField('Nom complet', Icons.person_outline, _nameCtrl),
-            _buildTextField('École', Icons.school_outlined, _schoolCtrl),
+            _buildTextField('Nom complet', Icons.person_outline, _nameCtrl, surfaceColor, textPrimary),
+            _buildTextField('École', Icons.school_outlined, _schoolCtrl, surfaceColor, textPrimary),
             const SizedBox(height: 20),
-            _buildClassDropdown(),
+            _buildClassDropdown(surfaceColor, textPrimary, textSecondary),
             if (_shouldShowStream(_selectedClassLevel ?? '')) ...[
               const SizedBox(height: 20),
-              _buildStreamDropdown(),
+              _buildStreamDropdown(surfaceColor, textPrimary, textSecondary),
             ],
             if (_shouldShowOption()) ...[
               const SizedBox(height: 20),
-              _buildOptionDropdown(),
+              _buildOptionDropdown(surfaceColor, textPrimary, textSecondary),
             ],
             const SizedBox(height: 30),
             ElevatedButton(
@@ -505,18 +502,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildTextField(String hint, IconData icon, TextEditingController ctrl) {
+  Widget _buildTextField(String hint, IconData icon, TextEditingController ctrl, Color surfaceColor, Color textPrimary) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
       ),
       child: TextField(
         controller: ctrl,
+        style: TextStyle(color: textPrimary),
         decoration: InputDecoration(
           hintText: hint,
+          hintStyle: TextStyle(color: Colors.grey.shade500),
           prefixIcon: Icon(icon, color: const Color(0xFF1C3F7A)),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
@@ -525,25 +524,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildClassDropdown() {
+  Widget _buildClassDropdown(Color surfaceColor, Color textPrimary, Color textSecondary) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Classe', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87)),
+        Text('Classe', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: _selectedClassLevel,
           isExpanded: true,
+          dropdownColor: surfaceColor,
+          style: TextStyle(color: textPrimary),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white,
+            fillColor: surfaceColor,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
             contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
             hintText: "Sélectionnez votre classe",
+            hintStyle: TextStyle(color: textSecondary),
           ),
           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
           items: _allClassLevels.map((level) {
-            return DropdownMenuItem(value: level, child: Text(_displayClassName(level)));
+            return DropdownMenuItem(value: level, child: Text(_displayClassName(level), style: TextStyle(color: textPrimary)));
           }).toList(),
           onChanged: (value) {
             setState(() {
@@ -557,7 +559,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildStreamDropdown() {
+  Widget _buildStreamDropdown(Color surfaceColor, Color textPrimary, Color textSecondary) {
     final streams = _getAvailableStreams();
     if (streams.isEmpty) return const SizedBox.shrink();
 
@@ -572,21 +574,24 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87)),
+        Text(label, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: _selectedStream,
           isExpanded: true,
+          dropdownColor: surfaceColor,
+          style: TextStyle(color: textPrimary),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white,
+            fillColor: surfaceColor,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
             contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
             hintText: hint,
+            hintStyle: TextStyle(color: textSecondary),
           ),
           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
           items: streams.map((stream) {
-            return DropdownMenuItem(value: stream, child: Text(_displayStreamName(stream)));
+            return DropdownMenuItem(value: stream, child: Text(_displayStreamName(stream), style: TextStyle(color: textPrimary)));
           }).toList(),
           onChanged: (value) {
             setState(() {
@@ -616,29 +621,32 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return [];
   }
 
-  Widget _buildOptionDropdown() {
+  Widget _buildOptionDropdown(Color surfaceColor, Color textPrimary, Color textSecondary) {
     final options = OptionCurriculum.getAllOptions();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("Option", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Colors.black87)),
+        Text("Option", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           value: _selectedOption,
           isExpanded: true,
+          dropdownColor: surfaceColor,
+          style: TextStyle(color: textPrimary),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white,
+            fillColor: surfaceColor,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
             contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
             hintText: "Choisissez votre option",
+            hintStyle: TextStyle(color: textSecondary),
           ),
           icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
           items: options.map((opt) {
             return DropdownMenuItem(
               value: opt['id'] as String,
-              child: Text(opt['nameFr'] as String),
+              child: Text(opt['nameFr'] as String, style: TextStyle(color: textPrimary)),
             );
           }).toList(),
           onChanged: (value) {

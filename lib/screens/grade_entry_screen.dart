@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
-import '../models/subject_model.dart';
-import '../widgets/custom_widgets.dart'; // ← AJOUTÉ pour kRoyalBlue
 
 class GradeEntryScreen extends StatefulWidget {
   final String termId;
-  final Subject subject;
+  final String subjectId;
 
   const GradeEntryScreen({
     super.key,
     required this.termId,
-    required this.subject,
+    required this.subjectId,
   });
 
   @override
@@ -19,61 +17,44 @@ class GradeEntryScreen extends StatefulWidget {
 }
 
 class _GradeEntryScreenState extends State<GradeEntryScreen> {
-  late List<TextEditingController> _controllers;
-  double _average = 0;
+  final Map<String, TextEditingController> _controllers = {};
 
   @override
   void initState() {
     super.initState();
-    _controllers = widget.subject.evaluations.map((e) {
-      return TextEditingController(text: e.score?.toString() ?? '');
-    }).toList();
-    _calculateAverage();
-    for (final c in _controllers) {
-      c.addListener(_calculateAverage);
-    }
+    _loadGrades();
   }
 
-  @override
-  void dispose() {
-    for (final c in _controllers) {
-      c.dispose();
-    }
-    super.dispose();
-  }
+  void _loadGrades() {
+    final provider = context.read<AppProvider>();
+    final term = provider.terms.firstWhere((t) => t.id == widget.termId);
+    final subject = term.subjects.firstWhere((s) => s.id == widget.subjectId);
 
-  void _calculateAverage() {
-    double totalWeighted = 0;
-    double totalWeight = 0;
-    for (int i = 0; i < _controllers.length; i++) {
-      final val = double.tryParse(_controllers[i].text);
-      if (val != null) {
-        totalWeighted += val * widget.subject.evaluations[i].weight;
-        totalWeight += widget.subject.evaluations[i].weight;
-      }
+    for (final eval in subject.evaluations) {
+      _controllers[eval.id] = TextEditingController(
+        text: eval.score?.toString() ?? '',
+      );
     }
-    setState(() {
-      _average = totalWeight > 0 ? totalWeighted / totalWeight : 0;
-    });
   }
 
   Future<void> _saveGrades() async {
     final provider = context.read<AppProvider>();
-    for (int i = 0; i < _controllers.length; i++) {
-      final val = double.tryParse(_controllers[i].text);
+
+    for (final entry in _controllers.entries) {
+      final text = entry.value.text.trim();
+      final score = text.isEmpty ? null : double.tryParse(text);
+
       await provider.updateGrade(
         widget.termId,
-        widget.subject.id,
-        widget.subject.evaluations[i].id,
-        val,
+        widget.subjectId,
+        entry.key,
+        score,
       );
     }
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✅ Notes enregistrées avec succès'),
-          backgroundColor: Colors.green,
-        ),
+        const SnackBar(content: Text("✅ Notes sauvegardées !")),
       );
       Navigator.pop(context);
     }
@@ -81,223 +62,178 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final evals = widget.subject.evaluations;
+    final provider = context.watch<AppProvider>();
+    final isDark = provider.isDarkMode;
+    final bgColor = isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF5F7FB);
+    final surfaceColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+    final textPrimary = isDark ? Colors.white : const Color(0xFF1E293B);
+    final textSecondary = isDark ? Colors.grey.shade400 : const Color(0xFF64748B);
+    final textMuted = isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8);
+    final cardShadow = isDark 
+      ? Colors.black.withOpacity(0.3)
+      : Colors.black.withOpacity(0.04);
+
+    final term = provider.terms.firstWhere((t) => t.id == widget.termId);
+    final subject = term.subjects.firstWhere((s) => s.id == widget.subjectId);
+    final avg = subject.average;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FB),
+      backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Column(
-          children: [
-            Text(
-              widget.subject.nameFr,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
-            ),
-            Text(
-              widget.subject.nameAr,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey.shade500,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
         centerTitle: true,
+        title: Text(
+          subject.nameFr,
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: textPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
       ),
       body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.all(20),
         children: [
+          // Moyenne actuelle
           Container(
-            padding: const EdgeInsets.all(16),
-            margin: const EdgeInsets.only(bottom: 20),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: kRoyalBlue.withOpacity(.06),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: kRoyalBlue.withOpacity(.15)),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.info_outline, color: kRoyalBlue.withOpacity(.7)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    'Coefficient: ${widget.subject.coefficient} • La moyenne est pondérée selon les poids des évaluations tunisiennes.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: kRoyalBlue.withOpacity(.8),
-                      height: 1.4,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          ...List.generate(evals.length, (i) {
-            return _buildInputCard(
-              evals[i].nameAr,
-              evals[i].nameFr,
-              'Poids: ${evals[i].weight}',
-              _controllers[i],
-              _iconForEval(evals[i].id),
-            );
-          }),
-
-          const SizedBox(height: 20),
-
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
+              color: surfaceColor,
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 20,
+                  color: cardShadow,
+                  blurRadius: 18,
                   offset: const Offset(0, 8),
                 ),
               ],
             ),
-            child: Row(
+            child: Column(
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                Text(
+                  avg > 0 ? avg.toStringAsFixed(2) : '--',
+                  style: TextStyle(
+                    fontSize: 48,
+                    fontWeight: FontWeight.w900,
+                    color: avg >= 10 ? Colors.green : textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Moyenne actuelle",
+                  style: TextStyle(color: textSecondary),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          // Liste des évaluations
+          Text(
+            "Saisir les notes",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              color: textPrimary,
+            ),
+          ),
+          const SizedBox(height: 16),
+          ...subject.evaluations.map((eval) {
+            final controller = _controllers[eval.id];
+            if (controller == null) return const SizedBox.shrink();
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 14),
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: surfaceColor,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: cardShadow,
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      const Text(
-                        'Moyenne de la matière',
-                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1C3F7A).withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.edit_note,
+                          color: Color(0xFF1C3F7A),
+                          size: 20,
+                        ),
                       ),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Text(
-                            _average > 0 ? _average.toStringAsFixed(2) : '--',
-                            style: const TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.w800,
-                              color: kRoyalBlue,
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              eval.nameFr,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                                color: textPrimary,
+                              ),
                             ),
-                          ),
-                          const Text(' /20', style: TextStyle(fontSize: 16, color: Colors.grey)),
-                        ],
+                            Text(
+                              "Coefficient: ${eval.weight.toStringAsFixed(1)}",
+                              style: TextStyle(color: textSecondary, fontSize: 13),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-                Container(height: 40, width: 1, color: Colors.grey.shade300),
-                const SizedBox(width: 20),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Coefficient', style: TextStyle(color: Colors.grey, fontSize: 14)),
-                    Text(
-                      widget.subject.coefficient.toString(),
-                      style: const TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w800,
-                        color: kRoyalBlue,
-                      ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: controller,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: textPrimary,
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 20),
-
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: ElevatedButton(
-              onPressed: _saveGrades,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kRoyalBlue,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                elevation: 4,
-              ),
-              child: const Text(
-                'Enregistrer',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInputCard(
-    String arTitle,
-    String frSubtitle,
-    String weightLabel,
-    TextEditingController controller,
-    IconData icon,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: kRoyalBlue.withOpacity(0.08),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Icon(icon, color: kRoyalBlue, size: 28),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(arTitle, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                Text(frSubtitle, style: const TextStyle(fontSize: 13, color: Colors.grey)),
-                Text(
-                  weightLabel,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: kRoyalBlue.withOpacity(.7),
-                    fontWeight: FontWeight.w600,
+                    decoration: InputDecoration(
+                      hintText: "Note /20",
+                      hintStyle: TextStyle(color: textMuted),
+                      filled: true,
+                      fillColor: isDark ? const Color(0xFF242424) : const Color(0xFFF8FAFC),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide.none,
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                      suffixText: "/20",
+                      suffixStyle: TextStyle(color: textMuted),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            width: 80,
-            child: TextField(
-              controller: controller,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              textAlign: TextAlign.center,
-              decoration: InputDecoration(
-                hintText: '0',
-                suffixText: '/20',
-                filled: true,
-                fillColor: const Color(0xFFF8F9FA),
-                contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
+                ],
               ),
+            );
+          }),
+          const SizedBox(height: 30),
+          ElevatedButton(
+            onPressed: _saveGrades,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1C3F7A),
+              foregroundColor: Colors.white,
+              minimumSize: const Size.fromHeight(56),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+            child: const Text(
+              "Enregistrer",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -305,11 +241,11 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
     );
   }
 
-  IconData _iconForEval(String evalId) {
-    if (evalId.contains('dc')) return Icons.assignment_rounded;
-    if (evalId.contains('oral')) return Icons.mic_rounded;
-    if (evalId.contains('ds')) return Icons.description_rounded;
-    if (evalId.contains('tp')) return Icons.people_rounded;
-    return Icons.edit_note_rounded;
+  @override
+  void dispose() {
+    for (final controller in _controllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 }

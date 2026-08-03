@@ -9,8 +9,6 @@ import 'settings_screen.dart';
 
 const Color kPrimary = Color(0xFF1C3F7A);
 const Color kSecondary = Color(0xFF2A5FA8);
-const Color kBackground = Color(0xffF8FAFC);
-const Color kRoyalBlue = Color(0xFF1C3F7A);
 const Color kMatteGold = Color(0xFFC5A059);
 
 class ProfileScreen extends StatelessWidget {
@@ -18,6 +16,16 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<AppProvider>().isDarkMode;
+    final bgColor = isDark ? const Color(0xFF0F0F0F) : const Color(0xffF8FAFC);
+    final surfaceColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+    final textPrimary = isDark ? Colors.white : const Color(0xFF1E293B);
+    final textSecondary = isDark ? Colors.grey.shade400 : const Color(0xFF64748B);
+    final textMuted = isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8);
+    final cardShadow = isDark 
+      ? Colors.black.withOpacity(0.3)
+      : Colors.black.withOpacity(0.04);
+
     return Consumer<AppProvider>(
       builder: (context, provider, _) {
         final user = provider.user;
@@ -40,29 +48,27 @@ class ProfileScreen extends StatelessWidget {
         final schoolName = user?.schoolName ?? '';
 
         return Scaffold(
-          backgroundColor: kBackground,
+          backgroundColor: bgColor,
           body: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Color(0xffFDFEFF),
-                  Color(0xffF7F9FD),
-                  Color(0xffF2F6FC),
-                ],
+                colors: isDark
+                  ? [const Color(0xFF0F0F0F), const Color(0xFF1A1A1A), const Color(0xFF242424)]
+                  : [const Color(0xffFDFEFF), const Color(0xffF7F9FD), const Color(0xffF2F6FC)],
               ),
             ),
             child: SafeArea(
               child: SingleChildScrollView(
                 child: Column(
                   children: [
-                    _buildHeader(context, displayName, classLabel, schoolName, user?.photoUrl),
+                    _buildHeader(context, displayName, classLabel, schoolName, user?.photoUrl, isDark),
                     const SizedBox(height: 30),
-                    _buildPerformanceCard(context, avg, annualAvg, term),
+                    _buildPerformanceCard(context, avg, annualAvg, term, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
                     const SizedBox(height: 25),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 22),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 22),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -70,15 +76,16 @@ class ProfileScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
+                            color: textPrimary,
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 18),
-                    _buildStatisticsGrid(context, provider),
+                    _buildStatisticsGrid(context, provider, surfaceColor, textPrimary, textSecondary, cardShadow),
                     const SizedBox(height: 30),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 22),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 22),
                       child: Row(
                         children: [
                           Text(
@@ -86,9 +93,10 @@ class ProfileScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.w800,
+                              color: textPrimary,
                             ),
                           ),
-                          Spacer(),
+                          const Spacer(),
                           Text(
                             "Voir tout",
                             style: TextStyle(
@@ -100,10 +108,10 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 18),
-                    _buildActivityTimeline(context, provider),
+                    _buildActivityTimeline(context, provider, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
                     const SizedBox(height: 30),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 22),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 22),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -111,12 +119,13 @@ class ProfileScreen extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
+                            color: textPrimary,
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 18),
-                    _buildGoalsCard(context, avg, annualAvg, term),
+                    _buildGoalsCard(context, avg, annualAvg, term, surfaceColor, textPrimary, textSecondary, textMuted, cardShadow),
                     const SizedBox(height: 30),
                     _buildLogoutButton(context, provider),
                     const SizedBox(height: 40),
@@ -131,20 +140,19 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // ─── HEADER ───
-  Widget _buildHeader(BuildContext context, String displayName, String classLabel, String schoolName, String? photoUrl) {
+  Widget _buildHeader(BuildContext context, String displayName, String classLabel, String schoolName, String? photoUrl, bool isDark) {
     final hasPhoto = photoUrl != null && photoUrl.isNotEmpty;
 
     return Container(
       margin: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(35),
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF1C3F7A),
-            Color(0xFF2A5FA8),
-          ],
+          colors: isDark
+            ? [const Color(0xFF1C3F7A), const Color(0xFF0D2247)]
+            : [const Color(0xFF1C3F7A), const Color(0xFF2A5FA8)],
         ),
         boxShadow: [
           BoxShadow(
@@ -357,7 +365,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // ─── CARTE PERFORMANCE ───
-  Widget _buildPerformanceCard(BuildContext context, double avg, double annualAvg, dynamic term) {
+  Widget _buildPerformanceCard(BuildContext context, double avg, double annualAvg, dynamic term, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
     const target = 18.0;
     final progress = avg > 0 ? (avg / target).clamp(0.0, 1.0) : 0.0;
     final percentage = (progress * 100).round();
@@ -367,11 +375,11 @@ class ProfileScreen extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.05),
+            color: cardShadow,
             blurRadius: 30,
             offset: const Offset(0, 15),
           ),
@@ -391,18 +399,18 @@ class ProfileScreen extends StatelessWidget {
                 child: const Icon(Icons.auto_graph, color: kPrimary, size: 26),
               ),
               const SizedBox(width: 15),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       "Performance scolaire",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: textPrimary),
                     ),
-                    SizedBox(height: 3),
+                    const SizedBox(height: 3),
                     Text(
                       "Évolution du trimestre",
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: textSecondary),
                     ),
                   ],
                 ),
@@ -452,7 +460,7 @@ class ProfileScreen extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   "Moyenne Générale",
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 16),
+                  style: TextStyle(color: textMuted, fontSize: 16),
                 ),
               ],
             ),
@@ -463,7 +471,7 @@ class ProfileScreen extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 12,
-              backgroundColor: Colors.grey.shade200,
+              backgroundColor: Colors.grey.shade800,
               valueColor: const AlwaysStoppedAnimation(kPrimary),
             ),
           ),
@@ -472,23 +480,23 @@ class ProfileScreen extends StatelessWidget {
             children: [
               Text(
                 "Objectif : ${target.toStringAsFixed(2)}",
-                style: TextStyle(color: Colors.grey.shade600),
+                style: TextStyle(color: textSecondary),
               ),
               const Spacer(),
               Text(
                 "$percentage %",
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: TextStyle(fontWeight: FontWeight.bold, color: textPrimary),
               ),
             ],
           ),
           const SizedBox(height: 30),
           Row(
             children: [
-              Expanded(child: _smallInfo("Trimestres", "3", Icons.calendar_month, Colors.orange)),
+              Expanded(child: _smallInfo("Trimestres", "3", Icons.calendar_month, Colors.orange, textPrimary)),
               const SizedBox(width: 15),
-              Expanded(child: _smallInfo("Annuelle", annualAvg > 0 ? annualAvg.toStringAsFixed(2) : '--', Icons.school, Colors.deepPurple)),
+              Expanded(child: _smallInfo("Annuelle", annualAvg > 0 ? annualAvg.toStringAsFixed(2) : '--', Icons.school, Colors.deepPurple, textPrimary)),
               const SizedBox(width: 15),
-              Expanded(child: _smallInfo("Matières", "$subjectCount", Icons.menu_book, Colors.green)),
+              Expanded(child: _smallInfo("Matières", "$subjectCount", Icons.menu_book, Colors.green, textPrimary)),
             ],
           ),
         ],
@@ -496,7 +504,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _smallInfo(String title, String value, IconData icon, Color color) {
+  Widget _smallInfo(String title, String value, IconData icon, Color color, Color textPrimary) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -510,7 +518,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             value,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: textPrimary),
           ),
           const SizedBox(height: 5),
           Text(
@@ -523,7 +531,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // ─── GRILLE STATISTIQUES ───
-  Widget _buildStatisticsGrid(BuildContext context, AppProvider provider) {
+  Widget _buildStatisticsGrid(BuildContext context, AppProvider provider, Color surfaceColor, Color textPrimary, Color textSecondary, Color cardShadow) {
     final term = provider.currentTerm;
     final completedSubjects = term?.completedSubjects ?? 0;
     final totalSubjects = term?.totalSubjects ?? 0;
@@ -547,6 +555,10 @@ class ProfileScreen extends StatelessWidget {
             subtitle: "$completedSubjects notées",
             icon: Icons.menu_book_rounded,
             color: Colors.blue,
+            surfaceColor: surfaceColor,
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
+            cardShadow: cardShadow,
             targetScreen: const HomeScreen(),
           ),
           _statItem(
@@ -556,6 +568,10 @@ class ProfileScreen extends StatelessWidget {
             subtitle: "du trimestre",
             icon: Icons.assignment_rounded,
             color: Colors.deepPurple,
+            surfaceColor: surfaceColor,
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
+            cardShadow: cardShadow,
             targetScreen: const TermSelectionScreen(),
           ),
           _statItem(
@@ -567,6 +583,10 @@ class ProfileScreen extends StatelessWidget {
             subtitle: "/20",
             icon: Icons.event_note_rounded,
             color: Colors.orange,
+            surfaceColor: surfaceColor,
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
+            cardShadow: cardShadow,
             targetScreen: const TermSelectionScreen(),
           ),
           _statItem(
@@ -578,6 +598,10 @@ class ProfileScreen extends StatelessWidget {
             subtitle: "/20",
             icon: Icons.verified_rounded,
             color: Colors.green,
+            surfaceColor: surfaceColor,
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
+            cardShadow: cardShadow,
           ),
           _statItem(
             context: context,
@@ -586,6 +610,10 @@ class ProfileScreen extends StatelessWidget {
             subtitle: _getMentionLabelFromAvg(provider.currentGeneralAverage),
             icon: Icons.local_fire_department_rounded,
             color: Colors.redAccent,
+            surfaceColor: surfaceColor,
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
+            cardShadow: cardShadow,
           ),
           _statItem(
             context: context,
@@ -594,6 +622,10 @@ class ProfileScreen extends StatelessWidget {
             subtitle: provider.currentGeneralAverage >= 16 ? "Atteint" : "pts restants",
             icon: Icons.flag_rounded,
             color: Colors.teal,
+            surfaceColor: surfaceColor,
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
+            cardShadow: cardShadow,
           ),
         ],
       ),
@@ -615,6 +647,10 @@ class ProfileScreen extends StatelessWidget {
     required String subtitle,
     required IconData icon,
     required Color color,
+    required Color surfaceColor,
+    required Color textPrimary,
+    required Color textSecondary,
+    required Color cardShadow,
     Widget? targetScreen,
   }) {
     return Material(
@@ -635,11 +671,11 @@ class ProfileScreen extends StatelessWidget {
         },
         child: Ink(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: surfaceColor,
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(.04),
+                color: cardShadow,
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -664,19 +700,19 @@ class ProfileScreen extends StatelessWidget {
                 Text(
                   value,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900),
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: textPrimary),
                 ),
                 const SizedBox(height: 6),
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: textPrimary),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                  style: TextStyle(color: textSecondary, fontSize: 12),
                 ),
               ],
             ),
@@ -687,7 +723,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // ─── TIMELINE ACTIVITÉ ───
-  Widget _buildActivityTimeline(BuildContext context, AppProvider provider) {
+  Widget _buildActivityTimeline(BuildContext context, AppProvider provider, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
     final term = provider.currentTerm;
 
     final List<Map<String, dynamic>> activities = [];
@@ -714,11 +750,11 @@ class ProfileScreen extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: surfaceColor,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(.04),
+                color: cardShadow,
                 blurRadius: 18,
                 offset: const Offset(0, 8),
               ),
@@ -726,12 +762,12 @@ class ProfileScreen extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Icon(Icons.info_outline, color: Colors.grey.shade400, size: 40),
+              Icon(Icons.info_outline, color: textMuted, size: 40),
               const SizedBox(height: 12),
               Text(
                 "Aucune activité récente",
                 style: TextStyle(
-                  color: Colors.grey.shade600,
+                  color: textSecondary,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -740,7 +776,7 @@ class ProfileScreen extends StatelessWidget {
                 "Commence à saisir tes notes pour voir ton activité ici !",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.grey.shade500,
+                  color: textMuted,
                   fontSize: 13,
                 ),
               ),
@@ -763,6 +799,11 @@ class ProfileScreen extends StatelessWidget {
             title: activity['title'] as String,
             subtitle: activity['subtitle'] as String,
             time: activity['time'] as String,
+            surfaceColor: surfaceColor,
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
+            textMuted: textMuted,
+            cardShadow: cardShadow,
           );
         }).toList(),
       ),
@@ -776,6 +817,11 @@ class ProfileScreen extends StatelessWidget {
     required String title,
     required String subtitle,
     required String time,
+    required Color surfaceColor,
+    required Color textPrimary,
+    required Color textSecondary,
+    required Color textMuted,
+    required Color cardShadow,
     Widget? targetScreen,
   }) {
     return Container(
@@ -797,7 +843,7 @@ class ProfileScreen extends StatelessWidget {
               Container(
                 width: 2,
                 height: 65,
-                color: Colors.grey.shade300,
+                color: Colors.grey.shade800,
               ),
             ],
           ),
@@ -820,11 +866,11 @@ class ProfileScreen extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: surfaceColor,
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(.04),
+                      color: cardShadow,
                       blurRadius: 18,
                       offset: const Offset(0, 8),
                     ),
@@ -835,21 +881,21 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17),
+                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 17, color: textPrimary),
                     ),
                     const SizedBox(height: 6),
                     Text(
                       subtitle,
-                      style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                      style: TextStyle(color: textSecondary, fontSize: 14),
                     ),
                     const SizedBox(height: 14),
                     Row(
                       children: [
-                        Icon(Icons.schedule_rounded, size: 16, color: Colors.grey.shade500),
+                        Icon(Icons.schedule_rounded, size: 16, color: textMuted),
                         const SizedBox(width: 6),
                         Text(
                           time,
-                          style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
+                          style: TextStyle(color: textMuted, fontSize: 13),
                         ),
                       ],
                     ),
@@ -864,7 +910,7 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // ─── OBJECTIFS ET PROGRESSION ───
-  Widget _buildGoalsCard(BuildContext context, double avg, double annualAvg, dynamic term) {
+  Widget _buildGoalsCard(BuildContext context, double avg, double annualAvg, dynamic term, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
     const target = 18.0;
     final progress = avg > 0 ? (avg / target).clamp(0.0, 1.0) : 0.0;
     final percentage = (progress * 100).round();
@@ -874,11 +920,11 @@ class ProfileScreen extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(30),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.05),
+            color: cardShadow,
             blurRadius: 25,
             offset: const Offset(0, 12),
           ),
@@ -898,10 +944,10 @@ class ProfileScreen extends StatelessWidget {
                 child: const Icon(Icons.flag_rounded, color: Colors.orange),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Text(
                   "Objectif annuel",
-                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
+                  style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18, color: textPrimary),
                 ),
               ),
               Container(
@@ -920,7 +966,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 25),
           Text(
             avg > 0 ? avg.toStringAsFixed(2) + " /20" : "-- /20",
-            style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w900),
+            style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900, color: textPrimary),
           ),
           const SizedBox(height: 6),
           Text(
@@ -929,7 +975,7 @@ class ProfileScreen extends StatelessWidget {
                     ? "Encore ${remaining.toStringAsFixed(2)} point pour atteindre ton objectif."
                     : "🎉 Objectif atteint ! Félicitations !"
                 : "Commence à saisir tes notes pour suivre ta progression.",
-            style: TextStyle(color: Colors.grey.shade600),
+            style: TextStyle(color: textSecondary),
           ),
           const SizedBox(height: 20),
           ClipRRect(
@@ -938,23 +984,23 @@ class ProfileScreen extends StatelessWidget {
               value: progress,
               minHeight: 12,
               valueColor: const AlwaysStoppedAnimation(kPrimary),
-              backgroundColor: const Color(0xffEAEAEA),
+              backgroundColor: Colors.grey.shade800,
             ),
           ),
           const SizedBox(height: 28),
           Row(
             children: [
-              Expanded(child: _goalInfo("Trimestre", term?.nameFr ?? "--", Icons.calendar_month, Colors.amber)),
+              Expanded(child: _goalInfo("Trimestre", term?.nameFr ?? "--", Icons.calendar_month, Colors.amber, textPrimary)),
               const SizedBox(width: 15),
-              Expanded(child: _goalInfo("Annuelle", annualAvg > 0 ? annualAvg.toStringAsFixed(2) : '--', Icons.bolt_rounded, Colors.deepPurple)),
+              Expanded(child: _goalInfo("Annuelle", annualAvg > 0 ? annualAvg.toStringAsFixed(2) : '--', Icons.bolt_rounded, Colors.deepPurple, textPrimary)),
             ],
           ),
           const SizedBox(height: 18),
-          _streakCard(avg),
+          _streakCard(avg, textPrimary, textSecondary),
           const SizedBox(height: 22),
-          const Text(
+          Text(
             "Badges obtenus",
-            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800),
+            style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: textPrimary),
           ),
           const SizedBox(height: 16),
           _buildBadges(context, avg),
@@ -963,7 +1009,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _goalInfo(String title, String value, IconData icon, Color color) {
+  Widget _goalInfo(String title, String value, IconData icon, Color color, Color textPrimary) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -977,7 +1023,7 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             value,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: textPrimary),
           ),
           const SizedBox(height: 4),
           Text(
@@ -989,7 +1035,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _streakCard(double avg) {
+  Widget _streakCard(double avg, Color textPrimary, Color textSecondary) {
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
@@ -1004,15 +1050,16 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   "Série actuelle",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: textPrimary),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   avg > 0
                       ? "Tu progresses bien, continue comme ça !"
                       : "Commence à travailler pour démarrer ta série !",
+                  style: TextStyle(color: textSecondary),
                 ),
               ],
             ),
@@ -1053,7 +1100,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // ─── BOUTON DÉCONNEXION BLEU ROYAL + DORÉ ───
+  // ─── BOUTON DÉCONNEXION ───
   Widget _buildLogoutButton(BuildContext context, AppProvider provider) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -1065,7 +1112,7 @@ class ProfileScreen extends StatelessWidget {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
               title: const Row(
                 children: [
-                  Icon(Icons.logout_rounded, color: kRoyalBlue),
+                  Icon(Icons.logout_rounded, color: kPrimary),
                   SizedBox(width: 10),
                   Text("Déconnexion", style: TextStyle(fontWeight: FontWeight.w800)),
                 ],
@@ -1078,7 +1125,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: kRoyalBlue,
+                    backgroundColor: kPrimary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -1104,14 +1151,14 @@ class ProfileScreen extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                kRoyalBlue,
+                kPrimary,
                 Color(0xFF2A4F8F),
               ],
             ),
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: kRoyalBlue.withOpacity(.3),
+                color: kPrimary.withOpacity(.3),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),

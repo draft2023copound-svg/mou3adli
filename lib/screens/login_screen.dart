@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
-import '../widgets/custom_widgets.dart';
 import 'level_selection.dart';
 import 'home_screen.dart';
 
@@ -15,21 +14,17 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailCtrl = TextEditingController();
   bool _isLoading = false;
-  String? _error;
 
-  @override
-  void dispose() {
-    _emailCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _handleLogin() async {
+  Future<void> _login() async {
     final email = _emailCtrl.text.trim();
     if (email.isEmpty) {
-      setState(() => _error = 'Veuillez entrer votre email');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Veuillez entrer votre email")),
+      );
       return;
     }
-    setState(() { _isLoading = true; _error = null; });
+
+    setState(() => _isLoading = true);
 
     final provider = context.read<AppProvider>();
     final success = await provider.login(email);
@@ -41,95 +36,182 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
-    } else {
-      setState(() => _error = 'Aucun compte trouvé avec cet email');
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Email non trouvé. Créez un compte.")),
+      );
     }
-  }
-
-  void _goToRegister() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const LevelSelectionScreen(isRegistering: true)),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<AppProvider>().isDarkMode;
+    final bgColor = isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF5F7FB);
+    final surfaceColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+    final textPrimary = isDark ? Colors.white : const Color(0xFF1E293B);
+    final textSecondary = isDark ? Colors.grey.shade400 : const Color(0xFF64748B);
+    final textMuted = isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8);
+
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: bgColor,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(30, 10, 30, 30),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Image.asset('assets/images/logo.png', height: 160, width: 160),
-                const SizedBox(height: 20),
-                Image.asset('assets/images/boy.png', height: 250, fit: BoxFit.contain),
-                const SizedBox(height: 30),
-                if (_error != null)
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.red.shade200),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.error_outline, color: Colors.red.shade400),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            _error!,
-                            style: TextStyle(color: Colors.red.shade700, fontSize: 14),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 40),
+              // Logo / Titre
+              Center(
+                child: Container(
+                  width: 100,
+                  height: 100,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF5F7FB),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: TextField(
-                    controller: _emailCtrl,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      hintText: 'Votre email',
-                      prefixIcon: const Icon(Icons.email_outlined, color: kRoyalBlue),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide.none,
+                    gradient: const LinearGradient(
+                      colors: [Color(0xFF1C3F7A), Color(0xFF2A5FA8)],
+                    ),
+                    borderRadius: BorderRadius.circular(28),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1C3F7A).withOpacity(0.3),
+                        blurRadius: 25,
+                        offset: const Offset(0, 12),
                       ),
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.school,
+                    color: Colors.white,
+                    size: 50,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              Center(
+                child: Text(
+                  "Mou3adli",
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w900,
+                    color: textPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: Text(
+                  "Calcul de moyenne tunisienne",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: textSecondary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 48),
+              // Email
+              Text(
+                "Email",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: textPrimary,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: surfaceColor,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _emailCtrl,
+                  keyboardType: TextInputType.emailAddress,
+                  style: TextStyle(color: textPrimary),
+                  decoration: InputDecoration(
+                    hintText: "exemple@email.com",
+                    hintStyle: TextStyle(color: textMuted),
+                    prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFF1C3F7A)),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Bouton Connexion
+              ElevatedButton(
+                onPressed: _isLoading ? null : _login,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1C3F7A),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size.fromHeight(56),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 0,
+                ),
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        "Se connecter",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                      ),
+              ),
+              const SizedBox(height: 20),
+              // Séparateur
+              Row(
+                children: [
+                  Expanded(child: Divider(color: textMuted)),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      "ou",
+                      style: TextStyle(color: textMuted),
                     ),
                   ),
+                  Expanded(child: Divider(color: textMuted)),
+                ],
+              ),
+              const SizedBox(height: 20),
+              // Bouton Créer un compte
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const LevelSelectionScreen()),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(56),
+                  side: const BorderSide(color: Color(0xFF1C3F7A)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                const SizedBox(height: 16),
-                CustomButton(
-                  text: _isLoading ? 'Connexion...' : 'Se connecter',
-                  onPressed: _isLoading ? null : _handleLogin,
+                child: const Text(
+                  "Créer un compte",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF1C3F7A),
+                  ),
                 ),
-                const SizedBox(height: 12),
-                CustomButton(
-                  text: 'Créer un compte',
-                  onPressed: _goToRegister,
-                  isFilled: false,
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Apprendre • Évaluer • Progresser',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    super.dispose();
   }
 }

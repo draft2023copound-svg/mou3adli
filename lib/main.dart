@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'theme/app_theme.dart';
 import 'providers/app_provider.dart';
 import 'providers/games_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/subject_list_screen.dart';
 import 'screens/term_selection_screen.dart';
-import 'calendar_new/calendar_main_screen.dart';
-import 'game/screens/games_hub_screen.dart';
-import 'game/screens/memory_screen.dart';
-import 'game/screens/quiz_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,10 +51,6 @@ class Mou3adliApp extends StatelessWidget {
             '/home': (context) => const HomeScreen(),
             '/subjects': (context) => const SubjectListScreen(),
             '/terms': (context) => const TermSelectionScreen(),
-            '/calendar': (context) => const CalendarMainScreen(),
-            '/games': (context) => const GamesHubScreen(),
-            '/memory': (context) => const MemoryScreen(),
-            '/quiz': (context) => const QuizScreen(),
           },
         );
       },
@@ -70,28 +61,24 @@ class Mou3adliApp extends StatelessWidget {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      scaffoldBackgroundColor: AppColors.background,
-      fontFamily: AppTextStyles.fontFamily,
+      scaffoldBackgroundColor: const Color(0xFFF5F7FB),
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.royalBlue,
+        seedColor: const Color(0xFF1C3F7A),
         brightness: Brightness.light,
-        primary: AppColors.royalBlue,
-        secondary: AppColors.matteGold,
+        primary: const Color(0xFF1C3F7A),
+        secondary: const Color(0xFFC5A059),
         surface: Colors.white,
-        background: AppColors.background,
-        onSurface: AppColors.textPrimary,
-        onBackground: AppColors.textPrimary,
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: TextStyle(
-          color: AppColors.textPrimary,
+          color: Color(0xFF1E293B),
           fontSize: 18,
           fontWeight: FontWeight.bold,
         ),
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: Color(0xFF1E293B)),
       ),
       cardTheme: CardTheme(
         color: Colors.white,
@@ -99,15 +86,15 @@ class Mou3adliApp extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
-            return AppColors.royalBlue;
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Color(0xFF1C3F7A);
           }
           return Colors.grey;
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
-            return AppColors.royalBlue.withOpacity(0.5);
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Color(0xFF1C3F7A).withOpacity(0.5);
           }
           return Colors.grey.withOpacity(0.3);
         }),
@@ -119,17 +106,13 @@ class Mou3adliApp extends StatelessWidget {
     return ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.darkBackground,
-      fontFamily: AppTextStyles.fontFamily,
+      scaffoldBackgroundColor: const Color(0xFF0F0F0F),
       colorScheme: ColorScheme.fromSeed(
-        seedColor: AppColors.royalBlue,
+        seedColor: const Color(0xFF1C3F7A),
         brightness: Brightness.dark,
-        primary: AppColors.royalBlueLight,
-        secondary: AppColors.matteGold,
-        surface: AppColors.darkSurface,
-        background: AppColors.darkBackground,
-        onSurface: Colors.white,
-        onBackground: Colors.white,
+        primary: const Color(0xFF3B82F6),
+        secondary: const Color(0xFFC5A059),
+        surface: const Color(0xFF1A1A1A),
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -143,20 +126,20 @@ class Mou3adliApp extends StatelessWidget {
         iconTheme: IconThemeData(color: Colors.white),
       ),
       cardTheme: CardTheme(
-        color: AppColors.darkSurface,
+        color: const Color(0xFF1A1A1A),
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       ),
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
-            return AppColors.royalBlueLight;
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Color(0xFF3B82F6);
           }
           return Colors.grey;
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
-            return AppColors.royalBlueLight.withOpacity(0.5);
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return const Color(0xFF3B82F6).withOpacity(0.5);
           }
           return Colors.grey.withOpacity(0.3);
         }),

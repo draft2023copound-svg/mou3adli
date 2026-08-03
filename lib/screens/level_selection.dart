@@ -1,99 +1,109 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
-import '../data/tunisian_curriculum.dart';
 import '../data/options_curriculum.dart';
-import '../widgets/custom_widgets.dart';
 import 'home_screen.dart';
 
 class LevelSelectionScreen extends StatefulWidget {
-  final bool isRegistering;
-  const LevelSelectionScreen({super.key, this.isRegistering = false});
+  const LevelSelectionScreen({super.key});
 
   @override
-  State createState() => _LevelSelectionScreenState();
+  State<LevelSelectionScreen> createState() => _LevelSelectionScreenState();
 }
 
-class _LevelSelectionScreenState extends State<LevelSelectionScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animController;
-
+class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _schoolCtrl = TextEditingController();
 
-  String _selectedCycle = 'college';
-  int _selectedClassIndex = 2;
+  String? _selectedClassLevel;
   String? _selectedStream;
   String? _selectedOption;
   bool _isLoading = false;
-  String? _error;
 
-  final List _collegeClasses = ['7ème Année', '8ème Année', '9ème Année'];
-  final List _lyceeClasses = ['1ère Année', '2ème Année', '3ème Année', '4ème Année'];
-  final List _collegeLevels = ['7eme', '8eme', '9eme'];
-  final List _lyceeLevels = ['1ere', '2eme', '3eme', '4eme'];
+  final List<String> _allClassLevels = [
+    '7eme', '8eme', '9eme',
+    '1ere', '2eme', '3eme', '4eme',
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    )..forward();
+  String _displayClassName(String level) {
+    final map = {
+      '7eme': '7ème Année de Base',
+      '8eme': '8ème Année de Base',
+      '9eme': '9ème Année de Base',
+      '1ere': '1ère Année Secondaire',
+      '2eme': '2ème Année Secondaire',
+      '3eme': '3ème Année Secondaire',
+      '4eme': 'Baccalauréat (4ème)',
+    };
+    return map[level] ?? level;
   }
 
-  @override
-  void dispose() {
-    _animController.dispose();
-    _nameCtrl.dispose();
-    _emailCtrl.dispose();
-    _schoolCtrl.dispose();
-    super.dispose();
+  String _displayStreamName(String stream) {
+    switch (stream) {
+      case 'commun': return 'Commun';
+      case 'pilote': return 'Pilote';
+      case 'general': return 'Tronc commun';
+      case 'sciences': return 'Sciences';
+      case 'lettres': return 'Lettres';
+      case 'economie': return 'Économie & Gestion';
+      case 'tech_info': return 'Technologie Info';
+      case 'math': return 'Mathématiques';
+      case 'sciences_exp': return 'Sciences Expérimentales';
+      case 'sciences_tech': return 'Sciences Techniques';
+      case 'sciences_info': return 'Sciences Informatiques';
+      case 'sport': return 'Sport';
+      default: return stream;
+    }
   }
 
-  List get _currentClassNames =>
-      _selectedCycle == 'college' ? _collegeClasses : _lyceeClasses;
-
-  List get _currentClassLevels =>
-      _selectedCycle == 'college' ? _collegeLevels : _lyceeLevels;
-
-  String get _currentClassLevel => _currentClassLevels[_selectedClassIndex];
-
-  List<Map<String, String>> get _availableStreams =>
-      TunisianCurriculum.getStreams(_currentClassLevel);
-
-  Future _handleSubmit() async {
+  Future<void> _register() async {
     if (_nameCtrl.text.trim().isEmpty ||
         _emailCtrl.text.trim().isEmpty ||
         _schoolCtrl.text.trim().isEmpty) {
-      setState(() => _error = 'Veuillez remplir tous les champs');
-      return;
-    }
-    if (_selectedStream == null) {
-      final bool isCollege = _selectedCycle == 'college';
-      setState(() => _error = isCollege
-          ? "Veuillez choisir un type d'établissement"
-          : "Veuillez choisir une section");
-      return;
-    }
-    if (_shouldShowOption() && _selectedOption == null) {
-      setState(() => _error = 'Veuillez choisir une option');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Veuillez remplir tous les champs")),
+      );
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
+    if (_selectedClassLevel == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Veuillez sélectionner une classe")),
+      );
+      return;
+    }
+
+    if (_selectedStream == null) {
+      final bool isCollege = _selectedClassLevel == '7eme' ||
+          _selectedClassLevel == '8eme' ||
+          _selectedClassLevel == '9eme';
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(isCollege
+            ? "❌ Veuillez choisir un type d'établissement"
+            : "❌ Veuillez sélectionner une section")),
+      );
+      return;
+    }
+
+    if (_shouldShowOption() && _selectedOption == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Veuillez choisir une option")),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
 
     final provider = context.read<AppProvider>();
     await provider.register(
       fullName: _nameCtrl.text.trim(),
       email: _emailCtrl.text.trim(),
       schoolName: _schoolCtrl.text.trim(),
-      cycle: _selectedCycle,
-      classLevel: _currentClassLevel,
+      cycle: _selectedClassLevel == '7eme' || _selectedClassLevel == '8eme' || _selectedClassLevel == '9eme'
+          ? 'college'
+          : 'lycee',
+      classLevel: _selectedClassLevel!,
       stream: _selectedStream,
       optionId: _selectedOption,
     );
@@ -101,421 +111,249 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen>
     setState(() => _isLoading = false);
 
     if (mounted) {
-      Navigator.pushAndRemoveUntil(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomeScreen()),
-        (route) => false,
       );
     }
   }
 
-  bool _shouldShowOption() {
-    return OptionCurriculum.hasOptions(_currentClassLevel, _selectedStream);
+  bool _shouldShowStream() {
+    return _selectedClassLevel == '7eme' ||
+        _selectedClassLevel == '8eme' ||
+        _selectedClassLevel == '9eme' ||
+        _selectedClassLevel == '1ere' ||
+        _selectedClassLevel == '2eme' ||
+        _selectedClassLevel == '3eme' ||
+        _selectedClassLevel == '4eme';
   }
 
-  Widget _buildTextField(String hint, IconData icon, TextEditingController ctrl,
-      {TextInputType? type}) {
+  bool _shouldShowOption() {
+    return OptionCurriculum.hasOptions(_selectedClassLevel ?? '', _selectedStream);
+  }
+
+  List<String> _getAvailableStreams() {
+    if (_selectedClassLevel == null) return [];
+    if (_selectedClassLevel == '7eme' || _selectedClassLevel == '8eme' || _selectedClassLevel == '9eme') {
+      return ['commun', 'pilote'];
+    }
+    if (_selectedClassLevel == '1ere') {
+      return ['general', 'sport'];
+    }
+    if (_selectedClassLevel == '2eme') {
+      return ['sciences', 'lettres', 'economie', 'tech_info', 'sport'];
+    }
+    if (_selectedClassLevel == '3eme' || _selectedClassLevel == '4eme') {
+      return ['sciences_exp', 'math', 'economie', 'sciences_info', 'sciences_tech', 'lettres', 'sport'];
+    }
+    return [];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = context.watch<AppProvider>().isDarkMode;
+    final bgColor = isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF5F7FB);
+    final surfaceColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+    final textPrimary = isDark ? Colors.white : const Color(0xFF1E293B);
+    final textSecondary = isDark ? Colors.grey.shade400 : const Color(0xFF64748B);
+    final textMuted = isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8);
+
+    return Scaffold(
+      backgroundColor: bgColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          "Créer un compte",
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary),
+        ),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded, color: textPrimary),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            _buildTextField('Nom complet', Icons.person_outline, _nameCtrl, surfaceColor, textPrimary, textMuted),
+            _buildTextField('Email', Icons.email_outlined, _emailCtrl, surfaceColor, textPrimary, textMuted),
+            _buildTextField('École', Icons.school_outlined, _schoolCtrl, surfaceColor, textPrimary, textMuted),
+            const SizedBox(height: 20),
+            _buildClassDropdown(surfaceColor, textPrimary, textSecondary, textMuted),
+            if (_shouldShowStream()) ...[
+              const SizedBox(height: 20),
+              _buildStreamDropdown(surfaceColor, textPrimary, textSecondary, textMuted),
+            ],
+            if (_shouldShowOption()) ...[
+              const SizedBox(height: 20),
+              _buildOptionDropdown(surfaceColor, textPrimary, textSecondary, textMuted),
+            ],
+            const SizedBox(height: 30),
+            ElevatedButton(
+              onPressed: _isLoading ? null : _register,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1C3F7A),
+                foregroundColor: Colors.white,
+                minimumSize: const Size.fromHeight(56),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              ),
+              child: _isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text('Créer mon compte', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField(String hint, IconData icon, TextEditingController ctrl, Color surfaceColor, Color textPrimary, Color textMuted) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F7FB),
+        color: surfaceColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade200),
       ),
       child: TextField(
         controller: ctrl,
-        keyboardType: type ?? TextInputType.text,
+        style: TextStyle(color: textPrimary),
         decoration: InputDecoration(
           hintText: hint,
-          prefixIcon: Icon(icon, color: kRoyalBlue),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
-          ),
+          hintStyle: TextStyle(color: textMuted),
+          prefixIcon: Icon(icon, color: const Color(0xFF1C3F7A)),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         ),
       ),
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12, top: 8),
-      child: Text(
-        title,
-        style: const TextStyle(
-          fontWeight: FontWeight.w800,
-          fontSize: 16,
-          color: Color(0xFF263238),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildToggleRow(List<String> options, String selected, Function(String) onSelect,
-      {List<String>? values}) {
-    return Row(
-      children: List.generate(options.length, (i) {
-        final isSelected = selected == (values != null ? values[i] : options[i]);
-        return Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(right: i < options.length - 1 ? 12 : 0),
-            child: GestureDetector(
-              onTap: () => setState(() {
-                onSelect(values != null ? values[i] : options[i]);
-                _selectedStream = null;
-                _selectedOption = null;
-              }),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                curve: Curves.easeOut,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                decoration: BoxDecoration(
-                  color: isSelected ? kRoyalBlue : Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                  border: Border.all(
-                    color: isSelected ? kRoyalBlue : Colors.grey.shade300,
-                    width: 1.5,
-                  ),
-                  boxShadow: isSelected
-                      ? [
-                          BoxShadow(
-                            color: kRoyalBlue.withOpacity(.2),
-                            blurRadius: 12,
-                            offset: const Offset(0, 4),
-                          )
-                        ]
-                      : null,
-                ),
-                child: Center(
-                  child: Text(
-                    options[i],
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.grey.shade700,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }),
-    );
-  }
-
-  Widget _buildClassCard(int index, String name) {
-    final isSelected = _selectedClassIndex == index;
-    return GestureDetector(
-      onTap: () => setState(() {
-        _selectedClassIndex = index;
-        _selectedStream = null;
-        _selectedOption = null;
-      }),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOut,
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isSelected ? kRoyalBlue : Colors.transparent,
-            width: 2.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? kRoyalBlue.withOpacity(.12)
-                  : Colors.black.withOpacity(.04),
-              blurRadius: isSelected ? 20 : 10,
-              offset: const Offset(0, 6),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: isSelected ? kRoyalBlue.withOpacity(.1) : const Color(0xFFEEF2F6),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.school,
-                color: isSelected ? kRoyalBlue : Colors.grey.shade500,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: isSelected ? kRoyalBlue : Colors.black87,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _selectedCycle == 'college' ? 'Collège' : 'Lycée',
-                    style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
-                  ),
-                ],
-              ),
-            ),
-            if (isSelected)
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: kRoyalBlue.withOpacity(.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.check, color: kRoyalBlue, size: 18),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStreamSelector() {
-    final streams = _availableStreams;
-    if (streams.isEmpty) return const SizedBox.shrink();
-
-    final bool isCollege = _selectedCycle == 'college';
-    final String label = isCollege ? "Type d'établissement" : "Section";
-
+  Widget _buildClassDropdown(Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(label),
-        const SizedBox(height: 4),
-        ...streams.map((s) {
-          final isSelected = _selectedStream == s['id'];
-          return GestureDetector(
-            onTap: () => setState(() {
-              _selectedStream = s['id'];
-              _selectedOption = null;
-            }),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              decoration: BoxDecoration(
-                color: isSelected ? kRoyalBlue.withOpacity(.06) : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isSelected ? kRoyalBlue : Colors.grey.shade200,
-                  width: isSelected ? 2 : 1,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 22,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isSelected ? kRoyalBlue : Colors.grey.shade400,
-                        width: 2,
-                      ),
-                      color: isSelected ? kRoyalBlue : Colors.transparent,
-                    ),
-                    child: isSelected
-                        ? const Icon(Icons.check, size: 14, color: Colors.white)
-                        : null,
-                  ),
-                  const SizedBox(width: 14),
-                  Text(
-                    s['name']!,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: isSelected ? kRoyalBlue : Colors.black87,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
+        Text('Classe', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
         const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: _selectedClassLevel,
+          isExpanded: true,
+          dropdownColor: surfaceColor,
+          style: TextStyle(color: textPrimary),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: surfaceColor,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            hintText: "Sélectionnez votre classe",
+            hintStyle: TextStyle(color: textMuted),
+          ),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+          items: _allClassLevels.map((level) {
+            return DropdownMenuItem(value: level, child: Text(_displayClassName(level), style: TextStyle(color: textPrimary)));
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedClassLevel = value;
+              _selectedStream = null;
+              _selectedOption = null;
+            });
+          },
+        ),
       ],
     );
   }
 
-  Widget _buildOptionSelector() {
+  Widget _buildStreamDropdown(Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted) {
+    final streams = _getAvailableStreams();
+    if (streams.isEmpty) return const SizedBox.shrink();
+
+    final bool isCollege = _selectedClassLevel == '7eme' ||
+        _selectedClassLevel == '8eme' ||
+        _selectedClassLevel == '9eme';
+    final String label = isCollege ? "Type d'établissement" : "Section";
+    final String hint = isCollege
+        ? "Choisissez votre type d'établissement"
+        : "Sélectionnez votre section";
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
+        const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: _selectedStream,
+          isExpanded: true,
+          dropdownColor: surfaceColor,
+          style: TextStyle(color: textPrimary),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: surfaceColor,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            hintText: hint,
+            hintStyle: TextStyle(color: textMuted),
+          ),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+          items: streams.map((stream) {
+            return DropdownMenuItem(value: stream, child: Text(_displayStreamName(stream), style: TextStyle(color: textPrimary)));
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedStream = value;
+              _selectedOption = null;
+            });
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOptionDropdown(Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted) {
     final options = OptionCurriculum.getAllOptions();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle('Option'),
-        const SizedBox(height: 4),
-        ...options.map((opt) {
-          final isSelected = _selectedOption == opt['id'];
-          return GestureDetector(
-            onTap: () => setState(() => _selectedOption = opt['id'] as String),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              decoration: BoxDecoration(
-                color: isSelected ? kRoyalBlue.withOpacity(.06) : Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: isSelected ? kRoyalBlue : Colors.grey.shade200,
-                  width: isSelected ? 2 : 1,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(.03),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 22,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isSelected ? kRoyalBlue : Colors.grey.shade400,
-                        width: 2,
-                      ),
-                      color: isSelected ? kRoyalBlue : Colors.transparent,
-                    ),
-                    child: isSelected
-                        ? const Icon(Icons.check, size: 14, color: Colors.white)
-                        : null,
-                  ),
-                  const SizedBox(width: 14),
-                  Text(
-                    opt['nameFr'] as String,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: isSelected ? kRoyalBlue : Colors.black87,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        }),
+        Text("Option", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
         const SizedBox(height: 8),
+        DropdownButtonFormField<String>(
+          value: _selectedOption,
+          isExpanded: true,
+          dropdownColor: surfaceColor,
+          style: TextStyle(color: textPrimary),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: surfaceColor,
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            hintText: "Choisissez votre option",
+            hintStyle: TextStyle(color: textMuted),
+          ),
+          icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey),
+          items: options.map((opt) {
+            return DropdownMenuItem(
+              value: opt['id'] as String,
+              child: Text(opt['nameFr'] as String, style: TextStyle(color: textPrimary)),
+            );
+          }).toList(),
+          onChanged: (value) {
+            setState(() {
+              _selectedOption = value;
+            });
+          },
+        ),
       ],
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF6F8FC),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        surfaceTintColor: Colors.transparent,
-        centerTitle: true,
-        title: const Text(
-          'Créer mon compte',
-          style: TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w800,
-            color: Colors.black87,
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-          children: [
-            _buildSectionTitle('Informations personnelles'),
-            _buildTextField('Nom complet', Icons.person_outline, _nameCtrl),
-            _buildTextField('Email', Icons.email_outlined, _emailCtrl,
-                type: TextInputType.emailAddress),
-            _buildTextField('Établissement scolaire', Icons.school_outlined, _schoolCtrl),
-
-            const SizedBox(height: 8),
-
-            _buildSectionTitle('Cycle'),
-            _buildToggleRow(
-              ['Collège', 'Lycée'],
-              _selectedCycle,
-              (v) => setState(() {
-                _selectedCycle = v;
-                _selectedClassIndex = 0;
-                _selectedStream = null;
-                _selectedOption = null;
-              }),
-              values: ['college', 'lycee'],
-            ),
-
-            const SizedBox(height: 20),
-
-            _buildSectionTitle('Classe'),
-            ...List.generate(_currentClassNames.length, (i) => _buildClassCard(i, _currentClassNames[i])),
-
-            const SizedBox(height: 16),
-            _buildStreamSelector(),
-
-            if (_shouldShowOption()) ...[
-              const SizedBox(height: 16),
-              _buildOptionSelector(),
-            ],
-
-            const SizedBox(height: 24),
-
-            if (_error != null)
-              Container(
-                margin: const EdgeInsets.only(bottom: 16),
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: Colors.red.shade200),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.error_outline, color: Colors.red.shade400, size: 22),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        _error!,
-                        style: TextStyle(color: Colors.red.shade700, fontSize: 14, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            CustomButton(
-              text: _isLoading ? 'Création en cours...' : 'Continuer',
-              onPressed: _isLoading ? null : _handleSubmit,
-            ),
-
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
-    );
+  void dispose() {
+    _nameCtrl.dispose();
+    _emailCtrl.dispose();
+    _schoolCtrl.dispose();
+    super.dispose();
   }
 }

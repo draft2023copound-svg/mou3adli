@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import '../widgets/custom_widgets.dart' as cw;
-import '../screens/subject_list_screen.dart';
-import '../screens/profile_screen.dart';
+import 'package:provider/provider.dart';
+import '../providers/app_provider.dart';
 
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -15,98 +14,58 @@ class CustomBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 90,
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              height: 70,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    offset: Offset(0, -4),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildNavItem(
-                    context,
-                    index: 0,
-                    icon: Icons.home_rounded,
-                    label: 'Accueil',
-                    onTap: () => onTap(0),
-                  ),
-                  _buildNavItem(
-                    context,
-                    index: 1,
-                    icon: Icons.menu_book_rounded,
-                    label: 'Matières',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const SubjectListScreen()),
-                    ),
-                  ),
-                  const SizedBox(width: 40),
-                  _buildNavItem(
-                    context,
-                    index: 3,
-                    icon: Icons.bar_chart_rounded,
-                    label: 'Stats',
-                    onTap: () => onTap(3),
-                  ),
-                  _buildNavItem(
-                    context,
-                    index: 4,
-                    icon: Icons.person_outline_rounded,
-                    label: 'Profil',
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ProfileScreen()),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+    final isDark = context.watch<AppProvider>().isDarkMode;
+    final bgColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
+    final inactiveColor = isDark ? Colors.grey.shade500 : Colors.grey.shade400;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: bgColor,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 20,
+            offset: const Offset(0, -5),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const SubjectListScreen()),
-              ),
-              child: Container(
-                width: 60,
-                height: 60,
-                margin: const EdgeInsets.only(bottom: 10),
-                decoration: BoxDecoration(
-                  color: cw.kRoyalBlue,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: cw.kRoyalBlue.withOpacity(0.4),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.calculate_rounded,
-                  color: Colors.white,
-                  size: 32,
-                ),
-              ),
+        ],
+      ),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildNavItem(Icons.home_rounded, 'Accueil', 0, inactiveColor),
+              _buildNavItem(Icons.menu_book_rounded, 'Notes', 1, inactiveColor),
+              _buildFabButton(),
+              _buildNavItem(Icons.calendar_month_rounded, 'Agenda', 3, inactiveColor),
+              _buildNavItem(Icons.person_rounded, 'Profil', 4, inactiveColor),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(IconData icon, String label, int index, Color inactiveColor) {
+    final isSelected = currentIndex == index;
+    return GestureDetector(
+      onTap: () => onTap(index),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: isSelected ? const Color(0xFF1C3F7A) : inactiveColor,
+            size: 24,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? const Color(0xFF1C3F7A) : inactiveColor,
+              fontSize: 11,
+              fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
             ),
           ),
         ],
@@ -114,34 +73,30 @@ class CustomBottomNav extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(
-    BuildContext context, {
-    required int index,
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    bool isSelected = currentIndex == index;
+  Widget _buildFabButton() {
     return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: isSelected ? cw.kRoyalBlue : Colors.grey.shade400,
-            size: 28,
+      onTap: () => onTap(2),
+      child: Container(
+        width: 56,
+        height: 56,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1C3F7A), Color(0xFF2A5FA8)],
           ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: isSelected ? cw.kRoyalBlue : Colors.grey.shade400,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF1C3F7A).withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+          size: 28,
+        ),
       ),
     );
   }
