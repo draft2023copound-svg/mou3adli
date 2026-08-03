@@ -242,10 +242,11 @@ class TunisianCurriculum {
     Evaluation(id: 'ds_texte', nameFr: 'DS - Étude de texte', nameAr: 'الفرض التأليفي - دراسة النص', weight: 2),
   ];
 
+  // ✅ FRANÇAIS & ANGLAIS : Devoirs de contrôle spécifiques (pas DC1/DC2)
   static List<Evaluation> _evalsLangue() => [
-    Evaluation(id: 'dc1', nameFr: 'Contrôle continu n°1', nameAr: 'فرض المراقبة عدد 1', weight: 1),
-    Evaluation(id: 'dc2', nameFr: 'Contrôle continu n°2', nameAr: 'فرض المراقبة عدد 2', weight: 1),
-    Evaluation(id: 'oral', nameFr: 'Oral', nameAr: 'الشفوي', weight: 1),
+    Evaluation(id: 'dc_oral', nameFr: 'DC - Oral', nameAr: 'فرض المراقبة - الشفوي', weight: 1),
+    Evaluation(id: 'dc_texte', nameFr: 'DC - Étude de texte', nameAr: 'فرض المراقبة - دراسة النص', weight: 1),
+    Evaluation(id: 'dc_redac', nameFr: 'DC - Rédaction', nameAr: 'فرض المراقبة - الإنشاء', weight: 1),
     Evaluation(id: 'ds', nameFr: 'Devoir de synthèse', nameAr: 'الفرض التأليفي', weight: 2),
   ];
 
