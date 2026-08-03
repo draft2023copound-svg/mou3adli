@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
+import '../models/subject_model.dart';
 
 class GradeEntryScreen extends StatefulWidget {
   final String termId;
@@ -28,7 +29,9 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
   void _loadGrades() {
     final provider = context.read<AppProvider>();
     final term = provider.terms.firstWhere((t) => t.id == widget.termId);
-    final subject = term.subjects.firstWhere((s) => s.id == widget.subjectId);
+    // CORRECTION : cast explicite
+    final List<Subject> subjects = term.subjects.cast<Subject>();
+    final subject = subjects.firstWhere((s) => s.id == widget.subjectId);
 
     for (final eval in subject.evaluations) {
       _controllers[eval.id] = TextEditingController(
@@ -74,7 +77,9 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
       : Colors.black.withOpacity(0.04);
 
     final term = provider.terms.firstWhere((t) => t.id == widget.termId);
-    final subject = term.subjects.firstWhere((s) => s.id == widget.subjectId);
+    // CORRECTION : cast explicite
+    final List<Subject> subjects = term.subjects.cast<Subject>();
+    final subject = subjects.firstWhere((s) => s.id == widget.subjectId);
     final avg = subject.average;
 
     return Scaffold(

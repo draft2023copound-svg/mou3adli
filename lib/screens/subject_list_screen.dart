@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
+import '../models/subject_model.dart';
 import 'grade_entry_screen.dart';
 
 class SubjectListScreen extends StatelessWidget {
@@ -20,7 +21,8 @@ class SubjectListScreen extends StatelessWidget {
       : Colors.black.withOpacity(0.04);
 
     final term = provider.currentTerm;
-    final subjects = term?.subjects ?? [];
+    // CORRECTION : cast explicite
+    final List<Subject> subjects = term?.subjects.cast<Subject>() ?? [];
 
     return Scaffold(
       backgroundColor: bgColor,

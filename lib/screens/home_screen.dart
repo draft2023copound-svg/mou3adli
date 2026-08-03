@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
+import '../models/subject_model.dart';
 import '../navigation/custom_bottom_nav.dart';
 import 'profile_screen.dart';
 import 'subject_list_screen.dart';
@@ -368,11 +369,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSubjectsSection(dynamic term, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
     if (term == null) return const SizedBox.shrink();
 
-    final topSubjects = term.subjects
+    // CORRECTION : cast explicite en List<Subject>
+    final List<Subject> allSubjects = term.subjects.cast<Subject>();
+    final topSubjects = allSubjects
         .where((s) => s.average > 0)
         .toList()
-      ..sort((a, b) => b.average.compareTo(a.average))
-      ..take(3).toList();
+      ..sort((a, b) => b.average.compareTo(a.average));
+    final displaySubjects = topSubjects.take(3).toList();
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -408,7 +411,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          if (topSubjects.isEmpty)
+          if (displaySubjects.isEmpty)
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
@@ -448,13 +451,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             )
           else
-            ...topSubjects.map((subject) => _subjectItem(subject, surfaceColor, textPrimary, textSecondary, cardShadow)),
+            ...displaySubjects.map((subject) => _subjectItem(subject, surfaceColor, textPrimary, textSecondary, cardShadow)),
         ],
       ),
     );
   }
 
-  Widget _subjectItem(dynamic subject, Color surfaceColor, Color textPrimary, Color textSecondary, Color cardShadow) {
+  Widget _subjectItem(Subject subject, Color surfaceColor, Color textPrimary, Color textSecondary, Color cardShadow) {
     final avg = subject.average;
     final progress = avg / 20;
     final color = avg >= 16 ? Colors.green : avg >= 12 ? Colors.orange : Colors.red;

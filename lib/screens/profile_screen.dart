@@ -965,7 +965,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: 25),
           Text(
-            avg > 0 ? avg.toStringAsFixed(2) + " /20" : "-- /20",
+            avg > 0 ? "${avg.toStringAsFixed(2)} /20" : "-- /20",
             style: TextStyle(fontSize: 34, fontWeight: FontWeight.w900, color: textPrimary),
           ),
           const SizedBox(height: 6),

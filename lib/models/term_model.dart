@@ -16,28 +16,28 @@ class Term {
     required this.subjects,
     this.startDate,
     this.endDate,
-    this.isActive = false,
+    this.isActive = true,
   });
 
   double get generalAverage {
     double totalWeighted = 0;
-    double totalCoeff = 0;
+    double totalCoef = 0;
     for (final s in subjects) {
       final avg = s.average;
       if (avg > 0) {
         totalWeighted += avg * s.coefficient;
-        totalCoeff += s.coefficient;
+        totalCoef += s.coefficient;
       }
     }
-    if (totalCoeff == 0) return 0;
-    return totalWeighted / totalCoeff;
+    if (totalCoef == 0) return 0;
+    return totalWeighted / totalCoef;
   }
 
-  int get completedSubjects => subjects.where((s) => s.isComplete).length;
-
+  int get completedSubjects => subjects.where((s) => s.average > 0).length;
   int get totalSubjects => subjects.length;
 
   double get progress {
+    if (subjects.isEmpty) return 0;
     int totalEvals = 0;
     int filledEvals = 0;
     for (final s in subjects) {
@@ -49,22 +49,35 @@ class Term {
   }
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'nameFr': nameFr,
-        'nameAr': nameAr,
-        'subjects': subjects.map((s) => s.toJson()).toList(),
-        'startDate': startDate?.toIso8601String(),
-        'endDate': endDate?.toIso8601String(),
-        'isActive': isActive,
-      };
+    'id': id,
+    'nameFr': nameFr,
+    'nameAr': nameAr,
+    'subjects': subjects.map((s) => s.toJson()).toList(),
+    'startDate': startDate?.toIso8601String(),
+    'endDate': endDate?.toIso8601String(),
+    'isActive': isActive,
+  };
 
   factory Term.fromJson(Map<String, dynamic> json) => Term(
-        id: json['id'],
-        nameFr: json['nameFr'],
-        nameAr: json['nameAr'],
-        subjects: (json['subjects'] as List).map((s) => Subject.fromJson(s)).toList(),
-        startDate: json['startDate'] != null ? DateTime.parse(json['startDate']) : null,
-        endDate: json['endDate'] != null ? DateTime.parse(json['endDate']) : null,
-        isActive: json['isActive'] ?? false,
-      );
+    id: json['id'],
+    nameFr: json['nameFr'],
+    nameAr: json['nameAr'],
+    subjects: (json['subjects'] as List).map((s) => Subject.fromJson(s)).toList(),
+    startDate: json['startDate'] != null ? DateTime.parse(json['startDate']) : null,
+    endDate: json['endDate'] != null ? DateTime.parse(json['endDate']) : null,
+    isActive: json['isActive'] ?? true,
+  );
+
+  Term copyWith({
+    List<Subject>? subjects,
+    bool? isActive,
+  }) => Term(
+    id: id,
+    nameFr: nameFr,
+    nameAr: nameAr,
+    subjects: subjects ?? this.subjects,
+    startDate: startDate,
+    endDate: endDate,
+    isActive: isActive ?? this.isActive,
+  );
 }
