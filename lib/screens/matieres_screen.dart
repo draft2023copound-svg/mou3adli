@@ -35,11 +35,7 @@ class MatieresScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     "Aucun trimestre sélectionné",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: textSecondary,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: textSecondary),
                   ),
                 ],
               ),
@@ -47,14 +43,15 @@ class MatieresScreen extends StatelessWidget {
           );
         }
 
-        // Cast explicite avec type
         final List<Subject> subjects = term.subjects.cast<Subject>();
 
         // Trier par coefficient décroissant
         final sortedSubjects = List<Subject>.of(subjects)
           ..sort((a, b) => b.coefficient.compareTo(a.coefficient));
 
-        // Stats en haut
+        // ═══════════════════════════════════════════════════
+        // 3 INFOS FLOTTANTES EN HAUT
+        // ═══════════════════════════════════════════════════
         final totalCoeff = sortedSubjects.fold(
           0.0, (sum, s) => sum + s.coefficient.toDouble(),
         );
@@ -67,9 +64,7 @@ class MatieresScreen extends StatelessWidget {
         final displayClass = user?.displayClass ?? '';
         final displayStream = user?.displayStream ?? '';
         final classLevel = user?.classLevel ?? '';
-        final hasStream = classLevel == '2eme' ||
-            classLevel == '3eme' ||
-            classLevel == '4eme';
+        final hasStream = classLevel == '2eme' || classLevel == '3eme' || classLevel == '4eme';
         final title = (hasStream && displayStream.isNotEmpty)
             ? '$displayClass — $displayStream'
             : displayClass;
@@ -82,11 +77,7 @@ class MatieresScreen extends StatelessWidget {
             centerTitle: true,
             title: Text(
               'Matières',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
-                color: textPrimary,
-              ),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: textPrimary),
             ),
             leading: IconButton(
               icon: Icon(Icons.arrow_back_ios_new_rounded, color: textPrimary),
@@ -97,26 +88,18 @@ class MatieresScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 8),
 
-              // ═══════════════════════════════════════════════════
-              // BADGE CLASSE — CORRIGÉ ✅ (parenthèse fermée)
-              // ═══════════════════════════════════════════════════
+              // Badge classe
               Center(
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
                     color: const Color(0xFF1C3F7A).withOpacity(.08),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: const Color(0xFF1C3F7A).withOpacity(.15),
-                    ),
-                  ), // ✅ PARENTHÈSE FERMANTE AJOUTÉE
+                    border: Border.all(color: const Color(0xFF1C3F7A).withOpacity(.15)),
+                  ),
                   child: Text(
                     title.isNotEmpty ? title : 'Matières du trimestre',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF1C3F7A),
-                    ),
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1C3F7A)),
                   ),
                 ),
               ),
@@ -124,7 +107,7 @@ class MatieresScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               // ═══════════════════════════════════════════════════
-              // RÉCAPITULATIF : Somme coef + Max coef + Nbr matières
+              // 3 CARTES STATS FLOTTANTES
               // ═══════════════════════════════════════════════════
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -175,7 +158,7 @@ class MatieresScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               // ═══════════════════════════════════════════════════
-              // LISTE DES MATIÈRES
+              // LISTE DES MATIÈRES — VISUEL UNIQUEMENT
               // ═══════════════════════════════════════════════════
               Expanded(
                 child: ListView.builder(
@@ -188,11 +171,11 @@ class MatieresScreen extends StatelessWidget {
                       maxCoeff: maxCoeff,
                       surfaceColor: surfaceColor,
                       textPrimary: textPrimary,
-                      textSecondary: textSecondary,
                       textMuted: textMuted,
                       cardShadow: cardShadow,
-                      isDark: isDark, // ✅ PASSÉ EN PARAMÈTRE
+                      isDark: isDark,
                       onTap: () {
+                        // Tap → GradeEntryScreen (pas de saisie ici)
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -216,7 +199,7 @@ class MatieresScreen extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // CARTE RÉCAPITULATIVE (en haut) — CORRIGÉ ✅
+  // CARTE RÉCAPITULATIVE (3 en haut)
   // ═══════════════════════════════════════════════════════════
   Widget _buildSummaryCard({
     required IconData icon,
@@ -225,7 +208,7 @@ class MatieresScreen extends StatelessWidget {
     required Color color,
     required Color surfaceColor,
     required Color textPrimary,
-    required Color textSecondary, // ✅ AJOUTÉ
+    required Color textSecondary,
     required Color cardShadow,
   }) {
     return Container(
@@ -234,11 +217,7 @@ class MatieresScreen extends StatelessWidget {
         color: surfaceColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(
-            color: cardShadow,
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
+          BoxShadow(color: cardShadow, blurRadius: 12, offset: const Offset(0, 6)),
         ],
       ),
       child: Column(
@@ -247,21 +226,13 @@ class MatieresScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             value,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w900,
-              color: textPrimary,
-            ),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: textPrimary),
           ),
           const SizedBox(height: 4),
           Text(
             label,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 11,
-              color: textSecondary, // ✅ DÉFINI
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(fontSize: 11, color: textSecondary, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -269,17 +240,16 @@ class MatieresScreen extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // CARTE MATIÈRE — CORRIGÉ ✅ (isDark passé en paramètre)
+  // CARTE MATIÈRE — Identique à la maquette, VISUEL UNIQUEMENT
   // ═══════════════════════════════════════════════════════════
   Widget _buildMatiereCard({
     required Subject subject,
     required double maxCoeff,
     required Color surfaceColor,
     required Color textPrimary,
-    required Color textSecondary,
     required Color textMuted,
     required Color cardShadow,
-    required bool isDark, // ✅ AJOUTÉ
+    required bool isDark,
     required VoidCallback onTap,
   }) {
     final coeff = subject.coefficient.toDouble();
@@ -296,11 +266,7 @@ class MatieresScreen extends StatelessWidget {
           color: surfaceColor,
           borderRadius: BorderRadius.circular(18),
           boxShadow: [
-            BoxShadow(
-              color: cardShadow,
-              blurRadius: 12,
-              offset: const Offset(0, 6),
-            ),
+            BoxShadow(color: cardShadow, blurRadius: 12, offset: const Offset(0, 6)),
           ],
         ),
         child: Column(
@@ -329,19 +295,12 @@ class MatieresScreen extends StatelessWidget {
                     children: [
                       Text(
                         subject.nameFr,
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.w700,
-                          color: textPrimary,
-                        ),
+                        style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: textPrimary),
                       ),
                       if (subject.nameAr.isNotEmpty)
                         Text(
                           subject.nameAr,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: textMuted,
-                          ),
+                          style: TextStyle(fontSize: 13, color: textMuted),
                           textDirection: TextDirection.rtl,
                         ),
                     ],
@@ -353,17 +312,11 @@ class MatieresScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: const Color(0xFFF5F7FB),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: const Color(0xFF1C3F7A).withOpacity(0.15),
-                    ),
+                    border: Border.all(color: const Color(0xFF1C3F7A).withOpacity(0.15)),
                   ),
                   child: Text(
                     coeff.toStringAsFixed(1),
-                    style: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1C3F7A),
-                    ),
+                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF1C3F7A)),
                   ),
                 ),
               ],
@@ -375,9 +328,7 @@ class MatieresScreen extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: progress,
                 minHeight: 6,
-                backgroundColor: isDark // ✅ DÉFINI
-                    ? Colors.grey.shade800
-                    : Colors.grey.shade100,
+                backgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
                 valueColor: AlwaysStoppedAnimation(
                   coeff >= 4
                       ? const Color(0xFFC5A059)
@@ -389,17 +340,13 @@ class MatieresScreen extends StatelessWidget {
                 ),
               ),
             ),
-            // Note moyenne de la matière (si elle existe)
+            // Moyenne de la matière (si remplie dans GradeEntry)
             if (hasGrades)
               Padding(
                 padding: const EdgeInsets.only(top: 10),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.grade_rounded,
-                      size: 16,
-                      color: avg >= 12 ? Colors.green : Colors.orange,
-                    ),
+                    Icon(Icons.grade_rounded, size: 16, color: avg >= 12 ? Colors.green : Colors.orange),
                     const SizedBox(width: 6),
                     Text(
                       'Moyenne: ${avg.toStringAsFixed(2)}/20',
@@ -411,11 +358,8 @@ class MatieresScreen extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      'Appuyez pour modifier',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: textMuted,
-                      ),
+                      'Appuyez pour modifier les notes',
+                      style: TextStyle(fontSize: 11, color: textMuted),
                     ),
                   ],
                 ),

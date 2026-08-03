@@ -19,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+  final int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -167,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════
-  // FAB CALCULATRICE → Ouvre GradeEntryScreen ✅
+  // FAB CALCULATRICE 🧮 → GradeEntryScreen (toutes les matières)
   // ═══════════════════════════════════════════════════════════
   void _openGradeEntry(BuildContext context, AppProvider provider) {
     final term = provider.currentTerm;
@@ -181,17 +181,13 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    // CORRECTION ✅ : cast explicite
-    final List<Subject> subjects = term.subjects.cast<Subject>();
-    final firstSubject = subjects.first;
-
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => GradeEntryScreen(
           termId: term.id,
-          subjectId: firstSubject.id,
-          subjectName: firstSubject.nameFr,
+          subjectId: '',
+          subjectName: 'Toutes les matières',
         ),
       ),
     );
