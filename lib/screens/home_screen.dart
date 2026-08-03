@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import '../models/subject_model.dart';
 import '../navigation/custom_bottom_nav.dart';
-import '../calendar_new/calendar_main_screen.dart';
+import 'statistics_screen.dart';
 import '../game/screens/games_hub_screen.dart';
 import 'profile_screen.dart';
 import 'subject_list_screen.dart';
@@ -19,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final int _currentIndex = 0;
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
             // ═══════════════════════════════════════════════════
             _openGradeEntry(context, provider);
           } else if (index == 3) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const CalendarMainScreen()));
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const StatisticsScreen()));
           } else if (index == 4) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfileScreen()));
           }
@@ -183,13 +183,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => GradeEntryScreen(
-          termId: term.id,
-          subjectId: '',
-          subjectName: 'Toutes les matières',
-        ),
-      ),
+      MaterialPageRoute(builder: (_) => GradeEntryScreen(termId: term.id)),
     );
   }
 
@@ -595,9 +589,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildQuickNav(Color surfaceColor, Color textPrimary, Color textSecondary, Color cardShadow) {
     final items = [
       {
-        'icon': Icons.calendar_month,
-        'label': 'Calendrier',
-        'screen': const CalendarMainScreen(),
+        'icon': Icons.bar_chart_rounded,
+        'label': 'Statistiques',
+        'screen': const StatisticsScreen(),
       },
       {
         'icon': Icons.videogame_asset,

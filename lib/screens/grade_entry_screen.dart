@@ -9,14 +9,10 @@ import '../models/evaluation_model.dart';
 // ═══════════════════════════════════════════════════════════
 class GradeEntryScreen extends StatefulWidget {
   final String termId;
-  final String subjectId;
-  final String subjectName;
 
   const GradeEntryScreen({
     super.key,
     required this.termId,
-    required this.subjectId,
-    required this.subjectName,
   });
 
   @override

@@ -179,11 +179,7 @@ class MatieresScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => GradeEntryScreen(
-                              termId: term.id,
-                              subjectId: subject.id,
-                              subjectName: subject.nameFr,
-                            ),
+                            builder: (_) => GradeEntryScreen(termId: term.id),
                           ),
                         );
                       },

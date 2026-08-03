@@ -96,8 +96,6 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
           MaterialPageRoute(
             builder: (_) => GradeEntryScreen(
               termId: context.read<AppProvider>().currentTerm?.id ?? '',
-              subjectId: subject.id,
-              subjectName: subject.nameFr,
             ),
           ),
         );

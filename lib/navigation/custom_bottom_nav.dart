@@ -36,9 +36,9 @@ class CustomBottomNav extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               _buildNavItem(Icons.home_rounded, 'Accueil', 0, inactiveColor),
-              _buildNavItem(Icons.school_rounded, 'Matières', 1, inactiveColor), // ✅ CHANGÉ : Notes → Matières
-              _buildFabButton(), // ✅ CHANGÉ : + → 🧮 calculatrice
-              _buildNavItem(Icons.calendar_month_rounded, 'Agenda', 3, inactiveColor),
+              _buildNavItem(Icons.school_rounded, 'Matières', 1, inactiveColor),
+              _buildFabButton(),
+              _buildNavItem(Icons.bar_chart_rounded, 'Statistiques', 3, inactiveColor), // ✅ CHANGÉ : Agenda → Statistiques
               _buildNavItem(Icons.person_rounded, 'Profil', 4, inactiveColor),
             ],
           ),
@@ -73,9 +73,6 @@ class CustomBottomNav extends StatelessWidget {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // FAB CALCULATRICE 🧮 — mène à GradeEntryScreen (index 2)
-  // ═══════════════════════════════════════════════════════════
   Widget _buildFabButton() {
     return GestureDetector(
       onTap: () => onTap(2),
@@ -96,7 +93,7 @@ class CustomBottomNav extends StatelessWidget {
           ],
         ),
         child: const Icon(
-          Icons.calculate_rounded, // ✅ CHANGÉ : Icons.add → Icons.calculate_rounded
+          Icons.calculate_rounded,
           color: Colors.white,
           size: 28,
         ),
