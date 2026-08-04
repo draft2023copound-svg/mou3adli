@@ -389,7 +389,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       crossAxisCount: 2,
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
-      childAspectRatio: 1.45,
+      childAspectRatio: 1.8,
       children: [
         _premiumCard(
           icon: Icons.menu_book_rounded,
@@ -444,27 +444,28 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 52,
-            height: 52,
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
               color: color.withOpacity(.12),
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               icon,
               color: color,
-              size: 28,
+              size: 26,
             ),
           ),
-          const Spacer(),
+          const SizedBox(height: 12),
           Text(
             value,
             style: const TextStyle(
               fontWeight: FontWeight.w900,
-              fontSize: 30,
+              fontSize: 26,
             ),
           ),
           Text(
@@ -472,15 +473,15 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             style: TextStyle(
               fontWeight: FontWeight.w700,
               color: Colors.grey.shade800,
-              fontSize: 15,
+              fontSize: 14,
             ),
           ),
-          const SizedBox(height: 3),
+          const SizedBox(height: 2),
           Text(
             subtitle,
             style: TextStyle(
               color: Colors.grey.shade500,
-              fontSize: 13,
+              fontSize: 12,
             ),
           ),
         ],
