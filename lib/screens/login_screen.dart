@@ -64,8 +64,8 @@ class _LoginScreenState extends State<LoginScreen> {
               Center(
                 child: Image.asset(
                   'assets/images/logo.png',
-                  width: 120,
-                  height: 120,
+                  width: 200,
+                  height: 200,
                 ),
               ),
               const SizedBox(height: 24),
@@ -73,8 +73,8 @@ class _LoginScreenState extends State<LoginScreen> {
               Center(
                 child: Image.asset(
                   'assets/images/boy.png',
-                  width: 200,
-                  height: 200,
+                  width: 250,
+                  height: 250,
                   fit: BoxFit.contain,
                 ),
               ),
