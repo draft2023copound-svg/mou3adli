@@ -6,6 +6,7 @@ import 'home_screen.dart';
 import 'term_selection_screen.dart';
 import 'edit_profile_screen.dart';
 import 'settings_screen.dart';
+import 'login_screen.dart';
 
 const Color kPrimary = Color(0xFF1C3F7A);
 const Color kSecondary = Color(0xFF2A5FA8);
@@ -1134,6 +1135,11 @@ class ProfileScreen extends StatelessWidget {
                     provider.logout();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text("👋 Déconnecté !")),
+                    );
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      (route) => false,
                     );
                   },
                   child: const Text("Se déconnecter"),
