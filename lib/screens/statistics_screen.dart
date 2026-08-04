@@ -118,6 +118,8 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                             avg,
                             annual,
                           ),
+                          const SizedBox(height: 12),
+                          _buildAIAdvice(avg),
                           const SizedBox(height: 25),
                           _buildPerformanceChart(subjects),
                           const SizedBox(height: 25),
@@ -126,8 +128,6 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                           _buildPodium(subjects),
                           const SizedBox(height: 25),
                           _buildInsights(subjects),
-                          const SizedBox(height: 25),
-                          _buildAIAdvice(avg),
                           const SizedBox(height: 30),
                         ],
                       ),
@@ -389,7 +389,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
       crossAxisCount: 2,
       mainAxisSpacing: 16,
       crossAxisSpacing: 16,
-      childAspectRatio: 1.8,
+      childAspectRatio: 1.0,
       children: [
         _premiumCard(
           icon: Icons.menu_book_rounded,
@@ -431,7 +431,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
     required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
         color: Colors.white,
@@ -448,24 +448,24 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: color.withOpacity(.12),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
               icon,
               color: color,
-              size: 26,
+              size: 20,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 4),
           Text(
             value,
             style: const TextStyle(
               fontWeight: FontWeight.w900,
-              fontSize: 26,
+              fontSize: 20,
             ),
           ),
           Text(
@@ -473,15 +473,14 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             style: TextStyle(
               fontWeight: FontWeight.w700,
               color: Colors.grey.shade800,
-              fontSize: 14,
+              fontSize: 12,
             ),
           ),
-          const SizedBox(height: 2),
           Text(
             subtitle,
             style: TextStyle(
               color: Colors.grey.shade500,
-              fontSize: 12,
+              fontSize: 10,
             ),
           ),
         ],
