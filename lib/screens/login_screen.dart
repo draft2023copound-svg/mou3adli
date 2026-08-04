@@ -49,7 +49,6 @@ class _LoginScreenState extends State<LoginScreen> {
     final bgColor = isDark ? const Color(0xFF0F0F0F) : const Color(0xFFF5F7FB);
     final surfaceColor = isDark ? const Color(0xFF1A1A1A) : Colors.white;
     final textPrimary = isDark ? Colors.white : const Color(0xFF1E293B);
-    final textSecondary = isDark ? Colors.grey.shade400 : const Color(0xFF64748B);
     final textMuted = isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8);
 
     return Scaffold(
@@ -61,53 +60,25 @@ class _LoginScreenState extends State<LoginScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 40),
-              // Logo / Titre
+              // Logo Mou3adli
               Center(
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF1C3F7A), Color(0xFF2A5FA8)],
-                    ),
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF1C3F7A).withOpacity(0.3),
-                        blurRadius: 25,
-                        offset: const Offset(0, 12),
-                      ),
-                    ],
-                  ),
-                  child: const Icon(
-                    Icons.school,
-                    color: Colors.white,
-                    size: 50,
-                  ),
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  width: 120,
+                  height: 120,
                 ),
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
+              // Image mascotte boy
               Center(
-                child: Text(
-                  "Mou3adli",
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w900,
-                    color: textPrimary,
-                  ),
+                child: Image.asset(
+                  'assets/images/boy.png',
+                  width: 200,
+                  height: 200,
+                  fit: BoxFit.contain,
                 ),
               ),
-              const SizedBox(height: 8),
-              Center(
-                child: Text(
-                  "Calcul de moyenne tunisienne",
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: textSecondary,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 48),
+              const SizedBox(height: 40),
               // Email
               Text(
                 "Email",
@@ -165,7 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
               ),
               const SizedBox(height: 20),
-              // Séparateur
+              // Separateur
               Row(
                 children: [
                   Expanded(child: Divider(color: textMuted)),
@@ -180,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              // Bouton Créer un compte
+              // Bouton Creer un compte
               OutlinedButton(
                 onPressed: () {
                   Navigator.push(
@@ -194,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
                 child: const Text(
-                  "Créer un compte",
+                  "Creer un compte",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
