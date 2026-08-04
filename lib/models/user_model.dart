@@ -8,9 +8,13 @@ class User {
   String classLevel; // "7eme", "8eme", "9eme", "1ere", "2eme", "3eme", "4eme"
   String? stream; // "commun", "pilote", "sciences", "lettres", etc.
   String? optionId; // "allemand", "espagnol", "italien", "musique", "arts_plastiques"
+  String passwordHash;
+  String? resetToken;
+  DateTime? resetTokenExpiry;
   DateTime createdAt;
 
   User({
+    required this.passwordHash,
     required this.id,
     required this.fullName,
     required this.email,
@@ -20,6 +24,8 @@ class User {
     required this.classLevel,
     this.stream,
     this.optionId,
+    this.resetToken,
+    this.resetTokenExpiry,
     required this.createdAt,
   });
 
@@ -74,6 +80,9 @@ class User {
     'classLevel': classLevel,
     'stream': stream,
     'optionId': optionId,
+    'passwordHash': passwordHash,
+    'resetToken': resetToken,
+    'resetTokenExpiry': resetTokenExpiry?.toIso8601String(),
     'createdAt': createdAt.toIso8601String(),
   };
 
@@ -87,6 +96,9 @@ class User {
     classLevel: json['classLevel'],
     stream: json['stream'],
     optionId: json['optionId'],
+    passwordHash: json['passwordHash'] ?? '',
+    resetToken: json['resetToken'],
+    resetTokenExpiry: json['resetTokenExpiry'] != null ? DateTime.parse(json['resetTokenExpiry']) : null,
     createdAt: DateTime.parse(json['createdAt']),
   );
 }

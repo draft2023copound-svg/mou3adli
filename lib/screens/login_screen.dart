@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+// ignore_for_file: unused_field
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import 'level_selection.dart';
 import 'home_screen.dart';
+import 'forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,23 +13,86 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
   bool _isLoading = false;
+  bool _obscurePassword = true;
+  String? _emailError;
+  String? _passwordError;
+
+  late AnimationController _animController;
+  late Animation<double> _logoFade;
+  late Animation<Offset> _logoSlide;
+  late Animation<double> _boyFade;
+  late Animation<Offset> _boySlide;
+  late Animation<double> _formFade;
+  late Animation<Offset> _formSlide;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    _logoFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0, 0.3, curve: Curves.easeOut)),
+    );
+    _logoSlide = Tween<Offset>(begin: const Offset(0, -0.3), end: Offset.zero).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0, 0.3, curve: Curves.easeOut)),
+    );
+
+    _boyFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.2, 0.5, curve: Curves.easeOut)),
+    );
+    _boySlide = Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.2, 0.5, curve: Curves.easeOut)),
+    );
+
+    _formFade = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.4, 0.8, curve: Curves.easeOut)),
+    );
+    _formSlide = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _animController, curve: const Interval(0.4, 0.8, curve: Curves.easeOut)),
+    );
+
+    _animController.forward();
+  }
+
+  bool _validateEmail(String email) {
+    // Basic valid email check
+    final regex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+\$');
+    return regex.hasMatch(email);
+  }
+
+  void _validateFields() {
+    setState(() {
+      _emailError = _emailCtrl.text.isEmpty
+          ? "Veuillez entrer votre email"
+          : !_validateEmail(_emailCtrl.text)
+              ? "Email invalide"
+              : null;
+      _passwordError = _passwordCtrl.text.isEmpty
+          ? "Veuillez entrer votre mot de passe"
+          : _passwordCtrl.text.length < 6
+              ? "Minimum 6 caractères"
+              : null;
+    });
+  }
 
   Future<void> _login() async {
-    final email = _emailCtrl.text.trim();
-    if (email.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Veuillez entrer votre email")),
-      );
-      return;
-    }
+    _validateFields();
+    if (_emailError != null || _passwordError != null) return;
 
     setState(() => _isLoading = true);
 
     final provider = context.read<AppProvider>();
-    final success = await provider.login(email);
+    final success = await provider.login(
+      _emailCtrl.text.trim(),
+      _passwordCtrl.text,
+    );
 
     setState(() => _isLoading = false);
 
@@ -38,7 +103,10 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("❌ Email non trouvé. Créez un compte.")),
+        const SnackBar(
+          content: Text("❌ Email ou mot de passe incorrect"),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -114,11 +182,79 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                    errorText: _emailError,
                   ),
                 ),
               ),
               const SizedBox(height: 24),
-              // Bouton Connexion
+              Text(
+                "Mot de passe",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: textPrimary,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  color: surfaceColor,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _passwordCtrl,
+                  obscureText: _obscurePassword,
+                  style: TextStyle(color: textPrimary),
+                  decoration: InputDecoration(
+                    hintText: "Votre mot de passe",
+                    hintStyle: TextStyle(color: textMuted),
+                    prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF1C3F7A)),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        color: textMuted,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+                    errorText: _passwordError,
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
+                    );
+                  },
+                  child: const Text(
+                    "Mot de passe oublié ?",
+                    style: TextStyle(
+                      color: Color(0xFF2563EB),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: _isLoading ? null : _login,
                 style: ElevatedButton.styleFrom(
@@ -183,6 +319,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void dispose() {
     _emailCtrl.dispose();
+    _passwordCtrl.dispose();
+    _animController.dispose();
     super.dispose();
   }
 }

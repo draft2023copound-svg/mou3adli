@@ -1,10 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../models/term_model.dart';
 import '../models/evaluation_model.dart';
 import '../models/subject_model.dart';
 import '../data/tunisian_curriculum.dart';
+import '../services/sendgrid_service.dart';
 import '../services/storage_service.dart';
 
 /// 🧠 Cerveau central de Mou3adli — Gère tout l'état de l'application
@@ -65,10 +68,39 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 🔐 CRÉER UN COMPTE
+  String _hashPassword(String password) {
+    final bytes = utf8.encode(password);
+    final digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
+  /// 🔑 CONNEXION AVEC EMAIL + PASSWORD
+  Future<bool> login(String email, String password) async {
+    final saved = _storage.getUser();
+    if (saved != null && saved.email == email) {
+      final hashedInput = _hashPassword(password);
+      if (saved.passwordHash == hashedInput) {
+        _user = saved;
+        final savedTerms = _storage.getTerms();
+        _terms = savedTerms ?? TunisianCurriculum.generateTerms(
+          _user!.cycle,
+          _user!.classLevel,
+          _user!.stream,
+          optionId: _user!.optionId,
+        );
+        await _storage.saveTerms(_terms);
+        notifyListeners();
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// 🔐 CRÉER UN COMPTE AVEC PASSWORD
   Future<void> register({
     required String fullName,
     required String email,
+    required String password,
     required String schoolName,
     required String cycle,
     required String classLevel,
@@ -79,6 +111,7 @@ class AppProvider extends ChangeNotifier {
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       fullName: fullName,
       email: email,
+      passwordHash: _hashPassword(password),
       schoolName: schoolName,
       cycle: cycle,
       classLevel: classLevel,
@@ -99,23 +132,38 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// 🔑 CONNEXION
-  Future<bool> login(String email) async {
+  /// 📧 ENVOYER LIEN DE RÉINITIALISATION
+  Future<bool> sendPasswordReset(String email) async {
     final saved = _storage.getUser();
-    if (saved != null && saved.email == email) {
-      _user = saved;
-      final savedTerms = _storage.getTerms();
-      _terms = savedTerms ?? TunisianCurriculum.generateTerms(
-        _user!.cycle,
-        _user!.classLevel,
-        _user!.stream,
-        optionId: _user!.optionId,
-      );
-      await _storage.saveTerms(_terms);
-      notifyListeners();
-      return true;
-    }
-    return false;
+    if (saved == null || saved.email != email) return false;
+
+    final token = DateTime.now().millisecondsSinceEpoch.toString();
+    final expiry = DateTime.now().add(const Duration(hours: 1));
+
+    saved.resetToken = token;
+    saved.resetTokenExpiry = expiry;
+    await _storage.saveUser(saved);
+
+    return await SendGridService.sendPasswordResetEmailSimple(
+      toEmail: email,
+      resetToken: token,
+      userName: saved.fullName,
+    );
+  }
+
+  /// 🔄 RÉINITIALISER LE MOT DE PASSE
+  Future<bool> resetPassword(String token, String newPassword) async {
+    final saved = _storage.getUser();
+    if (saved == null) return false;
+    if (saved.resetToken != token) return false;
+    if (saved.resetTokenExpiry == null || DateTime.now().isAfter(saved.resetTokenExpiry!)) return false;
+
+    saved.passwordHash = _hashPassword(newPassword);
+    saved.resetToken = null;
+    saved.resetTokenExpiry = null;
+    await _storage.saveUser(saved);
+
+    return true;
   }
 
   /// 🚪 DÉCONNEXION

@@ -15,6 +15,9 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
   final _nameCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
   final _schoolCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  final _confirmPasswordCtrl = TextEditingController();
+  bool _obscureConfirmPassword = true;
 
   String? _selectedClassLevel;
   String? _selectedStream;
@@ -92,13 +95,33 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
       );
       return;
     }
+    if (_passwordCtrl.text.isEmpty || _confirmPasswordCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Veuillez entrer un mot de passe")),
+      );
+      return;
+    }
 
+    if (_passwordCtrl.text.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Le mot de passe doit contenir au moins 6 caractères")),
+      );
+      return;
+    }
+
+    if (_passwordCtrl.text != _confirmPasswordCtrl.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Les mots de passe ne correspondent pas")),
+      );
+      return;
+    }
     setState(() => _isLoading = true);
 
     final provider = context.read<AppProvider>();
     await provider.register(
       fullName: _nameCtrl.text.trim(),
       email: _emailCtrl.text.trim(),
+      password: _passwordCtrl.text,
       schoolName: _schoolCtrl.text.trim(),
       cycle: _selectedClassLevel == '7eme' || _selectedClassLevel == '8eme' || _selectedClassLevel == '9eme'
           ? 'college'
@@ -179,6 +202,12 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
           children: [
             _buildTextField('Nom complet', Icons.person_outline, _nameCtrl, surfaceColor, textPrimary, textMuted),
             _buildTextField('Email', Icons.email_outlined, _emailCtrl, surfaceColor, textPrimary, textMuted),
+            _buildPasswordField('Mot de passe', Icons.lock_outline, _passwordCtrl, surfaceColor, textPrimary, textMuted),
+            _buildPasswordField('Confirmer le mot de passe', Icons.lock_outline, _confirmPasswordCtrl, surfaceColor, textPrimary, textMuted, obscureText: _obscureConfirmPassword, toggleObscure: () {
+              setState(() {
+                _obscureConfirmPassword = !_obscureConfirmPassword;
+              });
+            }),
             _buildTextField('École', Icons.school_outlined, _schoolCtrl, surfaceColor, textPrimary, textMuted),
             const SizedBox(height: 20),
             _buildClassDropdown(surfaceColor, textPrimary, textSecondary, textMuted),
@@ -224,6 +253,45 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
           hintText: hint,
           hintStyle: TextStyle(color: textMuted),
           prefixIcon: Icon(icon, color: const Color(0xFF1C3F7A)),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPasswordField(
+    String hint,
+    IconData icon,
+    TextEditingController ctrl,
+    Color surfaceColor,
+    Color textPrimary,
+    Color textMuted, {
+    bool obscureText = true,
+    VoidCallback? toggleObscure,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        color: surfaceColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: TextField(
+        controller: ctrl,
+        obscureText: obscureText,
+        style: TextStyle(color: textPrimary),
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: textMuted),
+          prefixIcon: Icon(icon, color: const Color(0xFF1C3F7A)),
+          suffixIcon: IconButton(
+            icon: Icon(
+              obscureText ? Icons.visibility_off : Icons.visibility,
+              color: textMuted,
+            ),
+            onPressed: toggleObscure,
+          ),
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
           contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         ),
