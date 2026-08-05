@@ -3,8 +3,8 @@ import 'package:get/get.dart';
 import 'constants/colors.dart';
 import 'modules/home/views/home_view.dart';
 
-class Mou3adliApp extends StatelessWidget {
-  const Mou3adliApp({super.key});
+class Mou3adliSpaceApp extends StatelessWidget {
+  const Mou3adliSpaceApp({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'providers/app_provider.dart';
 import 'providers/games_provider.dart';
@@ -39,7 +40,7 @@ class Mou3adliApp extends StatelessWidget {
       builder: (context, provider, _) {
         final isDark = provider.isDarkMode;
 
-        return MaterialApp(
+        return GetMaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Mou3adli',
           theme: _buildLightTheme(),

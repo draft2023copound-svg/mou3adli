@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import '../providers/app_provider.dart';
 import '../models/subject_model.dart';
@@ -10,6 +11,7 @@ import 'profile_screen.dart';
 import 'subject_list_screen.dart';
 import 'settings_screen.dart';
 import 'grade_entry_screen.dart';
+import '../mou3adli_space/app.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -123,17 +125,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     // ═══════════════════════════════════════════════════
-                    // BOUTON MESSAGERIE 💬 (style Messenger bleu)
+                    // BOUTON MESSAGERIE 💬 → Ouvre Mou3adli Space
                     // ═══════════════════════════════════════════════════
                     GestureDetector(
                       onTap: () {
-                        // TODO: Naviguer vers l'écran de messagerie
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('💬 Messagerie bientôt disponible !'),
-                            duration: Duration(seconds: 2),
-                          ),
-                        );
+                        // Naviguer vers Mou3adli Space
+                        Get.to(() => const Mou3adliSpaceApp());
                       },
                       child: Container(
                         width: 48,
@@ -150,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: Colors.white,
                               size: 24,
                             ),
-                            // Petit point de notification (optionnel)
+                            // Petit point de notification
                             Positioned(
                               top: 8,
                               right: 8,
@@ -178,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Moyenne circulaire
               _buildAverageCard(avg, annualAvg, surfaceColor, textPrimary, textSecondary, textMuted),
               const SizedBox(height: 24),
-              // Stats rapides — TEXTES CENTRÉS
+              // Stats rapides
               _buildQuickStats(provider, surfaceColor, textPrimary, textSecondary, cardShadow),
               const SizedBox(height: 24),
               // Matières
@@ -198,12 +195,8 @@ class _HomeScreenState extends State<HomeScreen> {
           if (index == 0) {
             // Home - déjà là
           } else if (index == 1) {
-            // Matières
             Navigator.push(context, MaterialPageRoute(builder: (_) => const SubjectListScreen()));
           } else if (index == 2) {
-            // ═══════════════════════════════════════════════════
-            // FAB CALCULATRICE 🧮 → GradeEntryScreen ✅
-            // ═══════════════════════════════════════════════════
             _openGradeEntry(context, provider);
           } else if (index == 3) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const StatisticsScreen()));
@@ -215,9 +208,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════
-  // FAB CALCULATRICE 🧮 → GradeEntryScreen (toutes les matières)
-  // ═══════════════════════════════════════════════════════════
   void _openGradeEntry(BuildContext context, AppProvider provider) {
     final term = provider.currentTerm;
     if (term == null || term.subjects.isEmpty) {
