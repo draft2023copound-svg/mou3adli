@@ -16,7 +16,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   String? _emailError;
 
   bool _validateEmail(String email) {
-    final regex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+\$');
+    final regex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
     return regex.hasMatch(email);
   }
 

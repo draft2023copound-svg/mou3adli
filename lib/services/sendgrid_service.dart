@@ -6,6 +6,7 @@ class SendGridService {
   static const String _apiKey = 'TON_API_KEY_SENDGRID'; // Remplace par ta vraie clé
   static const String _fromEmail = 'support.mou3adli@gmail.com';
   static const String _fromName = 'Mou3adli';
+  static const String _templateId = 'd-4196f49e8665402ebae4ea434026a05a';
 
   static Future<bool> sendPasswordResetEmail({
     required String toEmail,
@@ -30,8 +31,6 @@ class SendGridService {
               'dynamic_template_data': {
                 'user_name': userName,
                 'reset_url': resetUrl,
-                'app_name': 'Mou3adli',
-                'support_email': _fromEmail,
               }
             }
           ],
@@ -39,7 +38,7 @@ class SendGridService {
             'email': _fromEmail,
             'name': _fromName,
           },
-          'template_id': 'd-TON_TEMPLATE_ID', // Remplace par ton vrai template ID
+          'template_id': _templateId,
         }),
       );
 

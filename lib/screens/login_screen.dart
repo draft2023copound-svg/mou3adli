@@ -62,8 +62,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
   }
 
   bool _validateEmail(String email) {
-    // Basic valid email check
-    final regex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+\$');
+    final regex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
     return regex.hasMatch(email);
   }
 
