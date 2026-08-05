@@ -13,7 +13,7 @@ class AvatarWidget extends StatelessWidget {
   final VoidCallback? onTap;
 
   const AvatarWidget({
-    Key? key,
+    super.key,
     this.photoUrl,
     this.name,
     this.size = 40.0,
@@ -21,7 +21,7 @@ class AvatarWidget extends StatelessWidget {
     this.isStory = false,
     this.hasStory = false,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

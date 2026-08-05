@@ -17,13 +17,13 @@ class PostWidget extends StatelessWidget {
   final VoidCallback onShare;
 
   const PostWidget({
-    Key? key,
+    super.key,
     required this.post,
     required this.onLike,
     required this.onSave,
     required this.onComment,
     required this.onShare,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

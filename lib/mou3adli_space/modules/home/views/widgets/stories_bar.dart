@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../constants/colors.dart';
-import '../../../../constants/styles.dart';
 import '../../../../models/user.dart';
 import '../../../../widgets/avatar_widget.dart';
 

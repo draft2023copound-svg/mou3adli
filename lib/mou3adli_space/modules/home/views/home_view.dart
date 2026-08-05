@@ -12,7 +12,7 @@ import 'widgets/stories_bar.dart';
 import 'widgets/post_widget.dart';
 
 class HomeView extends StatelessWidget {
-  const HomeView({Key? key}) : super(key: key);
+  const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {

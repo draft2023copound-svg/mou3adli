@@ -3,7 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 
 class SendGridService {
-  static const String _apiKey = 'TON_API_KEY_SENDGRID'; // Remplace par ta vraie clé
+  static const String _apiKey = String.fromEnvironment('SENDGRID_API_KEY');
+  static bool get _isApiKeyConfigured => _apiKey.isNotEmpty;
+
   static const String _fromEmail = 'support.mou3adli@gmail.com';
   static const String _fromName = 'Mou3adli';
   static const String _templateId = 'd-4196f49e8665402ebae4ea434026a05a';

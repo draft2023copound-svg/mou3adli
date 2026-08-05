@@ -4,7 +4,7 @@ import 'constants/colors.dart';
 import 'modules/home/views/home_view.dart';
 
 class Mou3adliApp extends StatelessWidget {
-  const Mou3adliApp({Key? key}) : super(key: key);
+  const Mou3adliApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +20,6 @@ class Mou3adliApp extends StatelessWidget {
           primary: AppColors.gold,
           secondary: AppColors.royalBlue,
           surface: AppColors.surface,
-          background: AppColors.background,
           error: AppColors.danger,
         ),
         appBarTheme: const AppBarTheme(

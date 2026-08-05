@@ -6,7 +6,7 @@ import '../../../constants/styles.dart';
 import '../controllers/post_controller.dart';
 
 class CreatePostView extends StatelessWidget {
-  const CreatePostView({Key? key}) : super(key: key);
+  const CreatePostView({super.key});
 
   @override
   Widget build(BuildContext context) {
