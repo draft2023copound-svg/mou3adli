@@ -166,12 +166,14 @@ class AppProvider extends ChangeNotifier {
     return true;
   }
 
-  /// 🚪 DÉCONNEXION
+  /// 🚪 DÉCONNEXION — Garde les données en mémoire, déconnecte juste la session
   Future<void> logout() async {
-    await _storage.clearUser();
-    _user = null;
-    _terms = [];
-    _currentTermId = 't2';
+    // NE PAS appeler _storage.clearUser() — ça supprime tout !
+    // On garde les données dans le stockage pour que l'élève puisse se reconnecter
+
+    _user = null;           // Déconnecte la session active
+    _terms = [];            // Vide la mémoire (mais pas le stockage)
+    _currentTermId = 't2';  // Reset le trimestre courant
     notifyListeners();
   }
 
