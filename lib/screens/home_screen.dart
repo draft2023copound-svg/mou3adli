@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               const SizedBox(height: 16),
               // ═══════════════════════════════════════════════════════════
-              // HEADER CENTRÉ : Photo + Bonjour alignés au centre ✅
+              // HEADER : Photo + Bonjour + Bouton Messagerie ✅
               // ═══════════════════════════════════════════════════════════
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -120,6 +120,55 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                    // ═══════════════════════════════════════════════════
+                    // BOUTON MESSAGERIE 💬 (style Messenger bleu)
+                    // ═══════════════════════════════════════════════════
+                    GestureDetector(
+                      onTap: () {
+                        // TODO: Naviguer vers l'écran de messagerie
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('💬 Messagerie bientôt disponible !'),
+                            duration: Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF1C3F7A),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            const Icon(
+                              Icons.chat_bubble_outline,
+                              color: Colors.white,
+                              size: 24,
+                            ),
+                            // Petit point de notification (optionnel)
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color(0xFF1C3F7A),
+                                    width: 2,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -406,7 +455,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSubjectsSection(dynamic term, Color surfaceColor, Color textPrimary, Color textSecondary, Color textMuted, Color cardShadow) {
     if (term == null) return const SizedBox.shrink();
 
-    final List<Subject> allSubjects = term.subjects.cast<Subject>();
+    final List allSubjects = term.subjects.cast<Subject>();
     final topSubjects = allSubjects
         .where((s) => s.average > 0)
         .toList()

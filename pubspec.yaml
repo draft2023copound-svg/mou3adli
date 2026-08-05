@@ -24,10 +24,12 @@ dependencies:
 
   # ═══ NAVIGATION & ROUTING ═══
   go_router: ^14.8.1
+  get: ^4.6.5
 
   # ═══ STORAGE & PERSISTENCE ═══
   shared_preferences: ^2.2.2
   path_provider: ^2.1.2
+  cloud_firestore: ^4.9.0
 
   # ═══ CALENDAR ═══
   table_calendar: ^3.0.9
