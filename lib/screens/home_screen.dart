@@ -11,7 +11,7 @@ import 'profile_screen.dart';
 import 'subject_list_screen.dart';
 import 'settings_screen.dart';
 import 'grade_entry_screen.dart';
-import '../mou3adli_space/app.dart';
+import '../mou3adli_space/modules/home/views/home_view.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -129,8 +129,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     // ═══════════════════════════════════════════════════
                     GestureDetector(
                       onTap: () {
-                        // Naviguer vers Mou3adli Space
-                        Get.to(() => const Mou3adliSpaceApp());
+                        // Naviguer directement vers HomeView (pas Mou3adliSpaceApp)
+                        Get.to(() => const HomeView());
                       },
                       child: Container(
                         width: 48,
