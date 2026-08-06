@@ -1,109 +1,96 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
-import '../constants/styles.dart';
-import '../utils/utility.dart';
+import '../constants/dimens.dart';
 
 class AvatarWidget extends StatelessWidget {
   final String? photoUrl;
   final String? name;
   final double size;
-  final bool isLive;
   final bool isStory;
   final bool hasStory;
+  final bool isLive;
   final VoidCallback? onTap;
 
   const AvatarWidget({
     super.key,
     this.photoUrl,
     this.name,
-    this.size = 40.0,
-    this.isLive = false,
+    this.size = AppDimens.avatarMd,
     this.isStory = false,
     this.hasStory = false,
+    this.isLive = false,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final initials = name != null && name!.isNotEmpty
+        ? name!.split(' ').map((e) => e[0]).take(2).join().toUpperCase()
+        : '?';
+
     Widget avatar = Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppColors.surfaceElevated,
-        border: Border.all(
-          color: AppColors.borderLight,
-          width: 1.5,
-        ),
+        color: AppColors.royalBlue.withOpacity(0.1),
+        image: photoUrl != null && photoUrl!.isNotEmpty
+            ? DecorationImage(image: NetworkImage(photoUrl!), fit: BoxFit.cover)
+            : null,
       ),
-      child: photoUrl != null && photoUrl!.isNotEmpty
-          ? ClipOval(
-              child: Image.network(
-                photoUrl!,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _buildInitials(),
+      child: photoUrl == null || photoUrl!.isEmpty
+          ? Center(
+              child: Text(
+                initials,
+                style: TextStyle(
+                  fontSize: size * 0.35,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.royalBlue,
+                ),
               ),
             )
-          : _buildInitials(),
+          : null,
     );
 
+    // Anneau doré pour stories
     if (isStory && hasStory) {
       avatar = Container(
-        width: size + 6,
-        height: size + 6,
+        padding: const EdgeInsets.all(3),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: isLive
-              ? const LinearGradient(
-                  colors: [AppColors.liveRed, AppColors.liveRedLight],
-                )
-              : const LinearGradient(
-                  colors: [AppColors.gold, AppColors.goldLight, AppColors.royalBlueLight, AppColors.gold],
-                ),
+          gradient: AppColors.storyGradient,
         ),
-        child: Center(
-          child: Container(
-            width: size,
-            height: size,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.surface,
-            ),
-            padding: const EdgeInsets.all(2.5),
-            child: ClipOval(
-              child: photoUrl != null && photoUrl!.isNotEmpty
-                  ? Image.network(photoUrl!, fit: BoxFit.cover)
-                  : _buildInitialsContent(),
-            ),
+        child: Container(
+          padding: const EdgeInsets.all(3),
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColors.surface,
           ),
+          child: avatar,
         ),
       );
     }
 
+    // Badge LIVE
     if (isLive) {
       avatar = Stack(
+        alignment: Alignment.bottomCenter,
         children: [
           avatar,
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.liveRed,
-                  borderRadius: AppStyles.radius4,
-                ),
-                child: const Text(
-                  'LIVE',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 8,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
-                ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            decoration: BoxDecoration(
+              color: AppColors.danger,
+              borderRadius: BorderRadius.circular(4),
+              border: Border.all(color: AppColors.surface, width: 2),
+            ),
+            child: const Text(
+              'LIVE',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 8,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 0.5,
               ),
             ),
           ),
@@ -111,35 +98,9 @@ class AvatarWidget extends StatelessWidget {
       );
     }
 
-    if (onTap != null) {
-      avatar = GestureDetector(onTap: onTap, child: avatar);
-    }
-
-    return avatar;
-  }
-
-  Widget _buildInitials() {
-    return Center(child: _buildInitialsContent());
-  }
-
-  Widget _buildInitialsContent() {
-    return Container(
-      width: size,
-      height: size,
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        color: AppColors.surfaceElevated,
-      ),
-      child: Center(
-        child: Text(
-          Utility.getInitials(name ?? '?'),
-          style: TextStyle(
-            fontSize: size * 0.35,
-            fontWeight: FontWeight.w600,
-            color: AppColors.gold,
-          ),
-        ),
-      ),
+    return GestureDetector(
+      onTap: onTap,
+      child: avatar,
     );
   }
 }

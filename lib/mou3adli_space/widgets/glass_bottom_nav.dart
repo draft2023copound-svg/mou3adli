@@ -1,6 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
-import '../constants/styles.dart';
+import '../constants/dimens.dart';
 
 class GlassBottomNav extends StatelessWidget {
   final int currentIndex;
@@ -16,70 +18,85 @@ class GlassBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      height: AppDimens.navHeight,
       decoration: BoxDecoration(
-        color: AppColors.surface.withOpacity(0.95),
-        borderRadius: AppStyles.radius24,
+        color: AppColors.glassWhite,
+        borderRadius: BorderRadius.circular(AppDimens.radiusXl),
+        border: Border.all(color: AppColors.glassBorder, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
+            color: AppColors.glassShadow,
+            blurRadius: 30,
+            spreadRadius: 0,
+            offset: const Offset(0, 10),
           ),
         ],
-        border: Border.all(
-          color: AppColors.border.withOpacity(0.5),
-          width: 1,
-        ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _buildNavItem(Icons.home_rounded, 0),
-          _buildNavItem(Icons.explore_outlined, 1),
-          _buildCenterButton(),
-          _buildNavItem(Icons.chat_bubble_outline_rounded, 3),
-          _buildNavItem(Icons.person_outline_rounded, 4),
-        ],
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AppDimens.radiusXl),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildNavItem(Icons.home_rounded, 0),
+                _buildNavItem(Icons.explore_outlined, 1),
+                _buildFab(),
+                _buildNavItem(Icons.chat_bubble_outline, 3),
+                _buildNavItem(Icons.person_outline, 4),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildNavItem(IconData icon, int index) {
-    final isActive = currentIndex == index;
+    final isSelected = currentIndex == index;
     return GestureDetector(
       onTap: () => onTap(index),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isActive ? AppColors.gold10 : Colors.transparent,
-          borderRadius: AppStyles.radius12,
+          color: isSelected ? AppColors.royalBlue.withOpacity(0.1) : Colors.transparent,
+          shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
-          color: isActive ? AppColors.gold : AppColors.navInactive,
-          size: 24,
+          color: isSelected ? AppColors.royalBlue : AppColors.textTertiary,
+          size: AppDimens.iconMd,
         ),
       ),
     );
   }
 
-  Widget _buildCenterButton() {
+  Widget _buildFab() {
     return GestureDetector(
       onTap: () => onTap(2),
       child: Container(
-        width: 48,
-        height: 48,
+        width: AppDimens.navFabSize,
+        height: AppDimens.navFabSize,
         decoration: BoxDecoration(
-          color: AppColors.gold,
+          gradient: AppColors.goldGradient,
           shape: BoxShape.circle,
-          boxShadow: AppStyles.fabShadow,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.gold.withOpacity(0.4),
+              blurRadius: 20,
+              spreadRadius: 2,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: const Icon(
           Icons.add,
-          color: AppColors.surface,
-          size: 26,
+          color: Colors.white,
+          size: 28,
+          weight: 700,
         ),
       ),
     );

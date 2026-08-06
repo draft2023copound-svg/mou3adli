@@ -1,219 +1,116 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../constants/colors.dart';
-import '../../../constants/strings.dart';
+import '../../../constants/dimens.dart';
 import '../../../constants/styles.dart';
-import '../controllers/post_controller.dart';
+import '../../../widgets/avatar_widget.dart';
 
 class CreatePostView extends StatelessWidget {
   const CreatePostView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(PostController());
-    final textController = TextEditingController();
-
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, color: AppColors.textSecondary),
+          icon: const Icon(Icons.close_rounded, color: AppColors.textPrimary),
           onPressed: () => Get.back(),
         ),
-        title: const Text(
-          'Nouvelle publication',
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
-            color: AppColors.gold,
-          ),
-        ),
+        title: Text('Nouvelle publication', style: AppStyles.h3),
+        centerTitle: true,
         actions: [
-          Obx(() => TextButton(
-            onPressed: controller.canPublish.value ? controller.createPost : null,
-            child: Text(
-              AppStrings.publish,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-                color: controller.canPublish.value ? AppColors.gold : AppColors.textHint,
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                gradient: AppColors.blueGradient,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Text(
+                'Publier',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                ),
               ),
             ),
-          )),
+          ),
+          const SizedBox(width: 8),
         ],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // User info
-                  Row(
-                    children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.surfaceElevated,
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'V',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.gold,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Vous',
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: AppColors.royalBlue10,
-                              borderRadius: AppStyles.radius4,
-                            ),
-                            child: const Text(
-                              '🎓 Élève',
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.royalBlue,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Text input
-                  TextField(
-                    controller: textController,
-                    maxLines: null,
-                    minLines: 6,
-                    maxLength: 500,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: AppColors.textPrimary,
-                      height: 1.5,
-                    ),
-                    decoration: InputDecoration(
-                      hintText: AppStrings.postHint,
-                      hintStyle: const TextStyle(
-                        fontSize: 16,
-                        color: AppColors.textHint,
-                      ),
-                      border: InputBorder.none,
-                      counterStyle: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.textTertiary,
-                      ),
-                    ),
-                    onChanged: controller.updateContent,
-                  ),
-                  const SizedBox(height: 16),
-                  // Tags
-                  const Text(
-                    'Matière',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Obx(() => Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: AppStrings.subjects.map((subject) {
-                      final isSelected = controller.selectedTags.contains(subject);
-                      return GestureDetector(
-                        onTap: () => controller.toggleTag(subject),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: isSelected ? AppColors.gold : Colors.transparent,
-                            borderRadius: AppStyles.radius8,
-                            border: Border.all(
-                              color: isSelected ? AppColors.gold : AppColors.border,
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Text(
-                            subject,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w500,
-                              color: isSelected ? AppColors.surface : AppColors.textSecondary,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  )),
-                ],
-              ),
-            ),
-          ),
-          // Bottom toolbar
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              border: Border(
-                top: BorderSide(color: AppColors.border),
-              ),
-            ),
-            child: Row(
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.image_outlined),
-                  color: AppColors.gold,
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(Icons.videocam_outlined),
-                  color: AppColors.gold,
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: const Icon(Icons.poll_outlined),
-                  color: AppColors.gold,
-                  onPressed: () {},
-                ),
-                const Spacer(),
-                Text(
-                  'Visible par tous',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textTertiary,
-                  ),
+                const AvatarWidget(name: 'Amine K.', size: 48),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Amine K.', style: AppStyles.h3.copyWith(fontSize: 16)),
+                    Text('Élève • Public', style: AppStyles.caption),
+                  ],
                 ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            Expanded(
+              child: TextField(
+                maxLines: null,
+                decoration: InputDecoration(
+                  hintText: "Qu'est-ce qui te passe par la tête ?",
+                  hintStyle: AppStyles.body.copyWith(color: AppColors.textTertiary),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(AppDimens.radiusLg),
+                border: Border.all(color: AppColors.border),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildMediaButton(Icons.image_outlined, 'Photo', AppColors.success),
+                  _buildMediaButton(Icons.videocam_outlined, 'Vidéo', AppColors.danger),
+                  _buildMediaButton(Icons.poll_outlined, 'Sondage', AppColors.warning),
+                  _buildMediaButton(Icons.mic_outlined, 'Audio', AppColors.royalBlue),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildMediaButton(IconData icon, String label, Color color) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: color, size: 24),
+        ),
+        const SizedBox(height: 6),
+        Text(label, style: AppStyles.caption.copyWith(fontWeight: FontWeight.w600)),
+      ],
     );
   }
 }

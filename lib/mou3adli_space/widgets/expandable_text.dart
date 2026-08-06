@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
+import '../constants/styles.dart';
 
 class ExpandableText extends StatefulWidget {
   final String text;
   final int maxLines;
-  final TextStyle? style;
 
   const ExpandableText({
     super.key,
     required this.text,
     this.maxLines = 3,
-    this.style,
   });
 
   @override
@@ -18,51 +17,48 @@ class ExpandableText extends StatefulWidget {
 }
 
 class _ExpandableTextState extends State<ExpandableText> {
-  bool _isExpanded = false;
+  bool isExpanded = false;
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final span = TextSpan(text: widget.text, style: widget.style);
+        final span = TextSpan(
+          text: widget.text,
+          style: AppStyles.bodyLarge,
+        );
         final tp = TextPainter(
           text: span,
           maxLines: widget.maxLines,
           textDirection: TextDirection.ltr,
         );
         tp.layout(maxWidth: constraints.maxWidth);
-
         final isOverflowing = tp.didExceedMaxLines;
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.text,
-              style: widget.style ?? const TextStyle(
-                fontSize: 15.5,
-                color: AppColors.textPrimary,
-                height: 1.5,
+        return GestureDetector(
+          onTap: isOverflowing ? () => setState(() => isExpanded = !isExpanded) : null,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                widget.text,
+                style: AppStyles.bodyLarge,
+                maxLines: isExpanded ? null : widget.maxLines,
+                overflow: isExpanded ? null : TextOverflow.ellipsis,
               ),
-              maxLines: _isExpanded ? null : widget.maxLines,
-              overflow: _isExpanded ? null : TextOverflow.ellipsis,
-            ),
-            if (isOverflowing)
-              GestureDetector(
-                onTap: () => setState(() => _isExpanded = !_isExpanded),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 4.0),
+              if (isOverflowing && !isExpanded)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
                   child: Text(
-                    _isExpanded ? 'Voir moins' : 'Voir plus',
-                    style: const TextStyle(
-                      fontSize: 13,
+                    'Voir plus',
+                    style: AppStyles.bodySmall.copyWith(
+                      color: AppColors.royalBlue,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.gold,
                     ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         );
       },
     );

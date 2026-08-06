@@ -4,85 +4,85 @@ import 'colors.dart';
 class AppStyles {
   AppStyles._();
 
-  // === BORDURES ===
-  static BorderRadius get radius4 => BorderRadius.circular(4.0);
-  static BorderRadius get radius6 => BorderRadius.circular(6.0);
-  static BorderRadius get radius8 => BorderRadius.circular(8.0);
-  static BorderRadius get radius10 => BorderRadius.circular(10.0);
-  static BorderRadius get radius12 => BorderRadius.circular(12.0);
-  static BorderRadius get radius16 => BorderRadius.circular(16.0);
-  static BorderRadius get radius20 => BorderRadius.circular(20.0);
-  static BorderRadius get radius24 => BorderRadius.circular(24.0);
-  static BorderRadius get radiusFull => BorderRadius.circular(100.0);
-
-  static BorderRadius get topRadius20 => const BorderRadius.only(
-    topLeft: Radius.circular(20.0),
-    topRight: Radius.circular(20.0),
+  // ═══ TITRES ═══
+  static const TextStyle h1 = TextStyle(
+    fontSize: 28,
+    fontWeight: FontWeight.w800,
+    color: AppColors.textPrimary,
+    letterSpacing: -0.5,
+    height: 1.2,
   );
 
-  // === OMBRES ===
-  static List<BoxShadow> get defaultShadow => [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.04),
-      blurRadius: 8.0,
-      offset: const Offset(0, 2),
-    ),
-  ];
+  static const TextStyle h2 = TextStyle(
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary,
+    letterSpacing: -0.3,
+    height: 1.3,
+  );
 
-  static List<BoxShadow> get elevatedShadow => [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.08),
-      blurRadius: 16.0,
-      offset: const Offset(0, 4),
-    ),
-  ];
+  static const TextStyle h3 = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary,
+    letterSpacing: -0.2,
+    height: 1.3,
+  );
 
-  static List<BoxShadow> get fabShadow => [
-    BoxShadow(
-      color: AppColors.gold.withOpacity(0.35),
-      blurRadius: 20.0,
-      offset: const Offset(0, 4),
-    ),
-  ];
+  // ═══ CORPS ═══
+  static const TextStyle bodyLarge = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    color: AppColors.textPrimary,
+    height: 1.5,
+  );
 
-  // === TEXTES ===
-  static TextStyle get style32Bold => const TextStyle(
-    fontSize: 32.0, fontWeight: FontWeight.bold,
+  static const TextStyle body = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textSecondary,
+    height: 1.5,
   );
-  static TextStyle get style24Bold => const TextStyle(
-    fontSize: 24.0, fontWeight: FontWeight.bold,
+
+  static const TextStyle bodySmall = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    color: AppColors.textTertiary,
+    height: 1.4,
   );
-  static TextStyle get style20Bold => const TextStyle(
-    fontSize: 20.0, fontWeight: FontWeight.bold,
+
+  // ═══ BOUTONS ═══
+  static const TextStyle button = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textInverse,
+    letterSpacing: 0.3,
   );
-  static TextStyle get style18Bold => const TextStyle(
-    fontSize: 18.0, fontWeight: FontWeight.bold,
+
+  static const TextStyle buttonSmall = TextStyle(
+    fontSize: 13,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textInverse,
+    letterSpacing: 0.2,
   );
-  static TextStyle get style16Bold => const TextStyle(
-    fontSize: 16.0, fontWeight: FontWeight.bold,
+
+  // ═══ CAPTIONS & LABELS ═══
+  static const TextStyle caption = TextStyle(
+    fontSize: 11,
+    fontWeight: FontWeight.w600,
+    color: AppColors.textTertiary,
+    letterSpacing: 0.3,
   );
-  static TextStyle get style14Bold => const TextStyle(
-    fontSize: 14.0, fontWeight: FontWeight.bold,
-  );
-  static TextStyle get style12Bold => const TextStyle(
-    fontSize: 12.0, fontWeight: FontWeight.bold,
-  );
-  static TextStyle get style16Normal => const TextStyle(
-    fontSize: 16.0, fontWeight: FontWeight.normal,
-  );
-  static TextStyle get style14Normal => const TextStyle(
-    fontSize: 14.0, fontWeight: FontWeight.normal,
-  );
-  static TextStyle get style13Normal => const TextStyle(
-    fontSize: 13.0, fontWeight: FontWeight.normal,
-  );
-  static TextStyle get style12Normal => const TextStyle(
-    fontSize: 12.0, fontWeight: FontWeight.normal,
-  );
-  static TextStyle get style11Normal => const TextStyle(
-    fontSize: 11.0, fontWeight: FontWeight.normal,
-  );
-  static TextStyle get style15Bold => const TextStyle(
-    fontSize: 15.0, fontWeight: FontWeight.bold,
+
+  static const BorderRadius radius4 = BorderRadius.all(Radius.circular(4));
+  static const BorderRadius radius6 = BorderRadius.all(Radius.circular(6));
+  static const BorderRadius radius8 = BorderRadius.all(Radius.circular(8));
+  static const BorderRadius radius12 = BorderRadius.all(Radius.circular(12));
+
+  static const TextStyle badge = TextStyle(
+    fontSize: 10,
+    fontWeight: FontWeight.w700,
+    color: AppColors.royalBlue,
+    letterSpacing: 0.2,
   );
 }

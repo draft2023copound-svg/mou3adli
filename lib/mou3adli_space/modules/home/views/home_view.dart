@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import '../../../constants/colors.dart';
 import '../../../constants/strings.dart';
@@ -8,8 +9,8 @@ import '../../chat/views/inbox_view.dart';
 import '../../post/views/create_post_view.dart';
 import '../../profile/views/profile_view.dart';
 import '../controllers/home_controller.dart';
-import 'widgets/stories_bar.dart';
 import 'widgets/post_widget.dart';
+import 'widgets/stories_bar.dart';
 
 class HomeView extends StatelessWidget {
   const HomeView({super.key});
@@ -21,7 +22,7 @@ class HomeView extends StatelessWidget {
     final screens = [
       _buildFeed(controller),
       _buildTrending(),
-      const SizedBox(), // Placeholder for FAB
+      const SizedBox.shrink(), // Placeholder for FAB
       const InboxView(),
       const ProfileView(),
     ];
@@ -34,12 +35,12 @@ class HomeView extends StatelessWidget {
           children: screens,
         ),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: GlassBottomNav(
         currentIndex: controller.currentIndex.value,
         onTap: (index) {
           if (index == 2) {
-            Get.to(() => const CreatePostView());
+            Get.to(() => const CreatePostView(), transition: Transition.downToUp);
           } else {
             controller.changeTab(index);
           }
@@ -51,75 +52,122 @@ class HomeView extends StatelessWidget {
   Widget _buildFeed(HomeController controller) {
     return CustomScrollView(
       slivers: [
-        // Header
+        // ═══ HEADER ═══
         SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    Text(
-                      '⚜️ ',
-                      style: AppStyles.style20Bold.copyWith(
-                        color: AppColors.gold,
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        gradient: AppColors.goldGradient,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Icon(
+                        Icons.school,
+                        color: Colors.white,
+                        size: 20,
                       ),
                     ),
+                    const SizedBox(width: 10),
                     Text(
                       AppStrings.appName,
-                      style: AppStyles.style20Bold.copyWith(
-                        color: AppColors.textPrimary,
+                      style: AppStyles.h2.copyWith(
+                        fontSize: 24,
+                        letterSpacing: -0.5,
                       ),
                     ),
                   ],
                 ),
                 Row(
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.search_rounded),
-                      color: AppColors.textSecondary,
-                      onPressed: () {},
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.notifications_outlined),
-                      color: AppColors.textSecondary,
-                      onPressed: () {},
-                    ),
+                    _buildHeaderButton(Icons.search_rounded),
+                    const SizedBox(width: 8),
+                    _buildHeaderButton(Icons.notifications_outlined, hasBadge: true),
                   ],
                 ),
               ],
             ),
-          ),
+          ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, end: 0),
         ),
-        // Stories
+
+        // ═══ STORIES ═══
         SliverToBoxAdapter(
           child: StoriesBar(stories: controller.stories),
         ),
-        // Divider
+
+        // ═══ DIVIDER ═══
         const SliverToBoxAdapter(
-          child: Divider(height: 1, thickness: 1, color: AppColors.border),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            child: Divider(height: 1, thickness: 1, color: AppColors.divider),
+          ),
         ),
-        // Posts
-        Obx(() => SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final post = controller.posts[index];
-              return PostWidget(
-                post: post,
-                onLike: () => controller.toggleLike(post.postId!),
-                onSave: () => controller.toggleSave(post.postId!),
-                onComment: () {},
-                onShare: () {},
-              );
-            },
-            childCount: controller.posts.length,
+
+        // ═══ POSTS ═══
+        Obx(() => SliverPadding(
+          padding: const EdgeInsets.all(20),
+          sliver: SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                final post = controller.posts[index];
+                return PostWidget(
+                  post: post,
+                  onLike: () => controller.toggleLike(post.postId!),
+                  onSave: () => controller.toggleSave(post.postId!),
+                  onComment: () {},
+                  onShare: () {},
+                );
+              },
+              childCount: controller.posts.length,
+            ),
           ),
         )),
-        // Bottom padding for FAB
+
+        // ═══ BOTTOM PADDING FOR NAVBAR ═══
         const SliverToBoxAdapter(
-          child: SizedBox(height: 100),
+          child: SizedBox(height: 120),
         ),
+      ],
+    );
+  }
+
+  Widget _buildHeaderButton(IconData icon, {bool hasBadge = false}) {
+    return Stack(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: AppColors.border, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Icon(icon, color: AppColors.textSecondary, size: 22),
+        ),
+        if (hasBadge)
+          Positioned(
+            top: 8,
+            right: 8,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: AppColors.danger,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -128,11 +176,7 @@ class HomeView extends StatelessWidget {
     return const Center(
       child: Text(
         'Tendance',
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.bold,
-          color: AppColors.textPrimary,
-        ),
+        style: AppStyles.h2,
       ),
     );
   }
