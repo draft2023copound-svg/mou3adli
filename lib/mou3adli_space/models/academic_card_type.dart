@@ -1,0 +1,17 @@
+enum AcademicCardType {
+  announcement,
+  teacher,
+  student,
+  quiz,
+  poll,
+  pdf,
+  video,
+  homework,
+  achievement,
+  leaderboard,
+  resource,
+  exercise,
+  live,
+  question,
+  suggestion,
+}

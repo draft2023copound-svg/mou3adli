@@ -1,182 +1,231 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
-import '../../../constants/colors.dart';
-import '../../../constants/strings.dart';
-import '../../../constants/styles.dart';
-import '../../../widgets/glass_bottom_nav.dart';
-import '../../chat/views/inbox_view.dart';
-import '../../post/views/create_post_view.dart';
-import '../../profile/views/profile_view.dart';
+import '../../../foundation/colors.dart';
+import '../../../foundation/spacing.dart';
+import '../../../widgets/layout/royal_sliver_page.dart';
+import '../../../widgets/navigation/royal_header.dart';
+import '../../../widgets/navigation/royal_dock.dart';
+import '../../../engine/feed_builder.dart';
+import '../../../engine/feed_engine.dart';
+import '../../../models/feed_item.dart';
+import '../../../widgets/cards/announcement_card.dart';
+import '../../../widgets/cards/teacher_card.dart';
+import '../../../widgets/home/royal_academic_pulse.dart';
+import '../../../widgets/home/academic_subjects.dart';
+import '../../../widgets/home/royal_daily_challenge.dart';
+import '../../../widgets/home/continue_learning_card.dart';
+// removed unused import homework_reminder_card
+import '../../../widgets/home/daily_quiz_card.dart';
+import '../../../widgets/home/study_streak_card.dart';
+import '../../../widgets/home/weekly_progress_card.dart';
+import '../../../widgets/home/achievement_banner.dart';
+import '../../../widgets/home/trending_subjects.dart';
+import '../../../widgets/loading/royal_skeleton.dart';
 import '../controllers/home_controller.dart';
-import 'widgets/post_widget.dart';
-import 'widgets/stories_bar.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends GetView<HomeController> {
   const HomeView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(HomeController());
+    return Obx(() {
+      if (controller.loading.value) {
+        return const _LoadingView();
+      }
 
-    final screens = [
-      _buildFeed(controller),
-      _buildTrending(),
-      const SizedBox.shrink(), // Placeholder for FAB
-      const InboxView(),
-      const ProfileView(),
-    ];
-
-    return Obx(() => Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: IndexedStack(
-          index: controller.currentIndex.value,
-          children: screens,
+      return RoyalSliverPage(
+        header: RoyalHeader(
+          username: controller.user.name,
+          subtitle: controller.user.classroom,
+          avatar: controller.user.avatar,
+          notificationCount: controller.notifications.value,
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: GlassBottomNav(
-        currentIndex: controller.currentIndex.value,
-        onTap: (index) {
-          if (index == 2) {
-            Get.to(() => const CreatePostView(), transition: Transition.downToUp);
-          } else {
-            controller.changeTab(index);
-          }
-        },
-      ),
-    ));
-  }
+        floatingActionButton: FloatingActionButton.large(
+          backgroundColor: RoyalColors.gold500,
+          elevation: 0,
+          onPressed: controller.createResource,
+          child: const Icon(Icons.add),
+        ),
+        bottomNavigation: RoyalDock(
+          currentIndex: 0,
+          onChanged: controller.changeTab,
+          onCreate: controller.createResource,
+          onExit: controller.exitSpace,
+        ),
+        onRefresh: controller.refresh,
+        slivers: [
+          // Academic Pulse — Dashboard intelligent
+          SliverToBoxAdapter(
+            child: AcademicPulse(
+              average: controller.user.average,
+              announcements: controller.notifications.value,
+              assignments: controller.completedHomework.value,
+              replies: controller.unreadMessages.value,
+              documents: 0,
+            ),
+          ),
 
-  Widget _buildFeed(HomeController controller) {
-    return CustomScrollView(
-      slivers: [
-        // ═══ HEADER ═══
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        gradient: AppColors.goldGradient,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.school,
-                        color: Colors.white,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      AppStrings.appName,
-                      style: AppStyles.h2.copyWith(
-                        fontSize: 24,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    _buildHeaderButton(Icons.search_rounded),
-                    const SizedBox(width: 8),
-                    _buildHeaderButton(Icons.notifications_outlined, hasBadge: true),
-                  ],
+          // Continue Learning
+          SliverToBoxAdapter(
+            child: ContinueLearningCard(
+              title: "Trigonométrie",
+              teacher: "M. Ben Salah",
+              progress: 0.72,
+              remainingLessons: 3,
+              duration: "18 min",
+              onPressed: controller.resumeLesson,
+            ),
+          ),
+
+          // Daily Challenge
+          SliverToBoxAdapter(
+            child: RoyalDailyChallenge(
+              title: "Défi du jour",
+              description: "Réponds correctement à 5 questions de mathématiques.",
+              xp: 150,
+              progress: 0.45,
+              onPressed: controller.openDailyChallenge,
+            ),
+          ),
+
+          // Matières
+          SliverToBoxAdapter(
+            child: AcademicSubjects(
+              subjects: controller.subjects,
+              onSubjectPressed: controller.openSubject,
+            ),
+          ),
+
+          // Annonce
+          if (controller.announcement != null)
+            SliverToBoxAdapter(
+              child: AnnouncementCard(
+                title: controller.announcement!.title,
+                description: controller.announcement!.content,
+                teacher: controller.announcement!.teacher,
+                date: controller.announcement!.date,
+                onTap: controller.openAnnouncement,
+              ),
+            ),
+
+          // Quiz du jour
+          SliverToBoxAdapter(
+            child: DailyQuizCard(
+              title: "Quiz de Physique",
+              questions: 12,
+              duration: "10 min",
+              reward: 50,
+              onPressed: controller.startQuiz,
+            ),
+          ),
+
+          // Study Streak
+          SliverToBoxAdapter(
+            child: StudyStreakCard(
+              streak: controller.streak.value,
+              todayMinutes: controller.todayMinutes.value,
+              weeklyMinutes: controller.weeklyMinutes.value,
+            ),
+          ),
+
+          // Weekly Progress
+          SliverToBoxAdapter(
+            child: WeeklyProgressCard(
+              progress: controller.weekProgress.value,
+              average: controller.user.average,
+              completedTasks: controller.completedTasks.value,
+              totalTasks: controller.totalTasks.value,
+            ),
+          ),
+
+          // Achievement Banner
+          SliverToBoxAdapter(
+            child: AchievementBanner(
+              title: "Excellent travail",
+              description: "Tu as gagné 3 places cette semaine.",
+              icon: Icons.workspace_premium_rounded,
+            ),
+          ),
+
+          // Trending Subjects
+          SliverToBoxAdapter(
+            child: TrendingSubjects(
+              subjects: controller.trendingSubjects.toList(),
+              onTap: controller.openSubject,
+            ),
+          ),
+
+          // Le Feed principal
+          RoyalFeedBuilder(
+            sections: FeedEngine().build(
+              feed: controller.feed.cast<FeedItem>().toList(),
+              announcements: controller.announcements,
+              quizzes: controller.quizzes,
+              subjects: controller.subjects,
+            ),
+          ),
+
+          // Professeur recommandé
+          SliverToBoxAdapter(
+            child: TeacherCard(
+              avatar: controller.recommendedTeacher.avatar,
+              name: controller.recommendedTeacher.name,
+              subject: controller.recommendedTeacher.subject,
+              rating: controller.recommendedTeacher.rating,
+              online: controller.recommendedTeacher.online,
+              onMessage: controller.messageTeacher,
+            ),
+          ),
+
+          const SliverPadding(padding: EdgeInsets.only(bottom: 140)),
+        ],
+      );
+    });
+  }
+}
+
+class _LoadingView extends StatelessWidget {
+  const _LoadingView();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: RoyalColors.background,
+      body: SafeArea(
+        child: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: const EdgeInsets.all(RoyalSpacing.lg),
+          children: [
+            const SizedBox(height: 20),
+            Row(
+              children: const [
+                RoyalSkeleton(width: 58, height: 58),
+                SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    children: [
+                      RoyalSkeleton(width: double.infinity, height: 18),
+                      SizedBox(height: 12),
+                      RoyalSkeleton(width: 160, height: 14),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, end: 0),
-        ),
-
-        // ═══ STORIES ═══
-        SliverToBoxAdapter(
-          child: StoriesBar(stories: controller.stories),
-        ),
-
-        // ═══ DIVIDER ═══
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Divider(height: 1, thickness: 1, color: AppColors.divider),
-          ),
-        ),
-
-        // ═══ POSTS ═══
-        Obx(() => SliverPadding(
-          padding: const EdgeInsets.all(20),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final post = controller.posts[index];
-                return PostWidget(
-                  post: post,
-                  onLike: () => controller.toggleLike(post.postId!),
-                  onSave: () => controller.toggleSave(post.postId!),
-                  onComment: () {},
-                  onShare: () {},
-                );
-              },
-              childCount: controller.posts.length,
-            ),
-          ),
-        )),
-
-        // ═══ BOTTOM PADDING FOR NAVBAR ═══
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 120),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildHeaderButton(IconData icon, {bool hasBadge = false}) {
-    return Stack(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: AppColors.border, width: 1),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Icon(icon, color: AppColors.textSecondary, size: 22),
-        ),
-        if (hasBadge)
-          Positioned(
-            top: 8,
-            right: 8,
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: AppColors.danger,
-                shape: BoxShape.circle,
+            const SizedBox(height: 24),
+            const RoyalSkeleton(width: double.infinity, height: 160),
+            const SizedBox(height: 20),
+            const RoyalSkeleton(width: double.infinity, height: 90),
+            const SizedBox(height: 20),
+            ...List.generate(
+              5,
+              (index) => const Padding(
+                padding: EdgeInsets.only(bottom: 18),
+                child: RoyalSkeleton(width: double.infinity, height: 280),
               ),
             ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildTrending() {
-    return const Center(
-      child: Text(
-        'Tendance',
-        style: AppStyles.h2,
+          ],
+        ),
       ),
     );
   }

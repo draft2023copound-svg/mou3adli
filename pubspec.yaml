@@ -22,6 +22,8 @@ dependencies:
   confetti: ^0.8.0
   shimmer: ^3.0.0
   flutter_animate: ^4.5.2
+  lottie: ^3.2.0              # 🆕 Animations Lottie (success, loading premium)
+  flutter_staggered_animations: ^1.1.1  # 🆕 Animations en cascade pour le feed
 
   # ═══ NAVIGATION & ROUTING ═══
   go_router: ^14.8.1
@@ -29,7 +31,9 @@ dependencies:
   # ═══ STORAGE & PERSISTENCE ═══
   shared_preferences: ^2.2.2
   path_provider: ^2.1.2
-  cloud_firestore: ^4.9.0
+  cloud_firestore: ^5.6.12
+  hive: ^2.2.3                # 🆕 Base de données locale rapide (cache offline)
+  hive_flutter: ^1.1.0         # 🆕 Hive pour Flutter
 
   # ═══ CALENDAR ═══
   table_calendar: ^3.0.9
@@ -37,6 +41,7 @@ dependencies:
   # ═══ NOTIFICATIONS ═══
   flutter_local_notifications: ^18.0.1
   timezone: ^0.10.0
+  firebase_messaging: ^15.2.5  # 🆕 Push notifications Firebase
 
   # ═══ UTILITIES ═══
   intl: ^0.19.0
@@ -44,17 +49,35 @@ dependencies:
   path: ^1.9.0
   crypto: ^3.0.3
   http: ^1.2.0
+  url_launcher: ^6.3.1        # 🆕 Ouvrir PDF, liens
+  share_plus: ^10.1.4         # 🆕 Partager contenu
+  package_info_plus: ^8.3.0   # 🆕 Info app version
 
-  # ═══ IMAGE PICKER ═══
+  # ═══ IMAGE & MEDIA ═══
   image_picker: ^1.0.7
+  cached_network_image: ^3.4.1  # 🆕 Cache images réseau (feed, avatars)
+  photo_view: ^0.15.0           # 🆕 Zoom intelligent sur images
+
+  # ═══ AUTHENTICATION ═══
+  firebase_auth: ^5.5.2       # 🆕 Auth Firebase (email, Google, Apple)
+  google_sign_in: ^6.2.2      # 🆕 Connexion Google
+
+  # ═══ CHAT & REALTIME ═══
+  firebase_core: ^3.13.0       # 🆕 Core Firebase (obligatoire pour auth/messaging)
 
   # ═══ ICONS ═══
   cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.17         # 🆕 SVG support (badges, icônes custom)
+
+  # ═══ HAPTIC FEEDBACK ═══
+  vibration: ^3.1.3             # 🆕 Vibrations tactiles (boutons, likes)
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  hive_generator: ^2.0.1      # 🆕 Génération de adapters Hive
+  build_runner: 2.4.13       # 🆕 Pour hive_generator (compatible Dart 3.5.3)
 
 flutter:
   uses-material-design: true
@@ -63,3 +86,18 @@ flutter:
   assets:
     - assets/images/
     - assets/sounds/
+    - assets/animations/         # 🆕 Dossier Lottie
+    - assets/icons/              # 🆕 Icônes SVG custom
+
+  # ═══ FONTS ═══
+  fonts:                        # 🆕 SF Pro Display (optionnel)
+    - family: SF Pro Display
+      fonts:
+        - asset: assets/fonts/SF-Pro-Display-Regular.otf
+          weight: 400
+        - asset: assets/fonts/SF-Pro-Display-Medium.otf
+          weight: 500
+        - asset: assets/fonts/SF-Pro-Display-Semibold.otf
+          weight: 600
+        - asset: assets/fonts/SF-Pro-Display-Bold.otf
+          weight: 700

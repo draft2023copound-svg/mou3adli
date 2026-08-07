@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 
 class SendGridService {
   static const String _apiKey = String.fromEnvironment('SENDGRID_API_KEY');
-  static bool get _isApiKeyConfigured => _apiKey.isNotEmpty;
 
   static const String _fromEmail = 'support.mou3adli@gmail.com';
   static const String _fromName = 'Mou3adli';
