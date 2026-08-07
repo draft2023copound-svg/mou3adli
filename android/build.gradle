@@ -3,7 +3,7 @@
 // --- BLOC AJOUTÉ : Force l'API 35 pour TOUS les sous-projets (y compris shared_preferences_android) ---
 subprojects {
     afterEvaluate { project ->
-        if (project.hasProperty('android')) {
+        if (project.plugins.hasPlugin('com.android.application') || project.plugins.hasPlugin('com.android.library')) {
             project.android {
                 compileSdkVersion 35
                 buildToolsVersion "35.0.0"
