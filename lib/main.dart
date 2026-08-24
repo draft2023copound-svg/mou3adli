@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'providers/app_provider.dart';
 import 'providers/games_provider.dart';
@@ -40,7 +39,7 @@ class Mou3adliApp extends StatelessWidget {
       builder: (context, provider, _) {
         final isDark = provider.isDarkMode;
 
-        return GetMaterialApp(
+        return MaterialApp(
           debugShowCheckedModeBanner: false,
           title: 'Mou3adli',
           theme: _buildLightTheme(),
@@ -49,12 +48,12 @@ class Mou3adliApp extends StatelessWidget {
           initialRoute: '/',
           routes: {
             '/': (context) => Consumer<AppProvider>(
-              builder: (context, provider, _) {
-                return provider.isLoggedIn
-                    ? const HomeScreen()
-                    : const LoginScreen();
-              },
-            ),
+                  builder: (context, provider, _) {
+                    return provider.isLoggedIn
+                        ? const HomeScreen()
+                        : const LoginScreen();
+                  },
+                ),
             '/home': (context) => const HomeScreen(),
             '/subjects': (context) => const SubjectListScreen(),
             '/terms': (context) => const TermSelectionScreen(),
@@ -87,7 +86,8 @@ class Mou3adliApp extends StatelessWidget {
         ),
         iconTheme: IconThemeData(color: Color(0xFF1E293B)),
       ),
-      cardTheme: CardTheme(
+      // ✅ CORRIGÉ : CardTheme → CardThemeData
+      cardTheme: CardThemeData(
         color: Colors.white,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
@@ -132,7 +132,8 @@ class Mou3adliApp extends StatelessWidget {
         ),
         iconTheme: IconThemeData(color: Colors.white),
       ),
-      cardTheme: CardTheme(
+      // ✅ CORRIGÉ : CardTheme → CardThemeData
+      cardTheme: CardThemeData(
         color: const Color(0xFF1A1A1A),
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),

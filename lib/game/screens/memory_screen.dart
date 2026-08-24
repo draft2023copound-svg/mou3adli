@@ -140,7 +140,9 @@ class _MemoryScreenState extends State<MemoryScreen>
   void _triggerRedFlash() {
     if (!mounted) return;
     if (!_config.modifiers.contains(DifficultyModifier.redFlash) &&
-        !_config.modifiers.contains(DifficultyModifier.nightmare)) return;
+        !_config.modifiers.contains(DifficultyModifier.nightmare)) {
+      return;
+    }
 
     setState(() => _isRedFlashing = true);
     HapticFeedback.heavyImpact();
@@ -154,7 +156,9 @@ class _MemoryScreenState extends State<MemoryScreen>
   void _triggerBlackout() {
     if (!mounted) return;
     if (!_config.modifiers.contains(DifficultyModifier.blackout) &&
-        !_config.modifiers.contains(DifficultyModifier.nightmare)) return;
+        !_config.modifiers.contains(DifficultyModifier.nightmare)) {
+      return;
+    }
 
     setState(() => _isBlackout = true);
     Future.delayed(const Duration(milliseconds: 800), () {
@@ -165,7 +169,9 @@ class _MemoryScreenState extends State<MemoryScreen>
   void _triggerChaosShuffle() {
     if (!mounted) return;
     if (!_config.modifiers.contains(DifficultyModifier.chaosShuffle) &&
-        !_config.modifiers.contains(DifficultyModifier.nightmare)) return;
+        !_config.modifiers.contains(DifficultyModifier.nightmare)) {
+      return;
+    }
 
     _chaosCounter++;
     if (_chaosCounter % 5 == 0) {
@@ -188,7 +194,9 @@ class _MemoryScreenState extends State<MemoryScreen>
   void _triggerShuffleOnFail() {
     if (!mounted) return;
     if (!_config.modifiers.contains(DifficultyModifier.shuffleOnFail) &&
-        !_config.modifiers.contains(DifficultyModifier.nightmare)) return;
+        !_config.modifiers.contains(DifficultyModifier.nightmare)) {
+      return;
+    }
 
     final unmatched = _cards.where((CardModel card) => !card.isMatched)
         .toList();
@@ -207,7 +215,9 @@ class _MemoryScreenState extends State<MemoryScreen>
   void _rotateGrid() {
     if (!mounted) return;
     if (!_config.modifiers.contains(DifficultyModifier.rotatingGrid) &&
-        !_config.modifiers.contains(DifficultyModifier.nightmare)) return;
+        !_config.modifiers.contains(DifficultyModifier.nightmare)) {
+      return;
+    }
 
     setState(() {
       _gridRotation += math.pi / 2;
@@ -334,7 +344,7 @@ class _MemoryScreenState extends State<MemoryScreen>
     showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.7),
+      barrierColor: Colors.black.withValues(alpha: 0.7),
       builder: (_) => _GameOverDialog(
         reason: reason,
         level: _currentLevel,
@@ -356,7 +366,7 @@ class _MemoryScreenState extends State<MemoryScreen>
     showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.5),
+      barrierColor: Colors.black.withValues(alpha: 0.5),
       builder: (_) => _VictoryDialog(
         level: _currentLevel,
         moves: _moves,
@@ -467,7 +477,7 @@ class _MemoryScreenState extends State<MemoryScreen>
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -486,7 +496,7 @@ class _MemoryScreenState extends State<MemoryScreen>
               'Niveau max atteint: $maxLevel',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withValues(alpha: 0.6),
               ),
             ),
             const SizedBox(height: 20),
@@ -518,14 +528,14 @@ class _MemoryScreenState extends State<MemoryScreen>
                             ? (isCurrent
                                 ? AppColors.royalBlue
                                 : AppColors.darkSurface)
-                            : Colors.white.withOpacity(0.05),
+                            : Colors.white.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isUnlocked
                               ? (isCurrent
                                   ? AppColors.royalBlue
                                   : AppColors.darkBorder)
-                              : Colors.white.withOpacity(0.1),
+                              : Colors.white.withValues(alpha: 0.1),
                           width: 2,
                         ),
                       ),
@@ -538,12 +548,12 @@ class _MemoryScreenState extends State<MemoryScreen>
                                   fontWeight: FontWeight.w800,
                                   color: isCurrent
                                       ? Colors.white
-                                      : Colors.white.withOpacity(0.8),
+                                      : Colors.white.withValues(alpha: 0.8),
                                 ),
                               )
                             : Icon(
                                 Icons.lock,
-                                color: Colors.white.withOpacity(0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                                 size: 16,
                               ),
                       ),
@@ -628,7 +638,7 @@ class _MemoryScreenState extends State<MemoryScreen>
                     const SizedBox(width: 8),
                     Icon(
                       Icons.keyboard_arrow_down,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       size: 20,
                     ),
                   ],
@@ -639,7 +649,7 @@ class _MemoryScreenState extends State<MemoryScreen>
                 _config.description,
                 style: TextStyle(
                   fontSize: 11,
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -652,8 +662,8 @@ class _MemoryScreenState extends State<MemoryScreen>
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: _timeLimit != null && _timeLimit! - _seconds <= 10
-                        ? AppColors.error.withOpacity(0.3)
-                        : Colors.white.withOpacity(0.15),
+                        ? AppColors.error.withValues(alpha: 0.3)
+                        : Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -683,7 +693,7 @@ class _MemoryScreenState extends State<MemoryScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -768,7 +778,7 @@ class _MemoryScreenState extends State<MemoryScreen>
         child: Transform(
           alignment: Alignment.center,
           transform: _isMirror
-              ? (Matrix4.identity()..scale(-1.0, 1.0, 1.0))
+              ? (Matrix4.identity()..scaleByDouble(-1.0, 1.0, 1.0, 1.0))
               : Matrix4.identity(),
           child: ConstrainedBox(
             constraints: BoxConstraints(
@@ -830,8 +840,8 @@ class _MemoryScreenState extends State<MemoryScreen>
                   boxShadow: [
                     BoxShadow(
                       color: isFlipped && card.color != Colors.transparent
-                          ? card.color.withOpacity(0.4)
-                          : Colors.black.withOpacity(0.3),
+                          ? card.color.withValues(alpha: 0.4)
+                          : Colors.black.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 4),
                     ),
@@ -898,12 +908,12 @@ class _MemoryScreenState extends State<MemoryScreen>
   Widget _buildRedFlashOverlay() {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      color: AppColors.error.withOpacity(0.15),
+      color: AppColors.error.withValues(alpha: 0.15),
       child: Center(
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           decoration: BoxDecoration(
-            color: AppColors.error.withOpacity(0.9),
+            color: AppColors.error.withValues(alpha: 0.9),
             borderRadius: BorderRadius.circular(16),
           ),
           child: const Row(
@@ -947,7 +957,7 @@ class _MemoryScreenState extends State<MemoryScreen>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.error.withOpacity(0.9),
+            color: AppColors.error.withValues(alpha: 0.9),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Text(
@@ -1061,9 +1071,9 @@ class _ModifierBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withOpacity(0.4), width: 1),
+        border: Border.all(color: color.withValues(alpha: 0.4), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1145,7 +1155,7 @@ class _VictoryDialog extends StatelessWidget {
           border: Border.all(color: AppColors.darkBorder),
           boxShadow: [
             BoxShadow(
-              color: AppColors.success.withOpacity(0.2),
+              color: AppColors.success.withValues(alpha: 0.2),
               blurRadius: 40,
               spreadRadius: 5,
             ),
@@ -1161,7 +1171,7 @@ class _VictoryDialog extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.success.withOpacity(0.3),
+                    color: AppColors.success.withValues(alpha: 0.3),
                     blurRadius: 20,
                     spreadRadius: 4,
                   ),
@@ -1188,7 +1198,7 @@ class _VictoryDialog extends StatelessWidget {
               'Toutes les paires trouvées',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withValues(alpha: 0.6),
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -1245,7 +1255,7 @@ class _VictoryDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.royalBlue.withOpacity(0.3),
+                            color: AppColors.royalBlue.withValues(alpha: 0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -1307,7 +1317,7 @@ class _GameOverDialog extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: AppColors.error.withOpacity(0.2),
+                color: AppColors.error.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
               ),
               child: const Icon(
@@ -1331,7 +1341,7 @@ class _GameOverDialog extends StatelessWidget {
               'Niveau $level échoué',
               style: TextStyle(
                 fontSize: 14,
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withValues(alpha: 0.6),
               ),
             ),
             const SizedBox(height: 24),
@@ -1387,7 +1397,7 @@ class _GameOverDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.error.withOpacity(0.3),
+                            color: AppColors.error.withValues(alpha: 0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),

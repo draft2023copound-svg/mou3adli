@@ -227,7 +227,7 @@ class _ChatViewState extends State<ChatView> {
               height: 260,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: RoyalColors.royalBlue500.withOpacity(0.05),
+                color: RoyalColors.royalBlue500.withValues(alpha: 0.05),
               ),
             ),
           ),
@@ -239,7 +239,7 @@ class _ChatViewState extends State<ChatView> {
               height: 320,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: RoyalColors.gold500.withOpacity(0.05),
+                color: RoyalColors.gold500.withValues(alpha: 0.05),
               ),
             ),
           ),
@@ -418,7 +418,7 @@ class _ChatHeader extends StatelessWidget {
             vertical: RoyalSpacing.sm,
           ),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.85),
+            color: Colors.white.withValues(alpha: 0.85),
             border: Border(
               bottom: BorderSide(color: RoyalColors.border),
             ),
@@ -525,7 +525,7 @@ class _AcademicContextBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: RoyalRadius.full,
       ),
       child: Row(
@@ -722,7 +722,7 @@ class _PdfMessage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.red.withOpacity(0.08),
+          color: Colors.red.withValues(alpha: 0.08),
           borderRadius: RoyalRadius.md,
         ),
         child: Row(
@@ -796,7 +796,7 @@ class _QuizMessage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: RoyalColors.gold500.withOpacity(0.08),
+          color: RoyalColors.gold500.withValues(alpha: 0.08),
           borderRadius: RoyalRadius.md,
         ),
         child: Row(
@@ -868,7 +868,7 @@ class _HomeworkMessage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.orange.withOpacity(0.08),
+          color: Colors.orange.withValues(alpha: 0.08),
           borderRadius: RoyalRadius.md,
         ),
         child: Row(
@@ -940,7 +940,7 @@ class _AnnouncementMessage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: RoyalColors.royalBlue500.withOpacity(0.08),
+          color: RoyalColors.royalBlue500.withValues(alpha: 0.08),
           borderRadius: RoyalRadius.md,
         ),
         child: Row(
@@ -1031,12 +1031,6 @@ class _MessageStatusIcon extends StatelessWidget {
           size: 14,
           color: Colors.blue,
         );
-      default:
-        return const Icon(
-          Icons.check_rounded,
-          size: 14,
-          color: Colors.white60,
-        );
     }
   }
 }
@@ -1097,7 +1091,7 @@ class _TypingDot extends StatelessWidget {
           height: 8,
           margin: const EdgeInsets.symmetric(horizontal: 3),
           decoration: BoxDecoration(
-            color: RoyalColors.textMuted.withOpacity(value),
+            color: RoyalColors.textMuted.withValues(alpha: value),
             shape: BoxShape.circle,
           ),
         );
@@ -1370,7 +1364,7 @@ class _AttachmentItem extends StatelessWidget {
         height: 80,
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(

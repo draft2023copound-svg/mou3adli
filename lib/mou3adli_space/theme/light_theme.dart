@@ -61,7 +61,7 @@ ThemeData buildRoyalLightTheme() {
       foregroundColor: Colors.white,
       elevation: 0,
     ),
-    cardTheme: CardTheme(
+    cardTheme: CardThemeData(
       color: RoyalColors.card,
       elevation: 0,
       shape: RoundedRectangleBorder(
