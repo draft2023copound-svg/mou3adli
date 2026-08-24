@@ -15,8 +15,8 @@ class TermSelectionScreen extends StatelessWidget {
     final textPrimary = isDark ? Colors.white : const Color(0xFF1E293B);
     final textSecondary = isDark ? Colors.grey.shade400 : const Color(0xFF64748B);
     final cardShadow = isDark 
-      ? Colors.black.withOpacity(0.3)
-      : Colors.black.withOpacity(0.04);
+      ? Colors.black.withValues(alpha: 0.3)
+      : Colors.black.withValues(alpha: 0.04);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -130,7 +130,7 @@ class TermSelectionScreen extends StatelessWidget {
                                 margin: const EdgeInsets.only(top: 4),
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: const Color(0xFF1C3F7A).withOpacity(0.1),
+                                  color: const Color(0xFF1C3F7A).withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: const Text(

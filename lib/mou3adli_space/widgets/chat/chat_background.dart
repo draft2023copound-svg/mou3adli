@@ -33,7 +33,7 @@ class ChatBackground extends StatelessWidget {
           top: -120,
           right: -60,
           child: _blob(
-            RoyalColors.royalBlue400.withOpacity(0.05),
+            RoyalColors.royalBlue400.withValues(alpha: 0.05),
             260,
           ),
         ),
@@ -41,7 +41,7 @@ class ChatBackground extends StatelessWidget {
           bottom: -120,
           left: -80,
           child: _blob(
-            RoyalColors.gold400.withOpacity(0.05),
+            RoyalColors.gold400.withValues(alpha: 0.05),
             320,
           ),
         ),

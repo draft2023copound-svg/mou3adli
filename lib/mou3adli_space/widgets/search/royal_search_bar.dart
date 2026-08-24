@@ -41,7 +41,7 @@ class _RoyalSearchBarState extends State<RoyalSearchBar> {
       curve: Curves.easeOutCubic,
       height: 58,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.92),
+        color: Colors.white.withValues(alpha: 0.92),
         borderRadius: RoyalRadius.full,
         border: Border.all(
           color: focused ? RoyalColors.royalBlue400 : RoyalColors.border,

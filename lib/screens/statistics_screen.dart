@@ -157,7 +157,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(.12),
+              color: Colors.white.withValues(alpha: .12),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Icon(
@@ -219,7 +219,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
         boxShadow: [
           BoxShadow(
             blurRadius: 40,
-            color: Colors.blue.withOpacity(.30),
+            color: Colors.blue.withValues(alpha: .30),
             offset: const Offset(0, 25),
           )
         ],
@@ -260,7 +260,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                     height: 130,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withOpacity(.08),
+                      color: Colors.white.withValues(alpha: .08),
                     ),
                   ),
                   Column(
@@ -439,7 +439,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           BoxShadow(
             blurRadius: 25,
             offset: const Offset(0, 15),
-            color: color.withOpacity(.10),
+            color: color.withValues(alpha: .10),
           ),
         ],
       ),
@@ -451,7 +451,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: color.withOpacity(.12),
+              color: color.withValues(alpha: .12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -598,7 +598,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           BoxShadow(
             blurRadius: 35,
             offset: const Offset(0, 18),
-            color: Colors.black.withOpacity(.05),
+            color: Colors.black.withValues(alpha: .05),
           )
         ],
       ),
@@ -714,7 +714,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                         end: Alignment.bottomCenter,
                         colors: [
                           const Color(0xff2563EB)
-                              .withOpacity(.35),
+                              .withValues(alpha: .35),
                           Colors.transparent,
                         ],
                       ),
@@ -758,7 +758,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           BoxShadow(
             blurRadius: 30,
             offset: const Offset(0, 15),
-            color: Colors.black.withOpacity(.05),
+            color: Colors.black.withValues(alpha: .05),
           )
         ],
       ),
@@ -806,7 +806,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
                   RadarDataSet(
                     fillColor:
                         const Color(0xff2563EB)
-                            .withOpacity(.25),
+                            .withValues(alpha: .25),
                     borderColor:
                         const Color(0xff2563EB),
                     entryRadius: 4,
@@ -857,7 +857,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           BoxShadow(
             blurRadius: 30,
             offset: const Offset(0, 15),
-            color: Colors.black.withOpacity(.05),
+            color: Colors.black.withValues(alpha: .05),
           )
         ],
       ),
@@ -977,7 +977,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
           BoxShadow(
             blurRadius: 30,
             offset: const Offset(0, 15),
-            color: Colors.black.withOpacity(.05),
+            color: Colors.black.withValues(alpha: .05),
           )
         ],
       ),
@@ -1018,7 +1018,7 @@ class _StatisticsScreenState extends State<StatisticsScreen>
             width: 55,
             height: 55,
             decoration: BoxDecoration(
-              color: color.withOpacity(.15),
+              color: color.withValues(alpha: .15),
               borderRadius: BorderRadius.circular(18),
             ),
             child: Icon(

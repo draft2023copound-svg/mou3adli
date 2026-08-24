@@ -42,7 +42,7 @@ class _PremiumCalendarState extends State<PremiumCalendar> {
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -137,7 +137,7 @@ class _PremiumCalendarState extends State<PremiumCalendar> {
                               boxShadow: isSelected
                                   ? [
                                       BoxShadow(
-                                        color: kRoyalBlue.withOpacity(0.3),
+                                        color: kRoyalBlue.withValues(alpha: 0.3),
                                         blurRadius: 12,
                                         offset: const Offset(0, 4),
                                       )

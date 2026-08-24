@@ -32,8 +32,8 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
     final textSecondary = isDark ? Colors.grey.shade400 : const Color(0xFF64748B);
     final textMuted = isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8);
     final cardShadow = isDark
-        ? Colors.black.withOpacity(0.3)
-        : Colors.black.withOpacity(0.04);
+        ? Colors.black.withValues(alpha: 0.3)
+        : Colors.black.withValues(alpha: 0.04);
 
     if (term == null) {
       return Scaffold(
@@ -121,7 +121,7 @@ class _GradeEntryScreenState extends State<GradeEntryScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: const Color(0xFF1C3F7A).withOpacity(0.10),
+                color: const Color(0xFF1C3F7A).withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
@@ -331,7 +331,7 @@ class _SubjectGradeDetailScreenState extends State<SubjectGradeDetailScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 18,
                             offset: const Offset(0, 8),
                           ),
@@ -342,7 +342,7 @@ class _SubjectGradeDetailScreenState extends State<SubjectGradeDetailScreen> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF1C3F7A).withOpacity(0.12),
+                              color: const Color(0xFF1C3F7A).withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(16),
                             ),
                             child: const Icon(Icons.school, color: Color(0xFF1C3F7A), size: 26),
@@ -420,7 +420,7 @@ class _SubjectGradeDetailScreenState extends State<SubjectGradeDetailScreen> {
         color: surfaceColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 18, offset: const Offset(0, 8)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 18, offset: const Offset(0, 8)),
         ],
       ),
       child: Column(
@@ -431,7 +431,7 @@ class _SubjectGradeDetailScreenState extends State<SubjectGradeDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF1C3F7A).withOpacity(0.10),
+                  color: const Color(0xFF1C3F7A).withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.edit_note, color: Color(0xFF1C3F7A), size: 20),

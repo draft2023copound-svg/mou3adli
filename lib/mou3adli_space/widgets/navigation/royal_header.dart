@@ -43,7 +43,7 @@ class RoyalHeader extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                RoyalColors.royalBlue600.withOpacity(0.06),
+                RoyalColors.royalBlue600.withValues(alpha: 0.06),
                 Theme.of(context).brightness == Brightness.dark
                     ? RoyalColors.darkBackground
                     : Colors.white,

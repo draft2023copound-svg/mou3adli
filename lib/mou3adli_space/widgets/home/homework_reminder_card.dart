@@ -36,7 +36,7 @@ class HomeworkReminderCard extends StatelessWidget {
                 width: 58,
                 height: 58,
                 decoration: BoxDecoration(
-                  color: RoyalColors.error.withOpacity(0.1),
+                  color: RoyalColors.error.withValues(alpha: 0.1),
                   borderRadius: RoyalRadius.lg,
                 ),
                 child: const Icon(

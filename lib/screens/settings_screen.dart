@@ -209,7 +209,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.04),
+            color: Colors.black.withValues(alpha: .04),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -221,7 +221,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           width: 52,
           height: 52,
           decoration: BoxDecoration(
-            color: color.withOpacity(.10),
+            color: color.withValues(alpha: .10),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(icon, color: color, size: 26),
@@ -258,7 +258,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.04),
+            color: Colors.black.withValues(alpha: .04),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -270,7 +270,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           width: 52,
           height: 52,
           decoration: BoxDecoration(
-            color: color.withOpacity(.10),
+            color: color.withValues(alpha: .10),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(icon, color: color, size: 26),
@@ -286,7 +286,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         trailing: Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: kPrimary,
+          activeThumbColor: kPrimary,
         ),
       ),
     );
@@ -309,7 +309,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(.04),
+            color: Colors.black.withValues(alpha: .04),
             blurRadius: 18,
             offset: const Offset(0, 8),
           ),
@@ -321,7 +321,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           width: 52,
           height: 52,
           decoration: BoxDecoration(
-            color: color.withOpacity(.10),
+            color: color.withValues(alpha: .10),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Icon(icon, color: color, size: 26),

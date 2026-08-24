@@ -18,7 +18,7 @@ class QuizMessage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.green.withOpacity(0.08),
+          color: Colors.green.withValues(alpha: 0.08),
           borderRadius: RoyalRadius.lg,
         ),
         child: Column(

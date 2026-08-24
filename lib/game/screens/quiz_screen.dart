@@ -168,7 +168,7 @@ class _QuizScreenState extends State<QuizScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withOpacity(0.7),
+      barrierColor: Colors.black.withValues(alpha: 0.7),
       builder: (_) => _ResultDialog(
         title: title,
         subtitle: subtitle,
@@ -267,7 +267,7 @@ class _QuizScreenState extends State<QuizScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF1E3A8A).withOpacity(0.25),
+            color: const Color(0xFF1E3A8A).withValues(alpha: 0.25),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -283,7 +283,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(
@@ -300,7 +300,7 @@ class _QuizScreenState extends State<QuizScreen> {
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                       letterSpacing: 2,
                     ),
                   ),
@@ -318,10 +318,10 @@ class _QuizScreenState extends State<QuizScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: const Color(0xFFD4AF37).withOpacity(0.4),
+                    color: const Color(0xFFD4AF37).withValues(alpha: 0.4),
                     width: 1,
                   ),
                 ),
@@ -341,7 +341,7 @@ class _QuizScreenState extends State<QuizScreen> {
             borderRadius: BorderRadius.circular(6),
             child: LinearProgressIndicator(
               value: progress,
-              backgroundColor: Colors.white.withOpacity(0.15),
+              backgroundColor: Colors.white.withValues(alpha: 0.15),
               valueColor: const AlwaysStoppedAnimation(Color(0xFFD4AF37)),
               minHeight: 6,
             ),
@@ -355,10 +355,10 @@ class _QuizScreenState extends State<QuizScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFD4AF37).withOpacity(0.1),
+        color: const Color(0xFFD4AF37).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: const Color(0xFFD4AF37).withOpacity(0.3),
+          color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -387,7 +387,7 @@ class _QuizScreenState extends State<QuizScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -431,12 +431,12 @@ class _QuizScreenState extends State<QuizScreen> {
     if (_isAnswered) {
       final answerLetter = option.split(')')[0];
       if (answerLetter == _correctAnswer) {
-        bgColor = const Color(0xFF22C55E).withOpacity(0.1);
+        bgColor = const Color(0xFF22C55E).withValues(alpha: 0.1);
         borderColor = const Color(0xFF22C55E);
         textColor = const Color(0xFF22C55E);
         trailingIcon = Icons.check_circle_rounded;
       } else if (answerLetter == _selectedAnswer && answerLetter != _correctAnswer) {
-        bgColor = const Color(0xFFEF4444).withOpacity(0.1);
+        bgColor = const Color(0xFFEF4444).withValues(alpha: 0.1);
         borderColor = const Color(0xFFEF4444);
         textColor = const Color(0xFFEF4444);
         trailingIcon = Icons.cancel_rounded;
@@ -463,7 +463,7 @@ class _QuizScreenState extends State<QuizScreen> {
           boxShadow: [
             if (!_isAnswered)
               BoxShadow(
-                color: Colors.black.withOpacity(0.03),
+                color: Colors.black.withValues(alpha: 0.03),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -477,9 +477,9 @@ class _QuizScreenState extends State<QuizScreen> {
               decoration: BoxDecoration(
                 color: _isAnswered
                     ? (option.split(')')[0] == _correctAnswer
-                        ? const Color(0xFF22C55E).withOpacity(0.15)
+                        ? const Color(0xFF22C55E).withValues(alpha: 0.15)
                         : option.split(')')[0] == _selectedAnswer
-                            ? const Color(0xFFEF4444).withOpacity(0.15)
+                            ? const Color(0xFFEF4444).withValues(alpha: 0.15)
                             : const Color(0xFFF1F5F9))
                     : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(10),
@@ -536,7 +536,7 @@ class _QuizScreenState extends State<QuizScreen> {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF64748B).withOpacity(0.8),
+                  color: const Color(0xFF64748B).withValues(alpha: 0.8),
                 ),
               ),
               Text(
@@ -609,7 +609,7 @@ class _ResultDialog extends StatelessWidget {
           borderRadius: BorderRadius.circular(28),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               blurRadius: 40,
               spreadRadius: 5,
             ),
@@ -627,7 +627,7 @@ class _ResultDialog extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.3),
+                    color: color.withValues(alpha: 0.3),
                     blurRadius: 20,
                     spreadRadius: 4,
                   ),
@@ -666,7 +666,7 @@ class _ResultDialog extends StatelessWidget {
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: color.withOpacity(0.3),
+                  color: color.withValues(alpha: 0.3),
                   width: 4,
                 ),
               ),
@@ -758,7 +758,7 @@ class _ResultDialog extends StatelessWidget {
                         borderRadius: BorderRadius.circular(14),
                         boxShadow: [
                           BoxShadow(
-                            color: color.withOpacity(0.3),
+                            color: color.withValues(alpha: 0.3),
                             blurRadius: 16,
                             offset: const Offset(0, 6),
                           ),
@@ -816,7 +816,7 @@ class _StatBadge extends StatelessWidget {
         color: const Color(0xFFF8FAFC),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFE2E8F0).withOpacity(0.5),
+          color: const Color(0xFFE2E8F0).withValues(alpha: 0.5),
           width: 1,
         ),
       ),

@@ -19,7 +19,7 @@ class PdfMessage extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.red.withOpacity(0.08),
+          color: Colors.red.withValues(alpha: 0.08),
           borderRadius: RoyalRadius.md,
         ),
         child: Row(

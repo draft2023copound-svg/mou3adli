@@ -27,8 +27,8 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
     final textSecondary = isDark ? Colors.grey.shade400 : const Color(0xFF64748B);
     final textMuted = isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8);
     final cardShadow = isDark
-        ? Colors.black.withOpacity(0.3)
-        : Colors.black.withOpacity(0.04);
+        ? Colors.black.withValues(alpha: 0.3)
+        : Colors.black.withValues(alpha: 0.04);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -119,7 +119,7 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.10),
+                color: color.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(

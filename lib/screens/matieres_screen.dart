@@ -21,8 +21,8 @@ class MatieresScreen extends StatelessWidget {
         final textSecondary = isDark ? Colors.grey.shade400 : const Color(0xFF64748B);
         final textMuted = isDark ? Colors.grey.shade500 : const Color(0xFF94A3B8);
         final cardShadow = isDark
-            ? Colors.black.withOpacity(0.3)
-            : Colors.black.withOpacity(0.04);
+            ? Colors.black.withValues(alpha: 0.3)
+            : Colors.black.withValues(alpha: 0.04);
 
         if (term == null) {
           return Scaffold(
@@ -93,9 +93,9 @@ class MatieresScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1C3F7A).withOpacity(.08),
+                    color: const Color(0xFF1C3F7A).withValues(alpha: .08),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: const Color(0xFF1C3F7A).withOpacity(.15)),
+                    border: Border.all(color: const Color(0xFF1C3F7A).withValues(alpha: .15)),
                   ),
                   child: Text(
                     title.isNotEmpty ? title : 'Matières du trimestre',
@@ -274,7 +274,7 @@ class MatieresScreen extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1C3F7A).withOpacity(0.08),
+                    color: const Color(0xFF1C3F7A).withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(14),
                   ),
                   child: Icon(
@@ -308,7 +308,7 @@ class MatieresScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: const Color(0xFFF5F7FB),
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: const Color(0xFF1C3F7A).withOpacity(0.15)),
+                    border: Border.all(color: const Color(0xFF1C3F7A).withValues(alpha: 0.15)),
                   ),
                   child: Text(
                     coeff.toStringAsFixed(1),

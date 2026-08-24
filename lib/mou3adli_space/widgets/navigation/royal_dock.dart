@@ -44,13 +44,13 @@ class RoyalDock extends StatelessWidget {
                   height: 82,
                   decoration: BoxDecoration(
                     color: Theme.of(context).brightness == Brightness.dark
-                        ? Colors.white.withOpacity(0.08)
-                        : Colors.white.withOpacity(0.72),
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : Colors.white.withValues(alpha: 0.72),
                     borderRadius: BorderRadius.circular(32),
                     border: Border.all(
                       color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white.withOpacity(0.1)
-                          : Colors.white.withOpacity(0.35),
+                          ? Colors.white.withValues(alpha: 0.1)
+                          : Colors.white.withValues(alpha: 0.35),
                     ),
                     boxShadow: RoyalShadows.floating,
                   ),

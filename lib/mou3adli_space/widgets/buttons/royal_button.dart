@@ -74,8 +74,8 @@ class _RoyalButtonState extends State<RoyalButton> {
             borderRadius: RoyalRadius.full,
             onTap: widget.loading ? null : widget.onPressed,
             onHighlightChanged: (v) => setState(() => _pressed = v),
-            splashColor: Colors.white.withOpacity(0.1),
-            highlightColor: Colors.white.withOpacity(0.05),
+            splashColor: Colors.white.withValues(alpha: 0.1),
+            highlightColor: Colors.white.withValues(alpha: 0.05),
             child: Center(
               child: AnimatedSwitcher(
                 duration: RoyalMotion.normal,
@@ -152,8 +152,8 @@ class _RoyalButtonState extends State<RoyalButton> {
         return isDark ? RoyalColors.royalBlue500 : RoyalColors.royalBlue600;
       case RoyalButtonStyle.glass:
         return isDark
-            ? Colors.white.withOpacity(0.1)
-            : Colors.white.withOpacity(0.55);
+            ? Colors.white.withValues(alpha: 0.1)
+            : Colors.white.withValues(alpha: 0.55);
       case RoyalButtonStyle.outlined:
       case RoyalButtonStyle.ghost:
         return Colors.transparent;
@@ -175,7 +175,7 @@ class _RoyalButtonState extends State<RoyalButton> {
         );
       case RoyalButtonStyle.glass:
         return Border.all(
-          color: Colors.white.withOpacity(0.3),
+          color: Colors.white.withValues(alpha: 0.3),
           width: 1.0,
         );
       default:

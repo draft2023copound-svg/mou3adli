@@ -213,7 +213,7 @@ class _HeroHeader extends StatelessWidget {
             height: 250,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withOpacity(.05),
+              color: Colors.white.withValues(alpha: .05),
             ),
           ),
         ),
@@ -225,7 +225,7 @@ class _HeroHeader extends StatelessWidget {
             height: 220,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: RoyalColors.gold500.withOpacity(.08),
+              color: RoyalColors.gold500.withValues(alpha: .08),
             ),
           ),
         ),

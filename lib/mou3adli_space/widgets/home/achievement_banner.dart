@@ -28,8 +28,8 @@ class AchievementBanner extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              RoyalColors.gold400.withOpacity(0.18),
-              RoyalColors.royalBlue100.withOpacity(0.10),
+              RoyalColors.gold400.withValues(alpha: 0.18),
+              RoyalColors.royalBlue100.withValues(alpha: 0.10),
             ],
           ),
           borderRadius: RoyalRadius.lg,

@@ -186,31 +186,31 @@ class AppShadows {
   const AppShadows._();
 
   static BoxShadow get small => BoxShadow(
-        color: Colors.black.withOpacity(0.04),
+        color: Colors.black.withValues(alpha: 0.04),
         blurRadius: AppSizes.shadowSmall,
         offset: const Offset(0, 2),
       );
 
   static BoxShadow get medium => BoxShadow(
-        color: Colors.black.withOpacity(0.06),
+        color: Colors.black.withValues(alpha: 0.06),
         blurRadius: AppSizes.shadowMedium,
         offset: const Offset(0, 4),
       );
 
   static BoxShadow get large => BoxShadow(
-        color: Colors.black.withOpacity(0.08),
+        color: Colors.black.withValues(alpha: 0.08),
         blurRadius: AppSizes.shadowLarge,
         offset: const Offset(0, 8),
       );
 
   static BoxShadow get xLarge => BoxShadow(
-        color: Colors.black.withOpacity(0.12),
+        color: Colors.black.withValues(alpha: 0.12),
         blurRadius: AppSizes.shadowXLarge,
         offset: const Offset(0, 12),
       );
 
   static BoxShadow colored(Color color, double opacity) => BoxShadow(
-        color: color.withOpacity(opacity),
+        color: color.withValues(alpha: opacity),
         blurRadius: AppSizes.shadowLarge,
         offset: const Offset(0, 6),
       );

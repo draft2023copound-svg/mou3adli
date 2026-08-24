@@ -39,7 +39,7 @@ class AchievementGrid extends StatelessWidget {
         return Container(
           decoration: BoxDecoration(
             color: item.unlocked
-                ? item.color.withOpacity(0.08)
+                ? item.color.withValues(alpha: 0.08)
                 : Colors.grey.shade100,
             borderRadius: RoyalRadius.lg,
           ),

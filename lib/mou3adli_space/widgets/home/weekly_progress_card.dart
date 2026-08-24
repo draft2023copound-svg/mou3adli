@@ -83,7 +83,7 @@ class _Metric extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       margin: const EdgeInsets.symmetric(horizontal: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: RoyalRadius.md,
       ),
       child: Column(

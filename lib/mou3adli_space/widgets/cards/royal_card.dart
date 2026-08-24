@@ -139,7 +139,7 @@ class _RoyalCardState extends State<RoyalCard>
       case RoyalCardStyle.glass:
         return isDark
             ? RoyalColors.darkGlass
-            : Colors.white.withOpacity(0.72);
+            : Colors.white.withValues(alpha: 0.72);
       case RoyalCardStyle.outlined:
         return isDark ? RoyalColors.darkSurface : RoyalColors.surface;
       case RoyalCardStyle.flat:
@@ -157,8 +157,8 @@ class _RoyalCardState extends State<RoyalCard>
       case RoyalCardStyle.glass:
         return Border.all(
           color: isDark
-              ? Colors.white.withOpacity(0.15)
-              : Colors.white.withOpacity(0.35),
+              ? Colors.white.withValues(alpha: 0.15)
+              : Colors.white.withValues(alpha: 0.35),
           width: 1.0,
         );
       default:

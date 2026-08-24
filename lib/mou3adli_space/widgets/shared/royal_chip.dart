@@ -34,9 +34,9 @@ class RoyalChip extends StatelessWidget {
           curve: RoyalMotion.standard,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
-            color: selected ? baseColor : baseColor.withOpacity(0.08),
+            color: selected ? baseColor : baseColor.withValues(alpha: 0.08),
             borderRadius: RoyalRadius.full,
-            border: Border.all(color: baseColor.withOpacity(0.15)),
+            border: Border.all(color: baseColor.withValues(alpha: 0.15)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

@@ -32,7 +32,7 @@ class HomeworkSummaryCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.15),
+                  color: Colors.orange.withValues(alpha: 0.15),
                   borderRadius: RoyalRadius.md,
                 ),
                 child: const Icon(

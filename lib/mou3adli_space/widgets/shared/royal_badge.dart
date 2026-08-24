@@ -22,7 +22,7 @@ class RoyalBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: baseColor.withOpacity(0.12),
+        color: baseColor.withValues(alpha: 0.12),
         borderRadius: RoyalRadius.full,
       ),
       child: Row(

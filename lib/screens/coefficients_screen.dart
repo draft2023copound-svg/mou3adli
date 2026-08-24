@@ -66,9 +66,9 @@ class CoefficientsScreen extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: cw.kRoyalBlue.withOpacity(.08),
+                    color: cw.kRoyalBlue.withValues(alpha: .08),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: cw.kRoyalBlue.withOpacity(.15)),
+                    border: Border.all(color: cw.kRoyalBlue.withValues(alpha: .15)),
                   ),
                   child: Text(
                     title,
@@ -156,7 +156,7 @@ class CoefficientsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -198,7 +198,7 @@ class CoefficientsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -212,7 +212,7 @@ class CoefficientsScreen extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: cw.kRoyalBlue.withOpacity(0.08),
+                  color: cw.kRoyalBlue.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Icon(icon, color: cw.kRoyalBlue, size: 24),

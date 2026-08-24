@@ -306,7 +306,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
         Text('Classe', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: _selectedClassLevel,
+          initialValue: _selectedClassLevel,
           isExpanded: true,
           dropdownColor: surfaceColor,
           style: TextStyle(color: textPrimary),
@@ -352,7 +352,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
         Text(label, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: _selectedStream,
+          initialValue: _selectedStream,
           isExpanded: true,
           dropdownColor: surfaceColor,
           style: TextStyle(color: textPrimary),
@@ -388,7 +388,7 @@ class _LevelSelectionScreenState extends State<LevelSelectionScreen> {
         Text("Option", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: _selectedOption,
+          initialValue: _selectedOption,
           isExpanded: true,
           dropdownColor: surfaceColor,
           style: TextStyle(color: textPrimary),

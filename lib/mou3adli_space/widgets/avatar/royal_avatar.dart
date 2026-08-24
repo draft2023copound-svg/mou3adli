@@ -65,7 +65,7 @@ class RoyalAvatar extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: _ringColor.withOpacity(0.25),
+                  color: _ringColor.withValues(alpha: 0.25),
                   blurRadius: size * 0.3,
                   spreadRadius: 2,
                 ),

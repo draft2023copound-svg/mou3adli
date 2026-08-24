@@ -45,7 +45,7 @@ class TrendingSubjects extends StatelessWidget {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: item.color.withOpacity(0.12),
+                        color: item.color.withValues(alpha: 0.12),
                         borderRadius: RoyalRadius.md,
                       ),
                       child: Icon(

@@ -38,7 +38,7 @@ class RoyalMetricCard extends StatelessWidget {
           borderRadius: RoyalRadius.lg,
           boxShadow: RoyalShadows.soft,
           border: Border.all(
-            color: color.withOpacity(.12),
+            color: color.withValues(alpha: .12),
           ),
         ),
         child: Column(
@@ -50,7 +50,7 @@ class RoyalMetricCard extends StatelessWidget {
                   width: 46,
                   height: 46,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(.10),
+                    color: color.withValues(alpha: .10),
                     borderRadius: RoyalRadius.md,
                   ),
                   child: Icon(

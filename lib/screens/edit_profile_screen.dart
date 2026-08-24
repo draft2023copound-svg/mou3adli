@@ -363,13 +363,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: const Color(0xFF1C3F7A).withOpacity(0.15),
+                        color: const Color(0xFF1C3F7A).withValues(alpha: 0.15),
                         width: 3,
                       ),
                     ),
                     child: CircleAvatar(
                       radius: 48,
-                      backgroundColor: const Color(0xFF1C3F7A).withOpacity(0.08),
+                      backgroundColor: const Color(0xFF1C3F7A).withValues(alpha: 0.08),
                       backgroundImage: hasPhoto ? FileImage(File(photoUrl)) : null,
                       child: !hasPhoto
                           ? Text(
@@ -400,7 +400,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           border: Border.all(color: Colors.white, width: 3),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF1C3F7A).withOpacity(0.3),
+                              color: const Color(0xFF1C3F7A).withValues(alpha: 0.3),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -536,7 +536,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         Text('Classe', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: _selectedClassLevel,
+          initialValue: _selectedClassLevel,
           isExpanded: true,
           dropdownColor: surfaceColor,
           style: TextStyle(color: textPrimary),
@@ -582,7 +582,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         Text(label, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: _selectedStream,
+          initialValue: _selectedStream,
           isExpanded: true,
           dropdownColor: surfaceColor,
           style: TextStyle(color: textPrimary),
@@ -635,7 +635,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         Text("Option", style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: textPrimary)),
         const SizedBox(height: 8),
         DropdownButtonFormField<String>(
-          value: _selectedOption,
+          initialValue: _selectedOption,
           isExpanded: true,
           dropdownColor: surfaceColor,
           style: TextStyle(color: textPrimary),
@@ -691,9 +691,9 @@ class _PhotoOptionTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: Ink(
           decoration: BoxDecoration(
-            color: color.withOpacity(0.06),
+            color: color.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withOpacity(0.15)),
+            border: Border.all(color: color.withValues(alpha: 0.15)),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
@@ -702,7 +702,7 @@ class _PhotoOptionTile extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.12),
+                    color: color.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(icon, color: color, size: 22),
@@ -720,7 +720,7 @@ class _PhotoOptionTile extends StatelessWidget {
                 ),
                 Icon(
                   Icons.arrow_forward_ios_rounded,
-                  color: color.withOpacity(0.5),
+                  color: color.withValues(alpha: 0.5),
                   size: 16,
                 ),
               ],

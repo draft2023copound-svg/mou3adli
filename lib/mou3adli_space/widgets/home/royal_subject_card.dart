@@ -35,7 +35,7 @@ class RoyalSubjectCard extends StatelessWidget {
           color: isDark ? RoyalColors.darkCard : Colors.white,
           borderRadius: RoyalRadius.lg,
           border: Border.all(
-            color: color.withOpacity(0.15),
+            color: color.withValues(alpha: 0.15),
           ),
           boxShadow: RoyalShadows.soft,
         ),
@@ -46,7 +46,7 @@ class RoyalSubjectCard extends StatelessWidget {
               width: 46,
               height: 46,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
+                color: color.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
               child: Icon(

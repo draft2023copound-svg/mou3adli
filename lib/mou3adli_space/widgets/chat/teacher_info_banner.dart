@@ -58,7 +58,7 @@ class TeacherInfoBanner extends StatelessWidget {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: RoyalColors.gold400.withOpacity(0.3),
+                      color: RoyalColors.gold400.withValues(alpha: 0.3),
                       blurRadius: 20,
                       spreadRadius: 2,
                     ),
@@ -194,10 +194,10 @@ class _ActionButton extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
+            color: Colors.white.withValues(alpha: 0.15),
             borderRadius: RoyalRadius.md,
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
             ),
           ),
           child: Column(

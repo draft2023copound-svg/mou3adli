@@ -111,10 +111,10 @@ class _ActionItemState extends State<_ActionItem>
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: widget.color.withOpacity(0.12),
+                  color: widget.color.withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: widget.color.withOpacity(0.2),
+                    color: widget.color.withValues(alpha: 0.2),
                     width: 1,
                   ),
                 ),

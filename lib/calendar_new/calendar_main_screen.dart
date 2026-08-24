@@ -50,7 +50,7 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withValues(alpha: 0.04),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -122,8 +122,8 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                               shape: BoxShape.circle,
                               gradient: RadialGradient(
                                 colors: [
-                                  kRoyalBlue.withOpacity(0.08),
-                                  const Color(0xFFC5A059).withOpacity(0.04),
+                                  kRoyalBlue.withValues(alpha: 0.08),
+                                  const Color(0xFFC5A059).withValues(alpha: 0.04),
                                   Colors.transparent,
                                 ],
                                 stops: const [0.0, 0.5, 1.0],
@@ -137,7 +137,7 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                                 errorBuilder: (_, __, ___) => Icon(
                                   Icons.calendar_month_rounded,
                                   size: 60,
-                                  color: kRoyalBlue.withOpacity(0.3),
+                                  color: kRoyalBlue.withValues(alpha: 0.3),
                                 ),
                               ),
                             ),
@@ -195,12 +195,12 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(color: event.color.withOpacity(0.2), width: 1.5),
+        border: Border.all(color: event.color.withValues(alpha: 0.2), width: 1.5),
       ),
       child: Row(
         children: [
@@ -238,7 +238,7 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
                       decoration: BoxDecoration(
-                        color: event.typeColor.withOpacity(0.12),
+                        color: event.typeColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -326,7 +326,7 @@ class _CalendarMainScreenState extends State<CalendarMainScreen> {
                   const SizedBox(height: 12),
 
                   DropdownButtonFormField(
-                    value: selectedType,
+                    initialValue: selectedType,
                     decoration: InputDecoration(
                       hintText: 'Type',
                       filled: true,

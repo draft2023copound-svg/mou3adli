@@ -70,7 +70,7 @@ class AttachmentSheet extends StatelessWidget {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: items[index].$3.withOpacity(0.1),
+                          color: items[index].$3.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(

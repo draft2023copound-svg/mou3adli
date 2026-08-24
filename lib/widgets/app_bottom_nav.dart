@@ -18,7 +18,7 @@ class AppBottomNav extends StatelessWidget {
         color: AppColors.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
+            color: Colors.black.withValues(alpha: 0.06),
             blurRadius: 20,
             offset: const Offset(0, -4),
           ),
@@ -88,8 +88,8 @@ class _NavItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: isActive
               ? (isSpecial
-                  ? AppColors.matteGold.withOpacity(0.15)
-                  : AppColors.royalBlue.withOpacity(0.1))
+                  ? AppColors.matteGold.withValues(alpha: 0.15)
+                  : AppColors.royalBlue.withValues(alpha: 0.1))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),

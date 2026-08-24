@@ -22,7 +22,7 @@ class StatsOverview extends StatelessWidget {
         margin: const EdgeInsets.all(4),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: RoyalRadius.lg,
         ),
         child: Column(

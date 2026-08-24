@@ -23,7 +23,7 @@ class RoyalDivider extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             Colors.transparent,
-            RoyalColors.border.withOpacity(0.75),
+            RoyalColors.border.withValues(alpha: 0.75),
             Colors.transparent,
           ],
         ),

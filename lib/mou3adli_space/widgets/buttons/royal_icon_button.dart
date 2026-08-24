@@ -98,10 +98,10 @@ class _RoyalIconButtonState extends State<RoyalIconButton> {
         return RoyalColors.royalBlue600;
       case RoyalIconButtonStyle.soft:
         return isDark
-            ? RoyalColors.royalBlue800.withOpacity(0.3)
+            ? RoyalColors.royalBlue800.withValues(alpha: 0.3)
             : RoyalColors.royalBlue50;
       case RoyalIconButtonStyle.glass:
-        return Colors.white.withOpacity(0.65);
+        return Colors.white.withValues(alpha: 0.65);
       case RoyalIconButtonStyle.outlined:
         return Colors.transparent;
     }
@@ -115,7 +115,7 @@ class _RoyalIconButtonState extends State<RoyalIconButton> {
     }
     if (widget.style == RoyalIconButtonStyle.glass) {
       return Border.all(
-        color: Colors.white.withOpacity(0.30),
+        color: Colors.white.withValues(alpha: 0.30),
       );
     }
     return null;

@@ -83,7 +83,7 @@ class CalendarEvent {
     'date': date.toIso8601String(),
     'timeHour': time?.hour,
     'timeMinute': time?.minute,
-    'color': color.value,
+    'color': color.toARGB32(),
     'type': type.index,
     'note': note,
     'isPredefined': isPredefined,
